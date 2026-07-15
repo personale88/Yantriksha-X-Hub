@@ -5,14 +5,24 @@ import { hashPassword } from '@/lib/auth';
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { veltech_id, name, email, role, discipline, password } = body;
+    const { veltech_id, name, email, role, discipline, password, phone_number, year_of_studying, branch } = body;
 
     // 1. Basic validation
     if (!veltech_id || !name || !email || !role || !discipline || !password) {
       return NextResponse.json(
-        { success: false, error: 'All fields are required' },
+        { success: false, error: 'All primary fields are required' },
         { status: 400 }
       );
+    }
+
+    // Student fields validation
+    if (role === 'student') {
+      if (!phone_number || !year_of_studying || !branch) {
+        return NextResponse.json(
+          { success: false, error: 'Phone number, year of studying, and branch are required for students' },
+          { status: 400 }
+        );
+      }
     }
 
     // 2. Email domain validation
@@ -46,10 +56,21 @@ export async function POST(req: Request) {
 
     // 5. Insert into database
     try {
+      const parsedYear = year_of_studying ? parseInt(year_of_studying, 10) : null;
       await query(
-        `INSERT INTO users (veltech_id, name, email, role, discipline, password_hash) 
-         VALUES (?, ?, ?, ?, ?, ?)`,
-        [veltech_id, name, email.toLowerCase(), role, discipline, passwordHash]
+        `INSERT INTO users (veltech_id, name, email, role, discipline, password_hash, phone_number, year_of_studying, branch) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          veltech_id,
+          name,
+          email.toLowerCase(),
+          role,
+          discipline,
+          passwordHash,
+          phone_number || null,
+          parsedYear,
+          branch || null
+        ]
       );
     } catch (dbErr: any) {
       // Check for duplicate key error (MySQL code ER_DUP_ENTRY)
