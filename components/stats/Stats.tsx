@@ -9,7 +9,7 @@ const stats = [
 
 export default function Stats() {
   return (
-    <section className="bg-slate-950 py-20 text-white relative overflow-hidden">
+    <section className="bg-slate-950 py-10 text-white relative overflow-hidden">
 
       {/* Background glow */}
       <div className="absolute inset-0 bg-gradient-to-b from-blue-950/10 via-transparent to-transparent pointer-events-none" />
@@ -17,7 +17,7 @@ export default function Stats() {
       <div className="max-w-7xl mx-auto px-6 relative z-10">
 
         {/* Heading */}
-        <div className="text-center mb-12">
+        <div className="text-center mb-8">
           <h2 className="text-2xl font-extrabold text-gray-400 tracking-widest uppercase text-sm">
             The Numbers Speak For Themselves
           </h2>

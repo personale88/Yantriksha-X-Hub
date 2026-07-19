@@ -10,14 +10,19 @@ export default function Navbar() {
         <Link href="/" className="flex items-center gap-3 group">
           <div className="relative h-10 w-10 rounded-lg overflow-hidden border border-slate-700/50 group-hover:border-blue-500/60 transition-all duration-300 shadow-sm group-hover:shadow-blue-900/30">
             <Image
-              src="/logo.jpg"
+              src="/logo.png"
               alt="Yantriksha_X_Hub Logo"
               fill
-              className="object-cover"
+              className="object-contain"
+              style={{ mixBlendMode: 'screen' }}
             />
           </div>
-          <span className="text-lg font-bold bg-gradient-to-r from-blue-400 to-indigo-300 bg-clip-text text-transparent">
-            Yantriksha_X_Hub
+          <span className="text-lg font-bold flex items-center">
+            <span className="bg-gradient-to-r from-blue-400 to-blue-500 bg-clip-text text-transparent">Yantriksha</span>
+            <span className="inline-block relative h-7 w-9 mx-0.5 align-middle shrink-0">
+              <Image src="/logo.png" fill className="object-contain" style={{ mixBlendMode: 'screen' }} alt="X" />
+            </span>
+            <span className="bg-gradient-to-r from-indigo-300 to-amber-300 bg-clip-text text-transparent">Hub</span>
           </span>
         </Link>
 
@@ -28,6 +33,7 @@ export default function Navbar() {
             { label: "About", href: "/#about" },
             { label: "Roadmap", href: "/#roadmap" },
             { label: "Events", href: "/#events" },
+            { label: "Core Team", href: "/team" },
             { label: "Contact", href: "/#contact" },
           ].map(({ label, href }) => (
             <li key={label}>

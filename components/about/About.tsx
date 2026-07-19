@@ -8,7 +8,7 @@ const provisions = [
 
 export default function About() {
   return (
-    <section id="about" className="bg-slate-950 text-white py-28 relative overflow-hidden">
+    <section id="about" className="bg-slate-950 text-white py-16 relative overflow-hidden">
 
       {/* Background decorations */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-blue-600/4 rounded-full blur-[180px] pointer-events-none" />

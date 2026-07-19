@@ -73,6 +73,7 @@ export default function RegisterPage() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const selectedCollege = COLLEGES.find(c => c.value === formData.college) || COLLEGES[0];
   const passwordsMatch = confirmPassword === '' ? null : formData.password === confirmPassword;
@@ -95,8 +96,8 @@ export default function RegisterPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Registration failed');
-      setSuccess('Account created! Redirecting to login...');
-      setTimeout(() => router.push('/login'), 2000);
+      setSuccess('Account request submitted!');
+      setShowSuccessModal(true);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -124,10 +125,14 @@ export default function RegisterPage() {
         <div>
           <Link href="/" className="flex items-center gap-3 group w-fit">
             <div className="relative h-11 w-11 rounded-xl overflow-hidden border border-slate-700/50 group-hover:border-blue-500/60 transition shadow-lg">
-              <Image src="/logo.jpg" alt="Yantriksha_X_Hub" fill className="object-cover" />
+              <Image src="/logo.png" alt="Yantriksha_X_Hub" fill className="object-contain" style={{ mixBlendMode: 'screen' }} />
             </div>
-            <span className="text-lg font-bold bg-gradient-to-r from-blue-400 to-indigo-300 bg-clip-text text-transparent">
-              Yantriksha_X_Hub
+            <span className="text-lg font-bold flex items-center">
+              <span className="bg-gradient-to-r from-blue-400 to-blue-500 bg-clip-text text-transparent">Yantriksha</span>
+              <span className="inline-block relative h-7 w-9 mx-0.5 align-middle shrink-0">
+                <Image src="/logo.png" fill className="object-contain" style={{ mixBlendMode: 'screen' }} alt="X" />
+              </span>
+              <span className="bg-gradient-to-r from-indigo-300 to-amber-300 bg-clip-text text-transparent">Hub</span>
             </span>
           </Link>
 
@@ -175,12 +180,16 @@ export default function RegisterPage() {
 
           {/* Mobile logo */}
           <div className="lg:hidden flex items-center justify-center gap-3 mb-8">
-            <div className="relative h-9 w-9 rounded-lg overflow-hidden border border-slate-700">
-              <Image src="/logo.jpg" alt="logo" fill className="object-cover" />
-            </div>
-            <span className="text-base font-bold bg-gradient-to-r from-blue-400 to-indigo-300 bg-clip-text text-transparent">
-              Yantriksha_X_Hub
-            </span>
+             <div className="relative h-9 w-9 rounded-lg overflow-hidden border border-slate-700">
+               <Image src="/logo.png" alt="logo" fill className="object-contain" style={{ mixBlendMode: 'screen' }} />
+             </div>
+              <span className="text-base font-bold flex items-center">
+               <span className="bg-gradient-to-r from-blue-400 to-blue-500 bg-clip-text text-transparent">Yantriksha</span>
+               <span className="inline-block relative h-6 w-8 mx-0.5 align-middle shrink-0">
+                 <Image src="/logo.png" fill className="object-contain" style={{ mixBlendMode: 'screen' }} alt="X" />
+               </span>
+               <span className="bg-gradient-to-r from-indigo-300 to-amber-300 bg-clip-text text-transparent">Hub</span>
+              </span>
           </div>
 
           {/* Form card */}
@@ -382,6 +391,36 @@ export default function RegisterPage() {
           </div>
         </div>
       </div>
+      
+      {/* ── Success Modal Approval Notification ── */}
+      {showSuccessModal && (
+        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-6 z-50 animate-fadeIn animate-duration-300">
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 max-w-md w-full relative text-center shadow-2xl">
+            {/* Glowing success icon */}
+            <div className="mx-auto h-16 w-16 bg-emerald-950/60 border border-emerald-500/30 rounded-full flex items-center justify-center text-3xl mb-6 shadow-[0_0_20px_rgba(16,185,129,0.2)]">
+              🎉
+            </div>
+            
+            {/* Modal Title */}
+            <h3 className="text-2xl font-extrabold text-white tracking-tight">
+              Join Request Submitted!
+            </h3>
+            
+            {/* Modal Description */}
+            <p className="text-gray-400 text-sm mt-4 leading-relaxed font-light">
+              Your registration details have been submitted successfully. Your request is now pending approval by the Admin. Once accepted, you will be able to log in to access the Yantriksha Hub dashboard.
+            </p>
+            
+            {/* OK Button */}
+            <button
+              onClick={() => router.push('/')}
+              className="mt-8 w-full bg-blue-600 hover:bg-blue-750 text-white font-bold py-3.5 rounded-xl transition duration-200 shadow-lg shadow-blue-900/30"
+            >
+              Okay
+            </button>
+          </div>
+        </div>
+      )}
 
     </main>
   );

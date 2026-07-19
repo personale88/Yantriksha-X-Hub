@@ -75,7 +75,7 @@ const features = [
 
 export default function Features() {
   return (
-    <section id="events" className="bg-slate-950 py-28 text-white relative overflow-hidden">
+    <section id="events" className="bg-slate-950 py-16 text-white relative overflow-hidden">
 
       {/* Background decorative glows */}
       <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-blue-600/5 rounded-full blur-[140px] pointer-events-none" />
@@ -84,7 +84,7 @@ export default function Features() {
       <div className="max-w-7xl mx-auto px-6 relative z-10">
 
         {/* Section Header */}
-        <div className="text-center mb-20">
+        <div className="text-center mb-10">
           <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-bold uppercase tracking-widest mb-6">
             ✦ Why Join Us?
           </span>

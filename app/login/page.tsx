@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
@@ -29,7 +30,11 @@ export default function LoginPage() {
         throw new Error(data.error || 'Invalid credentials');
       }
 
-      router.push('/dashboard');
+      if (data.user.role === 'admin') {
+        router.push('/superadmin');
+      } else {
+        router.push('/dashboard');
+      }
       router.refresh(); // Refresh route so server layout updates
     } catch (err: any) {
       setError(err.message);
@@ -45,8 +50,15 @@ export default function LoginPage() {
           Login
         </h1>
 
-        <p className="text-gray-400 text-center mt-3">
-          Welcome back to Yantriksha_X_Hub
+        <p className="text-gray-400 text-center mt-3 flex items-center justify-center gap-1.5">
+          Welcome back to
+          <span className="font-bold flex items-center text-sm text-white">
+            <span className="bg-gradient-to-r from-blue-400 to-blue-500 bg-clip-text text-transparent">Yantriksha</span>
+            <span className="inline-block relative h-6 w-8 mx-0.5 align-middle shrink-0">
+              <Image src="/logo.png" fill className="object-contain" style={{ mixBlendMode: 'screen' }} alt="X" />
+            </span>
+            <span className="bg-gradient-to-r from-indigo-300 to-amber-300 bg-clip-text text-transparent">Hub</span>
+          </span>
         </p>
 
         {error && (

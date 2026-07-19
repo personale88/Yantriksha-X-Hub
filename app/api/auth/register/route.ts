@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 import { hashPassword } from '@/lib/auth';
+import { logActivity } from '@/lib/logger';
+import { sendEmail } from '@/lib/email';
 
 export async function POST(req: Request) {
   try {
@@ -64,8 +66,8 @@ export async function POST(req: Request) {
     try {
       const parsedYear = year_of_studying ? parseInt(year_of_studying, 10) : null;
       await query(
-        `INSERT INTO users (veltech_id, name, email, role, discipline, password_hash, phone_number, year_of_studying, branch) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        `INSERT INTO users (veltech_id, name, email, role, discipline, password_hash, phone_number, year_of_studying, branch, status) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           // veltech_id field stores the student ID (may be from any college)
           `${college || 'vel_tech'}:${veltech_id}`,
@@ -76,7 +78,8 @@ export async function POST(req: Request) {
           passwordHash,
           phone_number || null,
           parsedYear,
-          branch || null
+          branch || null,
+          'pending'
         ]
       );
     } catch (dbErr: any) {
@@ -89,6 +92,62 @@ export async function POST(req: Request) {
       }
       throw dbErr;
     }
+
+    const newUsers = await query('SELECT id FROM users WHERE email = ?', [emailLower]);
+    const newUserId = newUsers && newUsers.length > 0 ? newUsers[0].id : null;
+    await logActivity(newUserId, name, role, emailLower, `Registered new user account with role: ${role}`, 'Auth', 'Success');
+
+    // 6. Send Email Notifications
+    // Email to candidate user
+    await sendEmail({
+      to: emailLower,
+      subject: 'Join Request Submitted - Yantriksha X Hub',
+      html: `
+        <div style="font-family: sans-serif; max-width: 600px; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px; background-color: #ffffff;">
+          <h2 style="color: #2563eb;">Welcome to Yantriksha X Hub!</h2>
+          <p>Dear <strong>${name}</strong>,</p>
+          <p>Your join request to the academic incubation club has been submitted successfully.</p>
+          <p>Your application details are currently pending review and approval by the Hub Administrators. Once approved, you will receive a notification email permitting you to log in.</p>
+          <p>Thank you for your interest and patience!</p>
+          <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
+          <p style="font-size: 12px; color: #64748b;">This is an automated notification. Please do not reply directly to this email.</p>
+        </div>
+      `
+    });
+
+    // Email to Super Admin
+    await sendEmail({
+      to: 'vtu28891@veltech.edu.in',
+      subject: 'New Club Joining Request - Yantriksha X Hub',
+      html: `
+        <div style="font-family: sans-serif; max-width: 600px; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px; background-color: #ffffff;">
+          <h2 style="color: #f59e0b;">Pending Joining Request</h2>
+          <p>Hello Admin,</p>
+          <p>A new student has submitted an registration request to join Yantriksha X Hub:</p>
+          <table style="width: 100%; border-collapse: collapse; margin: 15px 0;">
+            <tr>
+              <td style="padding: 6px 0; font-weight: bold; width: 120px;">Name:</td>
+              <td>${name}</td>
+            </tr>
+            <tr>
+              <td style="padding: 6px 0; font-weight: bold;">Email:</td>
+              <td>${emailLower}</td>
+            </tr>
+            <tr>
+              <td style="padding: 6px 0; font-weight: bold;">Role:</td>
+              <td style="text-transform: capitalize;">${role}</td>
+            </tr>
+            <tr>
+              <td style="padding: 6px 0; font-weight: bold;">Discipline:</td>
+              <td style="text-transform: capitalize;">${discipline}</td>
+            </tr>
+          </table>
+          <p>Please log in to the <a href="http://localhost:3000/superadmin" style="color: #2563eb; font-weight: bold;">Super Admin Portal</a> to review and approve/reject this request.</p>
+          <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
+          <p style="font-size: 12px; color: #64748b;">Yantriksha X Hub System Automation</p>
+        </div>
+      `
+    });
 
     return NextResponse.json(
       { success: true, message: 'User registered successfully!' },

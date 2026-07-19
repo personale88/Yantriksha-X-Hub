@@ -1,0 +1,106 @@
+
+========================================
+[TIMESTAMP] 2026-07-19T19:02:37.482Z
+[TO] vtu28895@veltech.edu.in
+[SUBJECT] Join Request Submitted - Yantriksha X Hub
+[BODY]
+
+        <div style="font-family: sans-serif; max-width: 600px; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px; background-color: #ffffff;">
+          <h2 style="color: #2563eb;">Welcome to Yantriksha X Hub!</h2>
+          <p>Dear <strong>jeevi</strong>,</p>
+          <p>Your join request to the academic incubation club has been submitted successfully.</p>
+          <p>Your application details are currently pending review and approval by the Hub Administrators. Once approved, you will receive a notification email permitting you to log in.</p>
+          <p>Thank you for your interest and patience!</p>
+          <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
+          <p style="font-size: 12px; color: #64748b;">This is an automated notification. Please do not reply directly to this email.</p>
+        </div>
+      
+========================================
+
+========================================
+[TIMESTAMP] 2026-07-19T19:02:41.068Z
+[TO] vtu28891@veltech.edu.in
+[SUBJECT] New Club Joining Request - Yantriksha X Hub
+[BODY]
+
+        <div style="font-family: sans-serif; max-width: 600px; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px; background-color: #ffffff;">
+          <h2 style="color: #f59e0b;">Pending Joining Request</h2>
+          <p>Hello Admin,</p>
+          <p>A new student has submitted an registration request to join Yantriksha X Hub:</p>
+          <table style="width: 100%; border-collapse: collapse; margin: 15px 0;">
+            <tr>
+              <td style="padding: 6px 0; font-weight: bold; width: 120px;">Name:</td>
+              <td>jeevi</td>
+            </tr>
+            <tr>
+              <td style="padding: 6px 0; font-weight: bold;">Email:</td>
+              <td>vtu28895@veltech.edu.in</td>
+            </tr>
+            <tr>
+              <td style="padding: 6px 0; font-weight: bold;">Role:</td>
+              <td style="text-transform: capitalize;">student</td>
+            </tr>
+            <tr>
+              <td style="padding: 6px 0; font-weight: bold;">Discipline:</td>
+              <td style="text-transform: capitalize;">engineering</td>
+            </tr>
+          </table>
+          <p>Please log in to the <a href="http://localhost:3000/superadmin" style="color: #2563eb; font-weight: bold;">Super Admin Portal</a> to review and approve/reject this request.</p>
+          <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
+          <p style="font-size: 12px; color: #64748b;">Yantriksha X Hub System Automation</p>
+        </div>
+      
+========================================
+
+========================================
+[TIMESTAMP] 2026-07-19T19:09:33.276Z
+[TO] boddedavignesh3@gmail.com (Original: vtu28514@veltech.edu.in)
+[SUBJECT] [SANDBOX FOR: vtu28514@veltech.edu.in] Join Request Submitted - Yantriksha X Hub
+[BODY]
+
+        <div style="font-family: sans-serif; max-width: 600px; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px; background-color: #ffffff;">
+          <h2 style="color: #2563eb;">Welcome to Yantriksha X Hub!</h2>
+          <p>Dear <strong>reena</strong>,</p>
+          <p>Your join request to the academic incubation club has been submitted successfully.</p>
+          <p>Your application details are currently pending review and approval by the Hub Administrators. Once approved, you will receive a notification email permitting you to log in.</p>
+          <p>Thank you for your interest and patience!</p>
+          <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
+          <p style="font-size: 12px; color: #64748b;">This is an automated notification. Please do not reply directly to this email.</p>
+        </div>
+      
+========================================
+
+========================================
+[TIMESTAMP] 2026-07-19T19:09:37.573Z
+[TO] boddedavignesh3@gmail.com (Original: vtu28891@veltech.edu.in)
+[SUBJECT] [SANDBOX FOR: vtu28891@veltech.edu.in] New Club Joining Request - Yantriksha X Hub
+[BODY]
+
+        <div style="font-family: sans-serif; max-width: 600px; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px; background-color: #ffffff;">
+          <h2 style="color: #f59e0b;">Pending Joining Request</h2>
+          <p>Hello Admin,</p>
+          <p>A new student has submitted an registration request to join Yantriksha X Hub:</p>
+          <table style="width: 100%; border-collapse: collapse; margin: 15px 0;">
+            <tr>
+              <td style="padding: 6px 0; font-weight: bold; width: 120px;">Name:</td>
+              <td>reena</td>
+            </tr>
+            <tr>
+              <td style="padding: 6px 0; font-weight: bold;">Email:</td>
+              <td>vtu28514@veltech.edu.in</td>
+            </tr>
+            <tr>
+              <td style="padding: 6px 0; font-weight: bold;">Role:</td>
+              <td style="text-transform: capitalize;">student</td>
+            </tr>
+            <tr>
+              <td style="padding: 6px 0; font-weight: bold;">Discipline:</td>
+              <td style="text-transform: capitalize;">engineering</td>
+            </tr>
+          </table>
+          <p>Please log in to the <a href="http://localhost:3000/superadmin" style="color: #2563eb; font-weight: bold;">Super Admin Portal</a> to review and approve/reject this request.</p>
+          <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
+          <p style="font-size: 12px; color: #64748b;">Yantriksha X Hub System Automation</p>
+        </div>
+      
+========================================

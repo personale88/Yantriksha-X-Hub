@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 import { verifyAuth } from '@/lib/auth';
+import { sendEmail } from '@/lib/email';
 
 export async function PUT(
   req: Request,
@@ -49,6 +50,42 @@ export async function PUT(
         'UPDATE teams SET current_stage = GREATEST(current_stage, ?) WHERE id = ?',
         [nextStage, team_id]
       );
+
+      // Notify all team members via email
+      try {
+        const teamRes = await query('SELECT name, leader_id FROM teams WHERE id = ?', [team_id]);
+        const teamName = teamRes && teamRes.length > 0 ? teamRes[0].name : `Team #${team_id}`;
+        const leaderId = teamRes && teamRes.length > 0 ? teamRes[0].leader_id : null;
+
+        const members = await query(
+          `SELECT email, name FROM users WHERE id = ?
+           UNION
+           SELECT u.email, u.name FROM team_members tm JOIN users u ON tm.user_id = u.id WHERE tm.team_id = ?`,
+          [leaderId, team_id]
+        );
+
+        if (members && members.length > 0) {
+          for (const member of members) {
+            await sendEmail({
+              to: member.email,
+              subject: `Roadmap Update: ${teamName} Advanced to Step ${nextStage}!`,
+              html: `
+                <div style="font-family: sans-serif; max-width: 600px; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px; background-color: #ffffff;">
+                  <h2 style="color: #059669;">🚀 Roadmap Milestone Cleared!</h2>
+                  <p>Dear <strong>${member.name}</strong>,</p>
+                  <p>Congratulations! Your team <strong>${teamName}</strong> has cleared the validation checks for <strong>Step ${milestone_step}</strong> of the incubator roadmap.</p>
+                  <p>Your team has officially advanced to: <strong style="color: #2563eb;">Step ${nextStage}</strong>.</p>
+                  <p>Log in to your dashboard to review the evaluation feedback and unlock your next milestone deliverables.</p>
+                  <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
+                  <p style="font-size: 12px; color: #64748b;">Yantriksha X Hub Incubation System</p>
+                </div>
+              `
+            });
+          }
+        }
+      } catch (emailErr) {
+        console.error('Milestone email notification failed:', emailErr);
+      }
     }
 
     return NextResponse.json({ success: true, message: 'Report updated successfully' });

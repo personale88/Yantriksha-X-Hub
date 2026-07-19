@@ -538,10 +538,14 @@ export default function DashboardClient({
         <div className="p-6 border-b border-slate-800/60 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3 group">
             <div className="relative h-9 w-9 rounded-lg overflow-hidden border border-slate-700/60 group-hover:border-blue-500/50 transition">
-              <Image src="/logo.jpg" alt="logo" fill className="object-cover" />
+              <Image src="/logo.png" alt="logo" fill className="object-contain" style={{ mixBlendMode: 'screen' }} />
             </div>
-            <span className="text-base font-extrabold bg-gradient-to-r from-blue-400 via-indigo-300 to-amber-300 bg-clip-text text-transparent">
-              Yantriksha_X_Hub
+            <span className="text-base font-extrabold flex items-center">
+              <span className="bg-gradient-to-r from-blue-400 to-blue-500 bg-clip-text text-transparent">Yantriksha</span>
+              <span className="inline-block relative h-6 w-8 mx-0.5 align-middle shrink-0">
+                <Image src="/logo.png" fill className="object-contain" style={{ mixBlendMode: 'screen' }} alt="X" />
+              </span>
+              <span className="bg-gradient-to-r from-indigo-300 to-amber-300 bg-clip-text text-transparent">Hub</span>
             </span>
           </Link>
         </div>

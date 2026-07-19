@@ -36,7 +36,7 @@ const stages = [
 
 export default function Stages() {
   return (
-    <section className="bg-slate-900/50 text-white py-28 relative overflow-hidden">
+    <section className="bg-slate-900/50 text-white py-16 relative overflow-hidden">
 
       {/* Background glows */}
       <div className="absolute top-0 left-1/3 w-[400px] h-[400px] bg-blue-600/5 rounded-full blur-[120px] pointer-events-none" />
@@ -45,7 +45,7 @@ export default function Stages() {
       <div className="max-w-7xl mx-auto px-6 relative z-10">
 
         {/* Header */}
-        <div className="text-center mb-20">
+        <div className="text-center mb-10">
           <span className="section-pill">✦ Student Journey</span>
 
           <h2 className="text-5xl md:text-6xl font-extrabold tracking-tight leading-tight">
