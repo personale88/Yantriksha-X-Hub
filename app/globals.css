@@ -144,3 +144,16 @@ h1, h2, h3, h4, h5, h6 {
 html {
   scroll-behavior: smooth;
 }
+
+/* ── Suppress browser autofill background flash on dark inputs ── */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px rgb(30, 41, 59) inset !important;
+  box-shadow: 0 0 0 1000px rgb(30, 41, 59) inset !important;
+  -webkit-text-fill-color: #ffffff !important;
+  caret-color: #ffffff;
+  border-color: rgba(71, 85, 105, 0.6) !important;
+  transition: background-color 9999s ease-in-out 0s;
+}

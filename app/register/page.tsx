@@ -37,6 +37,10 @@ export default function RegisterPage() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+
+  const passwordsMatch = confirmPassword === '' ? null : formData.password === confirmPassword;
 
   const selectedCollege = COLLEGES.find(c => c.value === formData.college) || COLLEGES[0];
 
@@ -54,6 +58,18 @@ export default function RegisterPage() {
     e.preventDefault();
     setError('');
     setSuccess('');
+    setPasswordError('');
+
+    // Password match check
+    if (formData.password !== confirmPassword) {
+      setPasswordError('Passwords do not match. Please re-enter.');
+      return;
+    }
+    if (formData.password.length < 8) {
+      setPasswordError('Password must be at least 8 characters.');
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -80,7 +96,17 @@ export default function RegisterPage() {
     }
   };
 
-  const inputClass = "w-full p-4 rounded-xl bg-slate-800/80 text-white outline-none border border-slate-700/60 focus:border-blue-500 focus:bg-slate-800 transition placeholder-gray-600 text-sm";
+  const inputClass = [
+    "w-full p-4 rounded-xl text-white outline-none border transition text-sm",
+    "placeholder-gray-600",
+    // Dark background override — fights browser autofill white flash
+    "bg-slate-800/80 border-slate-700/60",
+    "focus:border-blue-500 focus:bg-slate-800",
+    // Override Chrome/Edge autofill yellow/white background
+    "[&:-webkit-autofill]:bg-slate-800",
+    "[&:-webkit-autofill]:shadow-[inset_0_0_0px_1000px_rgb(30,41,59)]",
+    "[&:-webkit-autofill]:[-webkit-text-fill-color:#fff]",
+  ].join(' ');
   const labelClass = "block text-gray-400 mb-2 text-sm font-medium";
 
   return (
@@ -221,19 +247,61 @@ export default function RegisterPage() {
               </div>
             </div>
 
-            {/* ── Password ── */}
-            <div>
-              <label className={labelClass}>Password</label>
-              <input
-                type="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                placeholder="Set a strong password"
-                className={inputClass}
-                required
-              />
+            {/* ── Password + Confirm Password side by side ── */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+              {/* Password */}
+              <div>
+                <label className={labelClass}>Password</label>
+                <input
+                  type="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  placeholder="Min. 8 characters"
+                  className={inputClass}
+                  autoComplete="new-password"
+                  required
+                />
+              </div>
+
+              {/* Confirm Password */}
+              <div>
+                <label className={`${labelClass} flex items-center gap-2`}>
+                  Confirm Password
+                  {passwordsMatch === true && (
+                    <span className="text-emerald-400 text-xs font-bold">✓ Match</span>
+                  )}
+                  {passwordsMatch === false && (
+                    <span className="text-red-400 text-xs font-bold">✗ No match</span>
+                  )}
+                </label>
+                <input
+                  type="password"
+                  name="confirmPassword"
+                  value={confirmPassword}
+                  onChange={e => setConfirmPassword(e.target.value)}
+                  placeholder="Re-enter your password"
+                  className={`${inputClass} ${
+                    passwordsMatch === false
+                      ? 'border-red-500/60 focus:border-red-500'
+                      : passwordsMatch === true
+                      ? 'border-emerald-500/60 focus:border-emerald-500'
+                      : ''
+                  }`}
+                  autoComplete="new-password"
+                  required
+                />
+              </div>
+
             </div>
+
+            {/* Password error inline */}
+            {passwordError && (
+              <p className="text-red-400 text-xs flex items-center gap-1.5">
+                ❌ {passwordError}
+              </p>
+            )}
 
             {/* ── Role + Discipline side by side ── */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
