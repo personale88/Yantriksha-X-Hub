@@ -85,3 +85,45 @@ export async function POST(req: Request) {
     return NextResponse.json({ success: false, error: 'Internal Server Error' }, { status: 500 });
   }
 }
+
+// PATCH /api/teams - Update team details (leader only)
+export async function PATCH(req: Request) {
+  try {
+    const auth = await verifyAuth(req);
+    if (!auth) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const body = await req.json();
+    const { team_name, sector } = body;
+
+    if (!team_name || !sector) {
+      return NextResponse.json({ success: false, error: 'Team name and sector are required' }, { status: 400 });
+    }
+
+    // Verify user is leader
+    const teams = await query('SELECT id FROM teams WHERE leader_id = ?', [auth.userId]);
+    if (!teams || teams.length === 0) {
+      return NextResponse.json({ success: false, error: 'Only the team leader can update team details' }, { status: 403 });
+    }
+    const teamId = teams[0].id;
+
+    try {
+      await query(
+        'UPDATE teams SET team_name = ?, sector = ? WHERE id = ?',
+        [team_name, sector, teamId]
+      );
+      const compliance = await getTeamCompliance(teamId);
+      return NextResponse.json({ success: true, team: compliance });
+    } catch (dbErr: any) {
+      if (dbErr.code === 'ER_DUP_ENTRY' || dbErr.errno === 1062) {
+        return NextResponse.json({ success: false, error: 'Team name is already taken' }, { status: 409 });
+      }
+      throw dbErr;
+    }
+  } catch (err: any) {
+    console.error('Error updating team:', err);
+    return NextResponse.json({ success: false, error: 'Internal Server Error' }, { status: 500 });
+  }
+}
+

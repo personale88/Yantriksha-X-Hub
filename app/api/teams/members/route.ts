@@ -3,6 +3,50 @@ import { query } from '@/lib/db';
 import { verifyAuth } from '@/lib/auth';
 import { getTeamCompliance } from '@/lib/teams';
 
+// GET /api/teams/members - Get all members of a team
+export async function GET(req: Request) {
+  try {
+    const auth = await verifyAuth(req);
+    if (!auth) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(req.url);
+    const teamIdParam = searchParams.get('team_id');
+
+    if (!teamIdParam) {
+      return NextResponse.json({ success: false, error: 'Team ID is required' }, { status: 400 });
+    }
+
+    const teamId = parseInt(teamIdParam, 10);
+
+    // Retrieve leader user_id
+    const teams = await query('SELECT leader_id FROM teams WHERE id = ?', [teamId]);
+    if (!teams || teams.length === 0) {
+      return NextResponse.json({ success: false, error: 'Team not found' }, { status: 404 });
+    }
+    const leaderId = teams[0].leader_id;
+
+    // Fetch leader and members list
+    const members = await query(
+      `SELECT id, name, email, role, discipline, branch, year_of_studying, phone_number, veltech_id 
+       FROM users 
+       WHERE id = ?
+       UNION
+       SELECT u.id, u.name, u.email, u.role, u.discipline, u.branch, u.year_of_studying, u.phone_number, u.veltech_id 
+       FROM team_members tm 
+       JOIN users u ON tm.user_id = u.id 
+       WHERE tm.team_id = ?`,
+      [leaderId, teamId]
+    );
+
+    return NextResponse.json({ success: true, members });
+  } catch (err: any) {
+    console.error('Error fetching team members:', err);
+    return NextResponse.json({ success: false, error: 'Internal Server Error' }, { status: 500 });
+  }
+}
+
 // POST /api/teams/members - Add a member to the team
 export async function POST(req: Request) {
   try {
