@@ -1,0 +1,79 @@
+@import "tailwindcss";
+
+:root {
+  --background: #030712;
+  --foreground: #f3f4f6;
+  
+  /* Brand colors matching the logo */
+  --brand-blue-500: #2563eb;
+  --brand-blue-400: #60a5fa;
+  --brand-blue-600: #1d4ed8;
+  --brand-amber-500: #eab308;
+  --brand-amber-400: #fbbf24;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  
+  --font-sans: var(--font-plus-jakarta), sans-serif;
+  --font-display: var(--font-space-grotesk), sans-serif;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+}
+
+/* Custom UI utilities styled according to the logo's deep space theme */
+.bg-space-grid {
+  position: relative;
+  background-color: #030712;
+  background-image: 
+    linear-gradient(rgba(37, 99, 235, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(37, 99, 235, 0.04) 1px, transparent 1px);
+  background-size: 50px 50px;
+}
+
+.bg-space-grid::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: radial-gradient(circle at 80% 20%, rgba(37, 99, 235, 0.15) 0%, transparent 50%),
+              radial-gradient(circle at 20% 80%, rgba(234, 179, 8, 0.08) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.glass-card {
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card:hover {
+  border-color: rgba(37, 99, 235, 0.3);
+  box-shadow: 0 0 25px rgba(37, 99, 235, 0.15);
+  transform: translateY(-2px);
+}
+
+.glass-card-amber:hover {
+  border-color: rgba(234, 179, 8, 0.3);
+  box-shadow: 0 0 25px rgba(234, 179, 8, 0.1);
+  transform: translateY(-2px);
+}
+
+.text-glow-blue {
+  text-shadow: 0 0 15px rgba(96, 165, 250, 0.5);
+}
+
+.text-glow-amber {
+  text-shadow: 0 0 15px rgba(251, 191, 36, 0.5);
+}
+
