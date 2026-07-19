@@ -1,56 +1,50 @@
 import Link from "next/link";
-   export default function Navbar() {
-     return (
-      <nav className="w-full bg-slate-900 text-white shadow-md">
-        <div className="max-w-7xl mx-auto flex justify-between items-center px-8 py-4">
+import Image from "next/image";
+
+export default function Navbar() {
+  return (
+    <nav className="navbar-glass w-full fixed top-0 left-0 right-0 z-50">
+      <div className="max-w-7xl mx-auto flex justify-between items-center px-8 py-3">
 
         {/* Logo */}
         <Link href="/" className="flex items-center gap-3 group">
-          <img 
-            src="/logo.jpg" 
-            alt="Yantriksha X Hub Logo" 
-            className="h-10 w-auto rounded border border-slate-700 group-hover:border-blue-500 transition" 
-          />
-          <span className="text-2xl font-bold text-blue-500 group-hover:text-blue-400 transition">
+          <div className="relative h-10 w-10 rounded-lg overflow-hidden border border-slate-700/50 group-hover:border-blue-500/60 transition-all duration-300 shadow-sm group-hover:shadow-blue-900/30">
+            <Image
+              src="/logo.jpg"
+              alt="Yantriksha X Hub Logo"
+              fill
+              className="object-cover"
+            />
+          </div>
+          <span className="text-lg font-bold bg-gradient-to-r from-blue-400 to-indigo-300 bg-clip-text text-transparent">
             Yantriksha X Hub
           </span>
         </Link>
 
         {/* Menu */}
-        <ul className="flex gap-8">
-          <li>
-            <Link href="/#home" className="cursor-pointer hover:text-blue-400 transition">
-              Home
-            </Link>
-          </li>
-          <li>
-            <Link href="/#about" className="cursor-pointer hover:text-blue-400 transition">
-              About
-            </Link>
-          </li>
-          <li>
-            <Link href="/#roadmap" className="cursor-pointer hover:text-blue-400 transition">
-              Roadmap
-            </Link>
-          </li>
-          <li>
-            <Link href="/#events" className="cursor-pointer hover:text-blue-400 transition">
-              Events
-            </Link>
-          </li>
-          <li>
-            <Link href="/#contact" className="cursor-pointer hover:text-blue-400 transition">
-              Contact
-            </Link>
-          </li>
+        <ul className="hidden md:flex items-center gap-8">
+          {[
+            { label: "Home", href: "/#home" },
+            { label: "About", href: "/#about" },
+            { label: "Roadmap", href: "/#roadmap" },
+            { label: "Events", href: "/#events" },
+            { label: "Contact", href: "/#contact" },
+          ].map(({ label, href }) => (
+            <li key={label}>
+              <Link href={href} className="nav-link">
+                {label}
+              </Link>
+            </li>
+          ))}
         </ul>
 
-        {/* Login Button */}
+        {/* CTA Button */}
         <Link href="/login">
-  <button className="bg-blue-600 px-5 py-2 rounded-lg hover:bg-blue-700 transition">
-    Login
-  </button>
-</Link>
+          <button className="relative overflow-hidden group bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-all duration-300 shadow-lg shadow-blue-900/30 border border-blue-500/30 hover:shadow-blue-700/40 hover:-translate-y-0.5">
+            <span className="relative z-10">Login →</span>
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          </button>
+        </Link>
 
       </div>
     </nav>

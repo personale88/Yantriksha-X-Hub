@@ -13,7 +13,7 @@
 }
 
 @theme inline {
-  --color-background: var(--background);
+  --color-background: var(--background);\
   --color-foreground: var(--foreground);
   
   --font-sans: var(--font-plus-jakarta), sans-serif;
@@ -28,6 +28,23 @@ body {
 
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-display);
+}
+
+/* Section label pill */
+.section-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 1rem;
+  border-radius: 9999px;
+  background: rgba(37, 99, 235, 0.1);
+  border: 1px solid rgba(37, 99, 235, 0.2);
+  color: #60a5fa;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  margin-bottom: 1.5rem;
 }
 
 /* Custom UI utilities styled according to the logo's deep space theme */
@@ -50,17 +67,19 @@ h1, h2, h3, h4, h5, h6 {
   z-index: 0;
 }
 
+/* Glassmorphic card base */
 .glass-card {
   background: rgba(15, 23, 42, 0.65);
-  backdrop-filter: blur(12px);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   border: 1px solid rgba(255, 255, 255, 0.06);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .glass-card:hover {
   border-color: rgba(37, 99, 235, 0.3);
-  box-shadow: 0 0 25px rgba(37, 99, 235, 0.15);
-  transform: translateY(-2px);
+  box-shadow: 0 0 30px rgba(37, 99, 235, 0.12), 0 8px 32px rgba(0,0,0,0.4);
+  transform: translateY(-3px);
 }
 
 .glass-card-amber:hover {
@@ -69,15 +88,59 @@ h1, h2, h3, h4, h5, h6 {
   transform: translateY(-2px);
 }
 
+/* Glow text effects */
 .text-glow-blue {
-  text-shadow: 0 0 15px rgba(96, 165, 250, 0.5);
+  text-shadow: 0 0 20px rgba(96, 165, 250, 0.5);
 }
 
 .text-glow-amber {
-  text-shadow: 0 0 15px rgba(251, 191, 36, 0.5);
+  text-shadow: 0 0 20px rgba(251, 191, 36, 0.5);
+}
+
+/* Stat counter glow */
+.stat-glow {
+  text-shadow: 0 0 20px currentColor;
+}
+
+/* Navbar glassmorphic */
+.navbar-glass {
+  background: rgba(3, 7, 18, 0.8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+/* Animated underline for nav links */
+.nav-link {
+  position: relative;
+  color: #94a3b8;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+.nav-link::after {
+  content: '';
+  position: absolute;
+  left: 0; bottom: -3px;
+  width: 0; height: 2px;
+  background: linear-gradient(90deg, #60a5fa, #818cf8);
+  border-radius: 2px;
+  transition: width 0.3s;
+}
+.nav-link:hover {
+  color: #e2e8f0;
+}
+.nav-link:hover::after {
+  width: 100%;
+}
+
+/* Stage card accent bar */
+.stage-bar {
+  height: 3px;
+  border-radius: 3px;
+  margin-bottom: 1.5rem;
 }
 
 html {
   scroll-behavior: smooth;
 }
-
