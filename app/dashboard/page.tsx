@@ -78,7 +78,7 @@ export default async function Dashboard() {
               className="h-8 w-auto rounded border border-slate-750 group-hover:border-blue-500 transition" 
             />
             <span className="text-xl font-bold text-blue-500 group-hover:text-blue-400 transition">
-              Yantriksha
+              Yantriksha X Hub
             </span>
           </Link>
         </div>

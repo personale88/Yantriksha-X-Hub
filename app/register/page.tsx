@@ -128,7 +128,7 @@ export default function RegisterPage() {
             <h1 className="text-4xl font-extrabold text-white tracking-tight">
               Join{' '}
               <span className="bg-gradient-to-r from-blue-400 to-indigo-300 bg-clip-text text-transparent">
-                Yantriksha
+                Yantriksha X Hub
               </span>
             </h1>
             <p className="text-gray-500 mt-3 text-sm">

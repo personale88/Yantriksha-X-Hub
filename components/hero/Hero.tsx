@@ -43,7 +43,7 @@ export default function Hero() {
             <div className="flex flex-wrap gap-4 mt-10">
               <Link href="/register">
                 <button className="relative group bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-xl font-bold transition-all duration-300 shadow-xl shadow-blue-900/40 border border-blue-500/30 hover:-translate-y-1 overflow-hidden">
-                  <span className="relative z-10">Join Yantriksha →</span>
+                  <span className="relative z-10">Join Yantriksha X Hub →</span>
                   <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 </button>
               </Link>
