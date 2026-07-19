@@ -5,7 +5,7 @@ import { hashPassword } from '@/lib/auth';
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { veltech_id, name, email, role, discipline, password, phone_number, year_of_studying, branch } = body;
+    const { veltech_id, name, email, role, discipline, password, phone_number, year_of_studying, branch, college } = body;
 
     // 1. Basic validation
     if (!veltech_id || !name || !email || !role || !discipline || !password) {
@@ -25,10 +25,16 @@ export async function POST(req: Request) {
       }
     }
 
-    // 2. Email domain validation
-    if (!email.toLowerCase().endsWith('@veltech.edu.in')) {
+    // 2. Email domain validation — accept any recognised academic domain
+    const emailLower = email.toLowerCase();
+    const isAcademicEmail =
+      emailLower.endsWith('.edu') ||
+      emailLower.endsWith('.edu.in') ||
+      emailLower.endsWith('.ac.in') ||
+      emailLower.endsWith('@veltech.edu.in');
+    if (!isAcademicEmail) {
       return NextResponse.json(
-        { success: false, error: 'Registration is restricted to @veltech.edu.in email domains' },
+        { success: false, error: 'Please use your official college/university email address (.edu / .ac.in / .edu.in)' },
         { status: 400 }
       );
     }
@@ -61,9 +67,10 @@ export async function POST(req: Request) {
         `INSERT INTO users (veltech_id, name, email, role, discipline, password_hash, phone_number, year_of_studying, branch) 
          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
-          veltech_id,
+          // veltech_id field stores the student ID (may be from any college)
+          `${college || 'vel_tech'}:${veltech_id}`,
           name,
-          email.toLowerCase(),
+          emailLower,
           role,
           discipline,
           passwordHash,

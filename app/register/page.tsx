@@ -4,10 +4,25 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
+const COLLEGES = [
+  { value: 'vel_tech', label: 'Vel Tech University', emailDomain: '@veltech.edu.in', idPlaceholder: 'e.g. VTU28891', idLabel: 'Vel Tech ID / VTU Number' },
+  { value: 'anna_univ', label: 'Anna University', emailDomain: '@annauniv.edu', idPlaceholder: 'e.g. 2021501089', idLabel: 'University Roll Number' },
+  { value: 'iit_madras', label: 'IIT Madras', emailDomain: '@iitm.ac.in', idPlaceholder: 'e.g. CS21B001', idLabel: 'Roll Number' },
+  { value: 'nit_trichy', label: 'NIT Trichy', emailDomain: '@nitt.edu', idPlaceholder: 'e.g. 610519104001', idLabel: 'Roll Number' },
+  { value: 'srm', label: 'SRM Institute of Science & Technology', emailDomain: '@srmist.edu.in', idPlaceholder: 'e.g. RA2011003010001', idLabel: 'Student ID' },
+  { value: 'vit', label: 'VIT University', emailDomain: '@vit.ac.in', idPlaceholder: 'e.g. 21BCE1234', idLabel: 'Registration Number' },
+  { value: 'sastra', label: 'SASTRA University', emailDomain: '@sastra.ac.in', idPlaceholder: 'e.g. 124001E', idLabel: 'Student ID' },
+  { value: 'sathyabama', label: 'Sathyabama Institute of Science & Technology', emailDomain: '@sathyabama.ac.in', idPlaceholder: 'Student Roll Number', idLabel: 'Roll Number' },
+  { value: 'saveetha', label: 'Saveetha Engineering College', emailDomain: '@saveetha.ac.in', idPlaceholder: 'Student Roll Number', idLabel: 'Roll Number' },
+  { value: 'psnacet', label: 'P.S.N.A. College of Engineering', emailDomain: '@psnacet.edu.in', idPlaceholder: 'Student Roll Number', idLabel: 'Roll Number' },
+  { value: 'other', label: 'Other College / University', emailDomain: '', idPlaceholder: 'Enter your student/roll number', idLabel: 'Student ID / Roll Number' },
+];
+
 export default function RegisterPage() {
   const router = useRouter();
   const [formData, setFormData] = useState({
     name: '',
+    college: 'vel_tech',
     veltech_id: '',
     email: '',
     phone_number: '',
@@ -22,11 +37,15 @@ export default function RegisterPage() {
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const selectedCollege = COLLEGES.find(c => c.value === formData.college) || COLLEGES[0];
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: value,
+      // Reset email when college changes so stale domain doesn't stay
+      ...(name === 'college' ? { email: '' } : {}),
     }));
   };
 
@@ -60,189 +79,249 @@ export default function RegisterPage() {
     }
   };
 
+  const inputClass = "w-full p-4 rounded-xl bg-slate-800/80 text-white outline-none border border-slate-700/60 focus:border-blue-500 focus:bg-slate-800 transition placeholder-gray-600 text-sm";
+  const labelClass = "block text-gray-400 mb-2 text-sm font-medium";
+
   return (
-    <main className="min-h-screen bg-slate-950 flex items-center justify-center px-6 py-12">
-      <div className="bg-slate-900 p-8 md:p-10 rounded-3xl w-full max-w-2xl border border-slate-800 shadow-2xl">
-        <h1 className="text-4xl font-bold text-white text-center">
-          Join <span className="text-blue-500">Yantriksha</span>
-        </h1>
-        
-        <p className="text-gray-400 text-center mt-3">
-          Create your account and start your innovation journey
-        </p>
+    <main className="min-h-screen bg-slate-950 flex items-center justify-center px-6 py-16 relative overflow-hidden">
 
-        {error && (
-          <div className="mt-6 p-4 bg-red-950/50 border border-red-800 text-red-400 rounded-xl text-center text-sm">
-            ❌ {error}
+      {/* Ambient background glows */}
+      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-600/8 rounded-full blur-[140px] pointer-events-none" />
+      <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-amber-500/5 rounded-full blur-[120px] pointer-events-none" />
+
+      <div className="glass-card rounded-3xl w-full max-w-2xl border border-slate-800/60 shadow-2xl relative z-10 overflow-hidden">
+
+        {/* Top accent bar */}
+        <div className="h-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-amber-400 w-full" />
+
+        <div className="p-8 md:p-10">
+
+          {/* Header */}
+          <div className="text-center mb-8">
+            <h1 className="text-4xl font-extrabold text-white tracking-tight">
+              Join{' '}
+              <span className="bg-gradient-to-r from-blue-400 to-indigo-300 bg-clip-text text-transparent">
+                Yantriksha
+              </span>
+            </h1>
+            <p className="text-gray-500 mt-3 text-sm">
+              Create your account and start your innovation journey
+            </p>
           </div>
-        )}
 
-        {success && (
-          <div className="mt-6 p-4 bg-green-950/50 border border-green-800 text-green-400 rounded-xl text-center text-sm">
-            🎉 {success}
-          </div>
-        )}
+          {/* Alerts */}
+          {error && (
+            <div className="mb-6 p-4 bg-red-950/50 border border-red-800/60 text-red-400 rounded-xl text-center text-sm flex items-center justify-center gap-2">
+              ❌ {error}
+            </div>
+          )}
+          {success && (
+            <div className="mb-6 p-4 bg-emerald-950/50 border border-emerald-800/60 text-emerald-400 rounded-xl text-center text-sm flex items-center justify-center gap-2">
+              🎉 {success}
+            </div>
+          )}
 
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            
-            {/* Full Name */}
+          <form className="space-y-5" onSubmit={handleSubmit}>
+
+            {/* ── Full Name ── */}
             <div>
-              <label className="block text-gray-400 mb-2 text-sm">Full Name</label>
+              <label className={labelClass}>Full Name</label>
               <input
                 type="text"
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
                 placeholder="Enter your full name"
-                className="w-full p-4 rounded-xl bg-slate-800 text-white outline-none border border-slate-700 focus:border-blue-500 transition"
+                className={inputClass}
                 required
               />
             </div>
 
-            {/* Vel Tech ID / VTU Number */}
+            {/* ── College / University Dropdown ── */}
             <div>
-              <label className="block text-gray-400 mb-2 text-sm">Vel Tech ID / VTU Number</label>
-              <input
-                type="text"
-                name="veltech_id"
-                value={formData.veltech_id}
+              <label className={labelClass}>
+                College / University
+                <span className="ml-2 text-xs text-blue-400/70 font-normal">(Select your institution)</span>
+              </label>
+              <select
+                name="college"
+                value={formData.college}
                 onChange={handleChange}
-                placeholder="e.g. VTU28891"
-                className="w-full p-4 rounded-xl bg-slate-800 text-white outline-none border border-slate-700 focus:border-blue-500 transition"
-                required
-              />
+                className={inputClass}
+              >
+                {COLLEGES.map(c => (
+                  <option key={c.value} value={c.value}>{c.label}</option>
+                ))}
+              </select>
+
+              {/* College hint badge */}
+              {selectedCollege.emailDomain && (
+                <p className="mt-2 text-xs text-blue-400/70 flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-blue-500 inline-block" />
+                  Official email domain: <span className="font-semibold text-blue-400">{selectedCollege.emailDomain}</span>
+                </p>
+              )}
             </div>
 
-            {/* Email */}
-            <div>
-              <label className="block text-gray-400 mb-2 text-sm">College Email (@veltech.edu.in)</label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                placeholder="yourname@veltech.edu.in"
-                className="w-full p-4 rounded-xl bg-slate-800 text-white outline-none border border-slate-700 focus:border-blue-500 transition"
-                required
-              />
+            {/* ── Student ID + Email side by side ── */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div>
+                <label className={labelClass}>{selectedCollege.idLabel}</label>
+                <input
+                  type="text"
+                  name="veltech_id"
+                  value={formData.veltech_id}
+                  onChange={handleChange}
+                  placeholder={selectedCollege.idPlaceholder}
+                  className={inputClass}
+                  required
+                />
+              </div>
+
+              <div>
+                <label className={labelClass}>
+                  College Email
+                  {selectedCollege.emailDomain && (
+                    <span className="ml-1 text-xs text-gray-600">({selectedCollege.emailDomain})</span>
+                  )}
+                </label>
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder={
+                    selectedCollege.emailDomain
+                      ? `yourname${selectedCollege.emailDomain}`
+                      : 'your.college@email.com'
+                  }
+                  className={inputClass}
+                  required
+                />
+              </div>
             </div>
 
-            {/* Password */}
+            {/* ── Password ── */}
             <div>
-              <label className="block text-gray-400 mb-2 text-sm">Password</label>
+              <label className={labelClass}>Password</label>
               <input
                 type="password"
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
-                placeholder="Set a password"
-                className="w-full p-4 rounded-xl bg-slate-800 text-white outline-none border border-slate-700 focus:border-blue-500 transition"
+                placeholder="Set a strong password"
+                className={inputClass}
                 required
               />
             </div>
 
-            {/* Role selection */}
-            <div>
-              <label className="block text-gray-400 mb-2 text-sm">Role</label>
-              <select
-                name="role"
-                value={formData.role}
-                onChange={handleChange}
-                className="w-full p-4 rounded-xl bg-slate-800 text-white outline-none border border-slate-700 focus:border-blue-500 transition"
-              >
-                <option value="student">Student</option>
-                <option value="faculty">Faculty Member</option>
-                <option value="mentor">Advisor / Mentor</option>
-              </select>
-            </div>
+            {/* ── Role + Discipline side by side ── */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div>
+                <label className={labelClass}>Role</label>
+                <select
+                  name="role"
+                  value={formData.role}
+                  onChange={handleChange}
+                  className={inputClass}
+                >
+                  <option value="student">Student</option>
+                  <option value="faculty">Faculty Member</option>
+                  <option value="mentor">Advisor / Mentor</option>
+                </select>
+              </div>
 
-            {/* Discipline selection */}
-            <div>
-              <label className="block text-gray-400 mb-2 text-sm">Discipline</label>
-              <select
-                name="discipline"
-                value={formData.discipline}
-                onChange={handleChange}
-                className="w-full p-4 rounded-xl bg-slate-800 text-white outline-none border border-slate-700 focus:border-blue-500 transition"
-              >
-                <option value="engineering">Engineering</option>
-                <option value="law">Law</option>
-                <option value="business">Business (MBA)</option>
-                <option value="other">Other</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Conditional Student-only fields */}
-          {formData.role === 'student' && (
-            <div className="border-t border-slate-800 pt-6 mt-6 space-y-6">
-              <h3 className="text-lg font-semibold text-blue-400">Student Profile Details</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                
-                {/* Phone Number */}
-                <div>
-                  <label className="block text-gray-400 mb-2 text-sm">Phone Number</label>
-                  <input
-                    type="tel"
-                    name="phone_number"
-                    value={formData.phone_number}
-                    onChange={handleChange}
-                    placeholder="Enter phone number"
-                    className="w-full p-4 rounded-xl bg-slate-800 text-white outline-none border border-slate-700 focus:border-blue-500 transition"
-                    required
-                  />
-                </div>
-
-                {/* Year of Studying */}
-                <div>
-                  <label className="block text-gray-400 mb-2 text-sm">Year of Studying</label>
-                  <select
-                    name="year_of_studying"
-                    value={formData.year_of_studying}
-                    onChange={handleChange}
-                    className="w-full p-4 rounded-xl bg-slate-800 text-white outline-none border border-slate-700 focus:border-blue-500 transition"
-                  >
-                    <option value="1">1st Year</option>
-                    <option value="2">2nd Year</option>
-                    <option value="3">3rd Year</option>
-                    <option value="4">4th Year</option>
-                  </select>
-                </div>
-
-                {/* Branch */}
-                <div>
-                  <label className="block text-gray-400 mb-2 text-sm">Branch</label>
-                  <input
-                    type="text"
-                    name="branch"
-                    value={formData.branch}
-                    onChange={handleChange}
-                    placeholder="e.g. CSE, ECE"
-                    className="w-full p-4 rounded-xl bg-slate-800 text-white outline-none border border-slate-700 focus:border-blue-500 transition"
-                    required
-                  />
-                </div>
-
+              <div>
+                <label className={labelClass}>Discipline</label>
+                <select
+                  name="discipline"
+                  value={formData.discipline}
+                  onChange={handleChange}
+                  className={inputClass}
+                >
+                  <option value="engineering">Engineering</option>
+                  <option value="law">Law</option>
+                  <option value="business">Business (MBA)</option>
+                  <option value="other">Other</option>
+                </select>
               </div>
             </div>
-          )}
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-blue-600 py-4 rounded-xl hover:bg-blue-700 transition font-bold disabled:bg-blue-800 disabled:text-gray-400"
-          >
-            {loading ? 'Creating Account...' : 'Register'}
-          </button>
-        </form>
+            {/* ── Student Profile Fields (conditional) ── */}
+            {formData.role === 'student' && (
+              <div className="border border-slate-800/60 bg-slate-900/40 rounded-2xl p-6 space-y-5">
+                <h3 className="text-sm font-bold text-blue-400 uppercase tracking-widest flex items-center gap-2">
+                  <span className="w-1 h-4 bg-blue-500 rounded-full inline-block" />
+                  Student Profile Details
+                </h3>
 
-        <p className="text-gray-400 text-center mt-6 text-sm">
-          Already have an account?{' '}
-          <Link href="/login" className="text-blue-400 hover:text-blue-500 transition">
-            Login here
-          </Link>
-        </p>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                  <div>
+                    <label className={labelClass}>Phone Number</label>
+                    <input
+                      type="tel"
+                      name="phone_number"
+                      value={formData.phone_number}
+                      onChange={handleChange}
+                      placeholder="10-digit number"
+                      className={inputClass}
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className={labelClass}>Year of Study</label>
+                    <select
+                      name="year_of_studying"
+                      value={formData.year_of_studying}
+                      onChange={handleChange}
+                      className={inputClass}
+                    >
+                      <option value="1">1st Year</option>
+                      <option value="2">2nd Year</option>
+                      <option value="3">3rd Year</option>
+                      <option value="4">4th Year</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className={labelClass}>Branch</label>
+                    <input
+                      type="text"
+                      name="branch"
+                      value={formData.branch}
+                      onChange={handleChange}
+                      placeholder="e.g. CSE, ECE, LLB"
+                      className={inputClass}
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* ── Submit ── */}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full relative overflow-hidden group bg-blue-600 hover:bg-blue-700 disabled:bg-slate-700 disabled:text-gray-500 text-white py-4 rounded-xl font-bold text-sm transition-all duration-300 shadow-lg shadow-blue-900/30 border border-blue-500/30 hover:-translate-y-0.5 hover:shadow-blue-700/40"
+            >
+              <span className="relative z-10">
+                {loading ? 'Creating Account...' : 'Create Account →'}
+              </span>
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            </button>
+
+          </form>
+
+          <p className="text-gray-600 text-center mt-6 text-sm">
+            Already have an account?{' '}
+            <Link href="/login" className="text-blue-400 hover:text-blue-300 transition font-medium">
+              Login here →
+            </Link>
+          </p>
+
+        </div>
       </div>
     </main>
   );
