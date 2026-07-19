@@ -1,6 +1,6 @@
 export default function About() {
   return (
-    <section className="bg-slate-950 text-white py-28 relative overflow-hidden">
+    <section id="about" className="bg-slate-950 text-white py-28 relative overflow-hidden">
       
       {/* Background decoration */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-blue-600/5 rounded-full blur-[160px] pointer-events-none" />

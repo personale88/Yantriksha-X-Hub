@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export default function Hero() {
   return (
-    <section className="min-h-screen bg-space-grid text-white flex items-center overflow-hidden relative">
+    <section id="home" className="min-h-screen bg-space-grid text-white flex items-center overflow-hidden relative">
       
       {/* Decorative ambient background glows */}
       <div className="absolute top-1/4 left-10 w-96 h-96 bg-blue-600/10 rounded-full blur-[120px] pointer-events-none" />

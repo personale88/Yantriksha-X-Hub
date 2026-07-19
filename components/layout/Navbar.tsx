@@ -18,11 +18,31 @@ import Link from "next/link";
 
         {/* Menu */}
         <ul className="flex gap-8">
-          <li className="cursor-pointer hover:text-blue-400">Home</li>
-          <li className="cursor-pointer hover:text-blue-400">About</li>
-          <li className="cursor-pointer hover:text-blue-400">Roadmap</li>
-          <li className="cursor-pointer hover:text-blue-400">Events</li>
-          <li className="cursor-pointer hover:text-blue-400">Contact</li>
+          <li>
+            <Link href="/#home" className="cursor-pointer hover:text-blue-400 transition">
+              Home
+            </Link>
+          </li>
+          <li>
+            <Link href="/#about" className="cursor-pointer hover:text-blue-400 transition">
+              About
+            </Link>
+          </li>
+          <li>
+            <Link href="/#roadmap" className="cursor-pointer hover:text-blue-400 transition">
+              Roadmap
+            </Link>
+          </li>
+          <li>
+            <Link href="/#events" className="cursor-pointer hover:text-blue-400 transition">
+              Events
+            </Link>
+          </li>
+          <li>
+            <Link href="/#contact" className="cursor-pointer hover:text-blue-400 transition">
+              Contact
+            </Link>
+          </li>
         </ul>
 
         {/* Login Button */}
