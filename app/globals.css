@@ -13,7 +13,7 @@
 }
 
 @theme inline {
-  --color-background: var(--background);\
+  --color-background: var(--background);
   --color-foreground: var(--foreground);
   
   --font-sans: var(--font-plus-jakarta), sans-serif;
