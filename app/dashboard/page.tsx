@@ -71,10 +71,15 @@ export default async function Dashboard() {
         
         {/* Logo */}
         <div className="p-6 border-b border-slate-800">
-          <Link href="/">
-            <h1 className="text-2xl font-bold text-blue-500 hover:opacity-80 transition">
-              Yantriksha X Hub
-            </h1>
+          <Link href="/" className="flex items-center gap-3 group">
+            <img 
+              src="/logo.jpg" 
+              alt="Yantriksha X Hub Logo" 
+              className="h-8 w-auto rounded border border-slate-750 group-hover:border-blue-500 transition" 
+            />
+            <span className="text-xl font-bold text-blue-500 group-hover:text-blue-400 transition">
+              Yantriksha
+            </span>
           </Link>
         </div>
 
