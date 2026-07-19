@@ -29,7 +29,7 @@ export default function About() {
             </h2>
 
             <p className="mt-8 text-lg text-gray-300 leading-8 font-light">
-              Yantriksha X Hub is a catalyst for technology startup formation.
+              Yantriksha_X_Hub is a catalyst for technology startup formation.
               We empower students to take raw concepts, form multi-skilled teams,
               test product-market fit, and register corporate entities.
             </p>

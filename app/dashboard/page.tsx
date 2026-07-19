@@ -74,11 +74,11 @@ export default async function Dashboard() {
           <Link href="/" className="flex items-center gap-3 group">
             <img 
               src="/logo.jpg" 
-              alt="Yantriksha X Hub Logo" 
+              alt="Yantriksha_X_Hub Logo" 
               className="h-8 w-auto rounded border border-slate-750 group-hover:border-blue-500 transition" 
             />
             <span className="text-xl font-bold text-blue-500 group-hover:text-blue-400 transition">
-              Yantriksha X Hub
+              Yantriksha_X_Hub
             </span>
           </Link>
         </div>

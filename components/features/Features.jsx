@@ -62,7 +62,7 @@ const features = [
   {
     title: "Startup Incubation",
     description:
-      "Graduate from Yantriksha X Hub as a fully incorporated startup. Receive legal guidance, company registration support, investor introductions, and commercialization mentorship.",
+      "Graduate from Yantriksha_X_Hub as a fully incorporated startup. Receive legal guidance, company registration support, investor introductions, and commercialization mentorship.",
     icon: "🚀",
     accent: "from-cyan-500/20 to-cyan-600/5",
     border: "hover:border-cyan-500/50",
@@ -97,7 +97,7 @@ export default function Features() {
           </h2>
 
           <p className="text-gray-400 mt-6 max-w-2xl mx-auto text-lg leading-relaxed">
-            Yantriksha X Hub provides students with the complete ecosystem
+            Yantriksha_X_Hub provides students with the complete ecosystem
             required to transform innovative ideas into successful startups.
           </p>
         </div>

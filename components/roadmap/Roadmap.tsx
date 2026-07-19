@@ -144,7 +144,7 @@ const roadmapData: Milestone[] = [
     number: "14",
     stage: "Stage 1: Product",
     title: "Startup Launch",
-    desc: "Graduate from Yantriksha X Hub as an independent startup. Register your company as a legal corporate entity, establish a business bank account, and launch your product in the market.",
+    desc: "Graduate from Yantriksha_X_Hub as an independent startup. Register your company as a legal corporate entity, establish a business bank account, and launch your product in the market.",
     stageColor: "text-emerald-400",
     badgeColor: "bg-emerald-950/40 text-emerald-400 border-emerald-900/50",
     dotColor: "bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.7)]",

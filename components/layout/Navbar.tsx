@@ -11,13 +11,13 @@ export default function Navbar() {
           <div className="relative h-10 w-10 rounded-lg overflow-hidden border border-slate-700/50 group-hover:border-blue-500/60 transition-all duration-300 shadow-sm group-hover:shadow-blue-900/30">
             <Image
               src="/logo.jpg"
-              alt="Yantriksha X Hub Logo"
+              alt="Yantriksha_X_Hub Logo"
               fill
               className="object-cover"
             />
           </div>
           <span className="text-lg font-bold bg-gradient-to-r from-blue-400 to-indigo-300 bg-clip-text text-transparent">
-            Yantriksha X Hub
+            Yantriksha_X_Hub
           </span>
         </Link>
 

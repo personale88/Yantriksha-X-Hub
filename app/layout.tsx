@@ -13,7 +13,7 @@ const plusJakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Yantriksha X Hub | Student Innovation & Startup Collaboration",
+  title: "Yantriksha_X_Hub | Student Innovation & Startup Collaboration",
   description: "A Student-Driven Innovation and Cross-Disciplinary Collaboration Hub at Vel Tech Rangarajan Dr. Sagunthala R&D Institute of Science and Technology. Bridging Engineering, Law, and Business to turn ideas into startups.",
 };
 

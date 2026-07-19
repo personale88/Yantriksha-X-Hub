@@ -46,7 +46,7 @@ export default function LoginPage() {
         </h1>
 
         <p className="text-gray-400 text-center mt-3">
-          Welcome back to Yantriksha X Hub
+          Welcome back to Yantriksha_X_Hub
         </p>
 
         {error && (
