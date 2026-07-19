@@ -23,6 +23,7 @@ export default function RegisterPage() {
   const [formData, setFormData] = useState({
     name: '',
     college: 'vel_tech',
+    college_name: '',
     veltech_id: '',
     email: '',
     phone_number: '',
@@ -160,6 +161,25 @@ export default function RegisterPage() {
                   <span className="w-1.5 h-1.5 rounded-full bg-blue-500 inline-block" />
                   Official email domain: <span className="font-semibold text-blue-400">{selectedCollege.emailDomain}</span>
                 </p>
+              )}
+
+              {/* ── "Other" college — type your college name ── */}
+              {formData.college === 'other' && (
+                <div className="mt-3 relative">
+                  <input
+                    type="text"
+                    name="college_name"
+                    value={formData.college_name}
+                    onChange={handleChange}
+                    placeholder="Type your college / university name"
+                    className={`${inputClass} border-amber-500/40 focus:border-amber-400 bg-amber-950/10`}
+                    required
+                    autoFocus
+                  />
+                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-amber-400 text-xs font-bold uppercase tracking-wider pointer-events-none">
+                    Required
+                  </span>
+                </div>
               )}
             </div>
 
