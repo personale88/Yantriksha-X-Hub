@@ -5,6 +5,18 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
+const inp = [
+  'w-full px-4 py-3.5 rounded-xl text-white text-sm outline-none border transition-all duration-200',
+  'bg-slate-900/70 border-slate-700/50 placeholder-slate-600',
+  'focus:border-blue-500/80 focus:bg-slate-900 focus:shadow-[0_0_0_3px_rgba(59,130,246,0.12)]',
+].join(' ');
+
+const sel = [
+  'w-full px-4 py-3.5 rounded-xl text-white text-sm outline-none border transition-all duration-200 appearance-none cursor-pointer',
+  'bg-slate-900/70 border-slate-700/50',
+  'focus:border-blue-500/80 focus:bg-slate-900 focus:shadow-[0_0_0_3px_rgba(59,130,246,0.12)]',
+].join(' ');
+
 interface User {
   id: number;
   veltech_id: string;
