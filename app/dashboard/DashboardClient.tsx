@@ -102,6 +102,11 @@ export default function DashboardClient({
 }) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<'dashboard' | 'journey' | 'team' | 'project' | 'funding' | 'mentors' | 'events' | 'settings'>('dashboard');
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const [user, setUser] = useState<User>(initialUser);
   const [team, setTeam] = useState<TeamCompliance | null>(initialTeam);
@@ -1162,8 +1167,8 @@ export default function DashboardClient({
                         <div key={c.id} className="bg-slate-950/40 p-5 rounded-2xl border border-slate-800/40">
                           <div className="flex justify-between items-start">
                             <div>
-                              <p className="text-lg font-bold text-white">₹{c.requested_amount.toLocaleString()}</p>
-                              <p className="text-[10px] text-gray-500 mt-1">{new Date(c.created_at).toLocaleDateString()}</p>
+                              <p className="text-lg font-bold text-white">₹{isMounted ? c.requested_amount.toLocaleString() : c.requested_amount}</p>
+                              <p className="text-[10px] text-gray-500 mt-1">{isMounted ? new Date(c.created_at).toLocaleDateString() : ''}</p>
                             </div>
                             <span className={`text-xs px-2.5 py-1 rounded-full font-bold uppercase ${
                               c.status === 'approved' || c.status === 'disbursed'
@@ -1283,7 +1288,7 @@ export default function DashboardClient({
                             <div>
                               <h5 className="font-bold text-sm text-white">Mentor: {b.mentor_name}</h5>
                               <p className="text-xs text-gray-500 mt-1">
-                                📅 {new Date(b.scheduled_time).toLocaleString()}
+                                📅 {isMounted ? new Date(b.scheduled_time).toLocaleString() : ''}
                               </p>
                               <p className="text-xs text-blue-400 mt-2 font-medium">
                                 Mode: <span className="uppercase">{b.mode}</span> {b.meeting_link_or_venue && `| ${b.meeting_link_or_venue}`}
