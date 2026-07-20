@@ -32,6 +32,16 @@ export default function ChatbotWidget() {
   const [unreadCount, setUnreadCount] = useState(1);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
+  // Listen for external open requests (e.g. from the Robot click)
+  useEffect(() => {
+    const handleOpenChat = () => {
+      setIsOpen(true);
+      setUnreadCount(0);
+    };
+    window.addEventListener('open-yantriksha-chat', handleOpenChat);
+    return () => window.removeEventListener('open-yantriksha-chat', handleOpenChat);
+  }, []);
+
   // Auto-scroll to bottom of chat
   useEffect(() => {
     if (chatEndRef.current) {
@@ -128,8 +138,8 @@ export default function ChatbotWidget() {
 
   return (
     <div 
-      className="flex flex-col items-start" 
-      style={{ position: 'fixed', bottom: '24px', left: '24px', zIndex: 9999 }}
+      className="flex flex-col items-end" 
+      style={{ position: 'fixed', bottom: '24px', right: '24px', zIndex: 9999 }}
     >
       
       {/* ── Chat Window ── */}

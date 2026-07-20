@@ -282,7 +282,7 @@ export default function Roadmap() {
           <span className="text-blue-500 font-extrabold tracking-widest text-sm uppercase block">
             ✦ INTERACTIVE INCUBATION HIGHWAY
           </span>
-          <h2 className="text-5xl font-extrabold mt-4 tracking-tight leading-tight">
+          <h2 className="fluid-h2 font-extrabold mt-4 tracking-tight leading-tight">
             Your Startup{" "}
             <span className="bg-gradient-to-r from-blue-400 via-indigo-300 to-amber-300 bg-clip-text text-transparent">
               Incubation Highway

@@ -48,7 +48,7 @@ export default function Stages() {
         <div className="text-center mb-10">
           <span className="section-pill">✦ Student Journey</span>
 
-          <h2 className="text-5xl md:text-6xl font-extrabold tracking-tight leading-tight">
+          <h2 className="fluid-h2 font-extrabold tracking-tight leading-tight">
             Three{" "}
             <span className="bg-gradient-to-r from-red-400 via-amber-400 to-emerald-400 bg-clip-text text-transparent">
               Transformation
@@ -56,7 +56,7 @@ export default function Stages() {
             Stages
           </h2>
 
-          <p className="mt-6 text-gray-400 max-w-2xl mx-auto text-lg leading-relaxed">
+          <p className="mt-6 fluid-p text-gray-400 max-w-2xl mx-auto">
             Every student progresses through a structured journey from identifying a
             problem to launching a market-ready startup.
           </p>

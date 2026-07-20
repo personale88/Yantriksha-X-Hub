@@ -89,14 +89,14 @@ export default function Features() {
             ✦ Why Join Us?
           </span>
 
-          <h2 className="text-5xl md:text-6xl font-extrabold tracking-tight leading-tight">
+          <h2 className="fluid-h2 font-extrabold tracking-tight leading-tight">
             Everything You Need{" "}
             <span className="bg-gradient-to-r from-blue-400 via-indigo-400 to-amber-400 bg-clip-text text-transparent">
               To Build A Startup
             </span>
           </h2>
 
-          <p className="text-gray-400 mt-6 max-w-2xl mx-auto text-lg leading-relaxed">
+          <p className="text-gray-400 mt-6 max-w-2xl mx-auto fluid-p">
             Yantriksha_X_Hub provides students with the complete ecosystem
             required to transform innovative ideas into successful startups.
           </p>

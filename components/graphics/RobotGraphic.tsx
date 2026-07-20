@@ -76,8 +76,13 @@ export default function RobotGraphic() {
       <div className="absolute w-56 h-56 rounded-full bg-indigo-500/15 blur-[60px] animate-pulse pointer-events-none delay-700" />
       <div className="absolute w-40 h-40 rounded-full bg-amber-500/5 blur-[50px] pointer-events-none" />
 
-      {/* Floating Robot Container */}
-      <div className="relative w-full max-w-sm flex flex-col items-center justify-center robot-floating-container">
+      {/* Floating Robot Container (Click to toggle AI Assistant) */}
+      <div 
+        onClick={() => {
+          window.dispatchEvent(new Event('open-yantriksha-chat'));
+        }}
+        className="relative w-full max-w-sm flex flex-col items-center justify-center robot-floating-container cursor-pointer hover:scale-[1.03] active:scale-95 transition-all duration-300"
+      >
         
         {/* SVG Robot Graphic */}
         <svg

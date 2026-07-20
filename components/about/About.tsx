@@ -21,19 +21,19 @@ export default function About() {
           <div>
             <span className="section-pill">✦ About Us</span>
 
-            <h2 className="text-5xl font-extrabold tracking-tight leading-tight">
+            <h2 className="fluid-h2 font-extrabold tracking-tight leading-tight">
               Building Future{" "}
               <span className="bg-gradient-to-r from-blue-400 via-indigo-400 to-amber-400 bg-clip-text text-transparent">
                 Innovators
               </span>
             </h2>
 
-            <p className="mt-8 text-lg text-gray-300 leading-8 font-light">
+            <p className="mt-8 fluid-p text-gray-300 font-light">
               Yantriksha_X_Hub is a catalyst for technology startup formation.
               We empower students to take raw concepts, form multi-skilled teams,
               test product-market fit, and register corporate entities.
             </p>
-            <p className="mt-4 text-lg text-gray-400 leading-8 font-light">
+            <p className="mt-4 fluid-p text-gray-400 font-light">
               Through deep connections with Vel Tech&apos;s engineering labs, law courses,
               and business administration mentorship, we support the translation of academic
               projects into high-growth startups.

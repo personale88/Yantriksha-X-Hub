@@ -22,7 +22,7 @@ export default function Hero() {
               ✦ Innovation & Cross-Disciplinary Collaboration Hub
             </span>
 
-            <h1 className="text-6xl lg:text-7xl font-extrabold leading-[1.08] mt-2 tracking-tight">
+            <h1 className="fluid-h1 font-extrabold mt-2 tracking-tight">
               Don&apos;t Let{" "}
               <span className="bg-gradient-to-r from-blue-400 via-indigo-300 to-amber-300 bg-clip-text text-transparent">
                 Confusion
@@ -30,11 +30,11 @@ export default function Hero() {
               <br />Stop You!
             </h1>
 
-            <h2 className="text-2xl font-semibold mt-5 text-gray-400 tracking-wide">
+            <h2 className="text-xl sm:text-2xl font-semibold mt-5 text-gray-400 tracking-wide">
               Turn Your Ideas Into Reality
             </h2>
 
-            <p className="mt-7 text-lg text-gray-300 leading-8 max-w-xl font-light">
+            <p className="mt-7 fluid-p text-gray-300 max-w-xl font-light">
               Yantriksha_X_Hub is a Student-Driven Innovation and
               Cross-Disciplinary Collaboration Hub designed to help students
               turn ideas into real-world products and startups. We bring
