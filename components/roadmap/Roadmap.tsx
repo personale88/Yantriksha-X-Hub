@@ -193,6 +193,11 @@ const STOPS_COORDINATES = [
 export default function Roadmap() {
   const [selectedIdx, setSelectedIdx] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [showMobileCard, setShowMobileCard] = useState(true);
+
+  useEffect(() => {
+    setShowMobileCard(true);
+  }, [selectedIdx]);
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -228,18 +233,27 @@ export default function Roadmap() {
   let carGlowColor = 'rgba(59, 130, 246, 0.2)';
   let carHeadlightColor = '#00f2fe';
 
+  let activeBorderGlow = 'border-blue-500/40 shadow-[0_0_15px_rgba(59,130,246,0.15)]';
+  let activeStageText = 'text-blue-400';
+
   if (activeMilestone.stage.includes('Confusion')) {
     carThemeColor = '#ef4444';
     carGlowColor = 'rgba(239, 68, 68, 0.35)';
     carHeadlightColor = '#fca5a5';
+    activeBorderGlow = 'border-red-500/40 shadow-[0_0_15px_rgba(239,68,68,0.15)]';
+    activeStageText = 'text-red-400';
   } else if (activeMilestone.stage.includes('Idea')) {
     carThemeColor = '#f59e0b';
     carGlowColor = 'rgba(245, 158, 11, 0.35)';
     carHeadlightColor = '#fde047';
+    activeBorderGlow = 'border-amber-500/40 shadow-[0_0_15px_rgba(245,158,11,0.15)]';
+    activeStageText = 'text-amber-400';
   } else if (activeMilestone.stage.includes('Product')) {
     carThemeColor = '#10b981';
     carGlowColor = 'rgba(16, 185, 129, 0.35)';
     carHeadlightColor = '#6ee7b7';
+    activeBorderGlow = 'border-emerald-500/40 shadow-[0_0_15px_rgba(16,185,129,0.15)]';
+    activeStageText = 'text-emerald-400';
   }
 
   return (
@@ -556,6 +570,44 @@ export default function Roadmap() {
           </div>
 
         </div>
+
+        {/* Sticky Mobile Active Stop Info (Only visible on mobile/tablet) */}
+        {showMobileCard && (
+          <div className="lg:hidden sticky bottom-6 left-4 right-4 z-40 max-w-md mx-auto mt-6 animate-fadeIn transition-all duration-300">
+            <div className={`glass-card rounded-2xl p-5 border bg-slate-950/95 backdrop-blur-md transition-all duration-500 ${activeBorderGlow}`}>
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-bold text-gray-500 font-mono">STOP #{activeMilestone.number}</span>
+                  <span className={`px-2 py-0.5 rounded-full text-[9px] font-extrabold border uppercase tracking-wider ${activeMilestone.badgeColor}`}>
+                    {activeMilestone.stage.split(': ')[1] || activeMilestone.stage}
+                  </span>
+                </div>
+                <button 
+                  onClick={() => setShowMobileCard(false)}
+                  className="text-gray-500 hover:text-white transition text-xs font-black p-1 leading-none"
+                  title="Close panel"
+                >
+                  ✕
+                </button>
+              </div>
+              
+              <h4 className="text-base font-black text-white mt-2 tracking-tight">
+                {activeMilestone.title}
+              </h4>
+              
+              <p className="text-gray-400 text-xs mt-1.5 leading-relaxed font-light line-clamp-2">
+                {activeMilestone.desc}
+              </p>
+
+              <div className="mt-4 pt-3 border-t border-slate-900 flex items-center justify-between">
+                <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">📋 deliverables</span>
+                <span className={`text-[10px] font-extrabold ${activeStageText}`}>
+                  {activeMilestone.checklist.length} Tasks to Complete
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
 
       </div>
     </section>
