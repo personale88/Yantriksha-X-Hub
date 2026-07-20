@@ -27,7 +27,7 @@ export default function Navbar() {
         </Link>
 
         {/* Menu */}
-        <ul className="hidden md:flex items-center gap-8">
+        <ul className="hidden md:flex items-center gap-1.5 lg:gap-4">
           {[
             { label: "Home", href: "/#home" },
             { label: "About", href: "/#about" },

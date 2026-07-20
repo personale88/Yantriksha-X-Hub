@@ -505,16 +505,16 @@ export default function SuperAdminClient({ currentAdmin }: { currentAdmin: SaUse
   };
 
   return (
-    <main className="min-h-screen bg-space-grid text-white flex flex-col md:flex-row relative overflow-hidden">
+    <main className="min-h-screen bg-space-grid text-white flex flex-row relative overflow-hidden">
       
-      {/* ── Sidebar Navigation ── */}
-      <aside className="w-full md:w-72 bg-slate-900/90 backdrop-blur-xl border-b md:border-b-0 md:border-r border-slate-800/80 flex flex-col z-20 shrink-0">
-        <div className="p-6 border-b border-slate-800/60 flex items-center justify-between">
+      {/* ── Sidebar Navigation (Slim w-16 on mobile, expanded w-72 on desktop) ── */}
+      <aside className="w-16 md:w-72 bg-slate-900/90 backdrop-blur-xl border-r border-slate-800/80 flex flex-col z-20 shrink-0 transition-all duration-300">
+        <div className="p-3.5 md:p-6 border-b border-slate-800/60 flex items-center justify-center md:justify-start">
           <Link href="/" className="flex items-center gap-3 group">
             <div className="relative h-9 w-9 rounded-lg overflow-hidden border border-slate-700/60 group-hover:border-blue-500/50 transition">
               <Image src="/logo.png" alt="logo" fill className="object-contain" style={{ mixBlendMode: 'screen' }} />
             </div>
-            <span className="text-base font-extrabold flex items-center">
+            <span className="hidden md:flex items-center text-base font-extrabold">
               <span className="bg-gradient-to-r from-blue-400 to-blue-500 bg-clip-text text-transparent">Yantriksha</span>
               <span className="inline-block relative h-6 w-8 mx-0.5 align-middle shrink-0">
                 <Image src="/logo.png" fill className="object-contain" style={{ mixBlendMode: 'screen' }} alt="X" />
@@ -525,15 +525,15 @@ export default function SuperAdminClient({ currentAdmin }: { currentAdmin: SaUse
         </div>
 
         {/* Super Admin Tag */}
-        <div className="px-6 py-4 bg-slate-950/40 border-b border-slate-800/60 flex items-center gap-3">
-          <div className="h-2 w-2 rounded-full bg-red-500 animate-pulse" />
-          <div className="text-left">
+        <div className="p-3 md:px-6 md:py-4 bg-slate-950/40 border-b border-slate-800/60 flex items-center justify-center md:justify-start gap-3">
+          <div className="h-2 w-2 rounded-full bg-red-500 animate-pulse shrink-0" />
+          <div className="hidden md:block text-left">
             <p className="text-[10px] font-semibold text-gray-500 uppercase tracking-widest">Super Admin</p>
             <p className="text-xs font-bold text-white leading-tight">{currentAdmin.name}</p>
           </div>
         </div>
 
-        <nav className="flex-1 p-5 space-y-1">
+        <nav className="flex-1 p-2 md:p-5 space-y-1">
           {[
             { id: 'dashboard', label: 'Dashboard Overview', icon: '📊' },
             { id: 'students', label: 'Student Management', icon: '👥' },
@@ -549,27 +549,29 @@ export default function SuperAdminClient({ currentAdmin }: { currentAdmin: SaUse
             <button
               key={menu.id}
               onClick={() => { setActiveMenu(menu.id as any); setErrorMsg(''); setSuccessMsg(''); }}
-              className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-200 ${
+              className={`w-full flex items-center justify-center md:justify-start gap-3.5 p-3 md:px-4 md:py-3 rounded-xl text-sm font-semibold transition-all duration-200 ${
                 activeMenu === menu.id
                   ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/30'
                   : 'text-gray-400 hover:text-white hover:bg-slate-800/60'
               }`}
+              title={menu.label}
             >
-              <span className="text-lg">{menu.icon}</span>
-              {menu.label}
+              <span className="text-lg shrink-0">{menu.icon}</span>
+              <span className="hidden md:inline">{menu.label}</span>
             </button>
           ))}
         </nav>
 
-        <div className="p-5 border-t border-slate-800/60 space-y-2">
-          <Link href="/dashboard" className="w-full flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-750 text-gray-300 py-3 rounded-xl font-bold text-sm transition-all duration-200">
-            🏠 Exit Portal
+        <div className="p-2 md:p-5 border-t border-slate-800/60 space-y-2">
+          <Link href="/dashboard" className="w-full flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-750 text-gray-300 p-3 md:py-3 rounded-xl font-bold text-sm transition-all duration-200" title="Exit Portal">
+            <span>🏠</span><span className="hidden md:inline"> Exit Portal</span>
           </Link>
           <button
             onClick={handleLogout}
-            className="w-full flex items-center justify-center gap-2 bg-red-950/40 hover:bg-red-900/60 border border-red-900/40 text-red-400 py-3 rounded-xl font-bold text-sm transition-all duration-200"
+            className="w-full flex items-center justify-center gap-2 bg-red-950/40 hover:bg-red-900/60 border border-red-900/40 text-red-400 p-3 md:py-3 rounded-xl font-bold text-sm transition-all duration-200"
+            title="Logout"
           >
-            🚪 Logout
+            <span>🚪</span><span className="hidden md:inline"> Logout</span>
           </button>
         </div>
       </aside>

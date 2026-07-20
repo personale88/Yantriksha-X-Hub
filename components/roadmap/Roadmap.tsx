@@ -193,11 +193,6 @@ const STOPS_COORDINATES = [
 export default function Roadmap() {
   const [selectedIdx, setSelectedIdx] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [showMobileCard, setShowMobileCard] = useState(true);
-
-  useEffect(() => {
-    setShowMobileCard(true);
-  }, [selectedIdx]);
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -256,8 +251,25 @@ export default function Roadmap() {
     activeStageText = 'text-emerald-400';
   }
 
+
+
   return (
     <section id="roadmap" className="bg-slate-950 py-16 text-white relative overflow-hidden">
+      
+      {/* Safe responsive stylesheet to bypass SSR hydration mismatches */}
+      <style dangerouslySetInnerHTML={{ __html: `
+        .road-col { width: 145px !important; padding: 10px !important; }
+        .road-track { width: 120px !important; height: 100% !important; min-height: 380px !important; }
+        
+        @media (min-width: 640px) {
+          .road-col { width: 250px !important; padding: 16px !important; }
+          .road-track { width: 210px !important; height: 100% !important; min-height: 460px !important; }
+        }
+        @media (min-width: 1024px) {
+          .road-col { width: auto !important; padding: 24px !important; }
+          .road-track { width: 400px !important; height: 100% !important; min-height: 460px !important; }
+        }
+      `}} />
       
       {/* Decorative background glows */}
       <div className="absolute top-1/4 left-10 w-96 h-96 bg-blue-600/5 rounded-full blur-[120px] pointer-events-none" />
@@ -301,24 +313,25 @@ export default function Roadmap() {
         </div>
 
         {/* Highway Winding Canvas & Detail Split Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start mt-12">
+        <div className="flex lg:grid lg:grid-cols-12 gap-3 sm:gap-6 lg:gap-12 items-start mt-12 w-full">
           
-          {/* LEFT COLUMN: The Winding Highway Track Map (lg:col-span-5) */}
-          <div className="lg:col-span-5 flex justify-center relative bg-slate-900/30 border border-slate-900/60 p-6 rounded-3xl backdrop-blur">
+          {/* LEFT COLUMN: The Winding Highway Track Map (col-span-6 on desktop, dynamic width on mobile) */}
+          <div className="road-col lg:col-span-6 flex justify-center relative bg-slate-900/30 border border-slate-900/60 rounded-2xl sm:rounded-3xl backdrop-blur shrink-0">
             
             {/* Ambient track glow */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-[750px] bg-blue-500/5 rounded-full blur-[70px] pointer-events-none" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-blue-500/5 rounded-full blur-[40px] sm:blur-[70px] pointer-events-none" />
 
-            <div className="relative w-[360px] h-[880px]">
+            <div className="road-track relative">
               
-              {/* SVG Highway Winding Path */}
+              {/* SVG Highway Winding Path (Stretches vertically to cover the space!) */}
               <svg
-                width="360"
-                height="880"
+                width="100%"
+                height="100%"
                 viewBox="0 0 400 900"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
                 className="absolute inset-0"
+                preserveAspectRatio="none"
               >
                 {/* 1. Glow border under the road */}
                 <path
@@ -350,11 +363,23 @@ export default function Roadmap() {
                   opacity="0.85"
                 />
 
-                {/* 4. Glowing Cyber Rover Car */}
-                <g
-                  transform={`translate(${activeCoord.x}, ${activeCoord.y}) rotate(${activeCoord.rot})`}
-                  style={{ transition: 'transform 0.9s cubic-bezier(0.25, 0.8, 0.25, 1)' }}
-                >
+              </svg>
+
+              {/* 4. Glowing Cyber Rover Car Absolute Overlay (never deforms!) */}
+              <div 
+                className="absolute pointer-events-none z-20"
+                style={{ 
+                  left: `${(activeCoord.x / 400) * 100}%`, 
+                  top: `${(activeCoord.y / 900) * 100}%`,
+                  width: '48px',
+                  height: '28px',
+                  marginLeft: '-24px',
+                  marginTop: '-14px',
+                  transform: `rotate(${activeCoord.rot}deg)`,
+                  transition: 'left 0.9s cubic-bezier(0.25, 0.8, 0.25, 1), top 0.9s cubic-bezier(0.25, 0.8, 0.25, 1), transform 0.9s ease'
+                }}
+              >
+                <svg width="48" height="28" viewBox="-24 -14 48 28" fill="none">
                   {/* Outer laser hover glow */}
                   <rect x="-24" y="-14" width="48" height="28" rx="8" fill={carGlowColor} filter="blur(4px)" style={{ transition: 'fill 0.5s ease' }} />
                   {/* Cyber sports car chassis */}
@@ -366,8 +391,8 @@ export default function Roadmap() {
                   <circle cx="16" cy="5" r="2" fill={carHeadlightColor} style={{ transition: 'fill 0.5s ease' }} />
                   {/* Rear exhaust thrust flame */}
                   <path d="M -18 0 L -29 -4 L -25 0 L -29 4 Z" fill={carThemeColor} opacity="0.75" style={{ transition: 'fill 0.5s ease' }} />
-                </g>
-              </svg>
+                </svg>
+              </div>
 
               {/* 5. Stops / Milestones Overlay Buttons */}
               {STOPS_COORDINATES.map((stop, idx) => {
@@ -397,13 +422,13 @@ export default function Roadmap() {
                   >
                     {/* Ring Pulse for active stop */}
                     {isSelected && (
-                      <span className="absolute inset-[-10px] rounded-full bg-blue-500/20 border border-blue-400/40 animate-ping pointer-events-none" />
+                      <span className="absolute inset-[-5px] sm:inset-[-10px] rounded-full bg-blue-500/20 border border-blue-400/40 animate-ping pointer-events-none" />
                     )}
 
                     {/* Glowing Stop Circle */}
-                    <div className={`h-7 w-7 rounded-full border-[3.5px] border-slate-950 flex items-center justify-center font-black text-[9px] cursor-pointer transition duration-300 hover:scale-125 ${
+                    <div className={`h-5 w-5 sm:h-7 sm:w-7 rounded-full border-[2px] sm:border-[3.5px] border-slate-950 flex items-center justify-center font-black text-[7px] sm:text-[9px] cursor-pointer transition duration-300 hover:scale-125 ${
                       isSelected 
-                        ? 'bg-white text-slate-950 scale-110 shadow-[0_0_20px_#ffffff]'
+                        ? 'bg-white text-slate-950 scale-110 shadow-[0_0_15px_#ffffff]'
                         : `${stopGlow} text-white`
                     }`}>
                       {milestone.number}
@@ -420,47 +445,47 @@ export default function Roadmap() {
             </div>
           </div>
 
-          {/* RIGHT COLUMN: The Interactive Milestone Control Dashboard (lg:col-span-7) */}
-          <div className="lg:col-span-7 space-y-6">
+          {/* RIGHT COLUMN: The Interactive Milestone Control Dashboard (col-span-6 on desktop, flex-1 remaining width on mobile) */}
+          <div className="flex-1 min-w-0 lg:col-span-6 space-y-4 lg:space-y-6">
             
             {/* Highlighted selected Card */}
-            <div className="glass-card rounded-3xl p-8 border border-slate-800/80 shadow-2xl relative overflow-hidden bg-gradient-to-br from-slate-900/90 via-slate-900/60 to-blue-950/10 min-h-[460px] flex flex-col justify-between">
+            <div className="glass-card rounded-3xl p-4 sm:p-6 lg:p-8 border border-slate-800/80 shadow-2xl relative overflow-hidden bg-gradient-to-br from-slate-900/90 via-slate-900/60 to-blue-950/10 min-h-[380px] sm:min-h-[460px] flex flex-col justify-between">
               
               <div className="absolute top-0 right-0 w-36 h-36 bg-blue-600/5 rounded-full blur-[40px] pointer-events-none" />
               
               <div>
                 
                 {/* Header Tag info */}
-                <div className="flex flex-wrap items-center justify-between gap-4 pb-5 border-b border-slate-800/60">
-                  <div className="flex items-center gap-3">
-                    <span className="text-gray-500 font-bold text-sm tracking-wider font-mono">
+                <div className="flex flex-wrap items-center justify-between gap-2 pb-3 sm:pb-5 border-b border-slate-800/60">
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <span className="text-gray-500 font-bold text-[9px] sm:text-sm tracking-wider font-mono">
                       STOP #{activeMilestone.number}
                     </span>
-                    <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border uppercase tracking-wider ${activeMilestone.badgeColor}`}>
-                      {activeMilestone.stage}
+                    <span className={`px-1.5 py-0.5 sm:px-2.5 sm:py-0.5 rounded-full text-[8px] sm:text-[10px] font-bold border uppercase tracking-wider ${activeMilestone.badgeColor}`}>
+                      {activeMilestone.stage.split(': ')[1] || activeMilestone.stage}
                     </span>
                   </div>
-                  <span className="text-xs text-gray-500 font-bold">Incubation Phase Marker</span>
+                  <span className="text-[8px] sm:text-xs text-gray-500 font-bold">Incubation Phase</span>
                 </div>
 
                 {/* Stop Title */}
-                <h3 className="text-3xl font-black mt-6 tracking-tight text-white">
+                <h3 className="text-base sm:text-3xl font-black mt-3 sm:mt-6 tracking-tight text-white">
                   {activeMilestone.title}
                 </h3>
 
                 {/* Stop Description */}
-                <p className="text-gray-300 text-sm mt-4 leading-relaxed font-light">
+                <p className="text-gray-300 text-[10px] sm:text-sm mt-2 sm:mt-4 leading-relaxed font-light">
                   {activeMilestone.desc}
                 </p>
 
                 {/* Milestone Quest Checklist */}
-                <div className="mt-8 bg-slate-950/60 rounded-2xl p-5 border border-slate-800/80">
-                  <h4 className="text-xs font-bold text-blue-400 uppercase tracking-widest mb-3.5">
+                <div className="mt-4 sm:mt-8 bg-slate-950/60 rounded-xl sm:rounded-2xl p-3 sm:p-5 border border-slate-800/80">
+                  <h4 className="text-[9px] sm:text-xs font-bold text-blue-400 uppercase tracking-widest mb-2 sm:mb-3.5">
                     📋 Checklist to Pass this Stop:
                   </h4>
-                  <ul className="space-y-2.5 text-xs text-gray-400">
+                  <ul className="space-y-1.5 sm:space-y-2.5 text-[9px] sm:text-xs text-gray-400">
                     {activeMilestone.checklist.map((item, idx) => (
-                      <li key={idx} className="flex items-start gap-2.5 leading-relaxed">
+                      <li key={idx} className="flex items-start gap-1.5 sm:gap-2.5 leading-relaxed">
                         <span className="text-blue-500 shrink-0">✔</span>
                         <span>{item}</span>
                       </li>
@@ -471,14 +496,14 @@ export default function Roadmap() {
               </div>
 
               {/* Join Incubation Club callout */}
-              <div className="mt-8 flex justify-between items-center bg-blue-600/5 border border-blue-500/10 rounded-2xl p-5 gap-4">
+              <div className="mt-4 sm:mt-8 flex flex-col sm:flex-row justify-between items-center bg-blue-600/5 border border-blue-500/10 rounded-xl sm:rounded-2xl p-3 sm:p-5 gap-3 sm:gap-4 text-center sm:text-left">
                 <div className="text-left">
-                  <h4 className="font-bold text-xs text-white">Inspired to launch your product?</h4>
-                  <p className="text-[10px] text-gray-500 mt-1 leading-normal">Form your 10-member team and request your ₹50k seed funding today!</p>
+                  <h4 className="font-bold text-[10px] sm:text-xs text-white">Inspired to launch your product?</h4>
+                  <p className="text-[8px] sm:text-[10px] text-gray-500 mt-0.5 sm:mt-1 leading-normal">Form your 10-member team and request your ₹50k seed funding today!</p>
                 </div>
                 <a
                   href="/register"
-                  className="bg-blue-600 hover:bg-blue-750 text-white font-bold text-xs px-5 py-3 rounded-xl transition shadow-lg shadow-blue-900/30 hover:-translate-y-0.5 shrink-0"
+                  className="w-full sm:w-auto text-center bg-blue-600 hover:bg-blue-750 text-white font-bold text-[9px] sm:text-xs px-4 py-2.5 sm:px-5 sm:py-3 rounded-lg sm:rounded-xl transition shadow-lg shadow-blue-900/30 hover:-translate-y-0.5 shrink-0"
                 >
                   Join Hub Now →
                 </a>
@@ -486,128 +511,90 @@ export default function Roadmap() {
 
             </div>
 
-            {/* Stage Quick Jump Shortcuts */}
-            <div className="glass-card rounded-3xl p-6 border border-slate-800/60 space-y-4">
-              <h4 className="text-xs font-extrabold text-gray-500 uppercase tracking-widest mb-2">
-                🚀 Quick Jump Stops by Stages
-              </h4>
-              
-              <div className="space-y-3">
-                {/* Stage -1 */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 bg-slate-950/40 rounded-2xl border border-slate-900/60">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-red-400">Stage -1 (Confusion)</span>
-                  <div className="flex gap-2 flex-wrap">
-                    {roadmapData.filter(item => item.stage.includes('Stage -1')).map(item => {
-                      const idx = roadmapData.findIndex(r => r.number === item.number);
-                      const isSelected = selectedIdx === idx;
-                      return (
-                        <button
-                          key={item.number}
-                          onClick={() => { setSelectedIdx(idx); setIsPlaying(false); }}
-                          className={`h-8 w-8 rounded-full flex items-center justify-center text-xs font-extrabold transition-all duration-300 ${
-                            isSelected
-                              ? 'bg-white text-slate-950 shadow-[0_0_15px_rgba(255,255,255,0.8)] scale-110'
-                              : 'bg-red-950/40 border border-red-900/40 text-red-400 hover:bg-red-900/20'
-                          }`}
-                        >
-                          {item.number}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Stage 0 */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 bg-slate-950/40 rounded-2xl border border-slate-900/60">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-amber-400">Stage 0 (Idea)</span>
-                  <div className="flex gap-2 flex-wrap">
-                    {roadmapData.filter(item => item.stage.includes('Stage 0')).map(item => {
-                      const idx = roadmapData.findIndex(r => r.number === item.number);
-                      const isSelected = selectedIdx === idx;
-                      return (
-                        <button
-                          key={item.number}
-                          onClick={() => { setSelectedIdx(idx); setIsPlaying(false); }}
-                          className={`h-8 w-8 rounded-full flex items-center justify-center text-xs font-extrabold transition-all duration-300 ${
-                            isSelected
-                              ? 'bg-white text-slate-950 shadow-[0_0_15px_rgba(255,255,255,0.8)] scale-110'
-                              : 'bg-amber-950/40 border border-amber-900/40 text-amber-400 hover:bg-amber-900/20'
-                          }`}
-                        >
-                          {item.number}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Stage 1 */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 bg-slate-950/40 rounded-2xl border border-slate-900/60">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400">Stage 1 (Product)</span>
-                  <div className="flex gap-2 flex-wrap">
-                    {roadmapData.filter(item => item.stage.includes('Stage 1')).map(item => {
-                      const idx = roadmapData.findIndex(r => r.number === item.number);
-                      const isSelected = selectedIdx === idx;
-                      return (
-                        <button
-                          key={item.number}
-                          onClick={() => { setSelectedIdx(idx); setIsPlaying(false); }}
-                          className={`h-8 w-8 rounded-full flex items-center justify-center text-xs font-extrabold transition-all duration-300 ${
-                            isSelected
-                              ? 'bg-white text-slate-950 shadow-[0_0_15px_rgba(255,255,255,0.8)] scale-110'
-                              : 'bg-emerald-950/40 border border-emerald-900/40 text-emerald-400 hover:bg-emerald-900/20'
-                          }`}
-                        >
-                          {item.number}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
-            </div>
-
           </div>
 
         </div>
 
-        {/* Sticky Mobile Active Stop Info (Only visible on mobile/tablet) */}
-        {showMobileCard && (
-          <div className="lg:hidden sticky bottom-6 left-4 right-4 z-40 max-w-md mx-auto mt-6 animate-fadeIn transition-all duration-300">
-            <div className={`glass-card rounded-2xl p-5 border bg-slate-950/95 backdrop-blur-md transition-all duration-500 ${activeBorderGlow}`}>
-              <div className="flex items-center justify-between gap-4">
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-bold text-gray-500 font-mono">STOP #{activeMilestone.number}</span>
-                  <span className={`px-2 py-0.5 rounded-full text-[9px] font-extrabold border uppercase tracking-wider ${activeMilestone.badgeColor}`}>
-                    {activeMilestone.stage.split(': ')[1] || activeMilestone.stage}
-                  </span>
-                </div>
-                <button 
-                  onClick={() => setShowMobileCard(false)}
-                  className="text-gray-500 hover:text-white transition text-xs font-black p-1 leading-none"
-                  title="Close panel"
-                >
-                  ✕
-                </button>
+        {/* Stage Quick Jump Shortcuts (Moved outside to take full width and cover the empty space) */}
+        <div className="glass-card rounded-3xl p-6 border border-slate-800/60 space-y-4 mt-8 sm:mt-12 w-full">
+          <h4 className="text-xs font-extrabold text-gray-500 uppercase tracking-widest mb-2">
+            🚀 Quick Jump Stops by Stages
+          </h4>
+          
+          <div className="space-y-3">
+            {/* Stage -1 */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 bg-slate-950/40 rounded-2xl border border-slate-900/60">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-red-400">Stage -1 (Confusion)</span>
+              <div className="flex gap-2 flex-wrap">
+                {roadmapData.filter(item => item.stage.includes('Stage -1')).map(item => {
+                  const idx = roadmapData.findIndex(r => r.number === item.number);
+                  const isSelected = selectedIdx === idx;
+                  return (
+                    <button
+                      key={item.number}
+                      onClick={() => { setSelectedIdx(idx); setIsPlaying(false); }}
+                      className={`h-8 w-8 rounded-full flex items-center justify-center text-xs font-extrabold transition-all duration-300 ${
+                        isSelected
+                          ? 'bg-white text-slate-950 shadow-[0_0_15px_rgba(255,255,255,0.8)] scale-110'
+                          : 'bg-red-950/40 border border-red-900/40 text-red-400 hover:bg-red-900/20'
+                      }`}
+                    >
+                      {item.number}
+                    </button>
+                  );
+                })}
               </div>
-              
-              <h4 className="text-base font-black text-white mt-2 tracking-tight">
-                {activeMilestone.title}
-              </h4>
-              
-              <p className="text-gray-400 text-xs mt-1.5 leading-relaxed font-light line-clamp-2">
-                {activeMilestone.desc}
-              </p>
+            </div>
 
-              <div className="mt-4 pt-3 border-t border-slate-900 flex items-center justify-between">
-                <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">📋 deliverables</span>
-                <span className={`text-[10px] font-extrabold ${activeStageText}`}>
-                  {activeMilestone.checklist.length} Tasks to Complete
-                </span>
+            {/* Stage 0 */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 bg-slate-950/40 rounded-2xl border border-slate-900/60">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-amber-400">Stage 0 (Idea)</span>
+              <div className="flex gap-2 flex-wrap">
+                {roadmapData.filter(item => item.stage.includes('Stage 0')).map(item => {
+                  const idx = roadmapData.findIndex(r => r.number === item.number);
+                  const isSelected = selectedIdx === idx;
+                  return (
+                    <button
+                      key={item.number}
+                      onClick={() => { setSelectedIdx(idx); setIsPlaying(false); }}
+                      className={`h-8 w-8 rounded-full flex items-center justify-center text-xs font-extrabold transition-all duration-300 ${
+                        isSelected
+                          ? 'bg-white text-slate-950 shadow-[0_0_15px_rgba(255,255,255,0.8)] scale-110'
+                          : 'bg-amber-950/40 border border-amber-900/40 text-amber-400 hover:bg-amber-900/20'
+                      }`}
+                    >
+                      {item.number}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Stage 1 */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 bg-slate-950/40 rounded-2xl border border-slate-900/60">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400">Stage 1 (Product)</span>
+              <div className="flex gap-2 flex-wrap">
+                {roadmapData.filter(item => item.stage.includes('Stage 1')).map(item => {
+                  const idx = roadmapData.findIndex(r => r.number === item.number);
+                  const isSelected = selectedIdx === idx;
+                  return (
+                    <button
+                      key={item.number}
+                      onClick={() => { setSelectedIdx(idx); setIsPlaying(false); }}
+                      className={`h-8 w-8 rounded-full flex items-center justify-center text-xs font-extrabold transition-all duration-300 ${
+                        isSelected
+                          ? 'bg-white text-slate-950 shadow-[0_0_15px_rgba(255,255,255,0.8)] scale-110'
+                          : 'bg-emerald-950/40 border border-emerald-900/40 text-emerald-400 hover:bg-emerald-900/20'
+                      }`}
+                    >
+                      {item.number}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           </div>
-        )}
+        </div>
 
       </div>
     </section>

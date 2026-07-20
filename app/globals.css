@@ -110,28 +110,22 @@ h1, h2, h3, h4, h5, h6 {
   border-bottom: 1px solid rgba(255,255,255,0.05);
 }
 
-/* Animated underline for nav links */
+/* Capsule pill menu links */
 .nav-link {
   position: relative;
   color: #94a3b8;
   font-size: 0.875rem;
-  font-weight: 500;
-  transition: color 0.2s;
-}
-.nav-link::after {
-  content: '';
-  position: absolute;
-  left: 0; bottom: -3px;
-  width: 0; height: 2px;
-  background: linear-gradient(90deg, #60a5fa, #818cf8);
-  border-radius: 2px;
-  transition: width 0.3s;
+  font-weight: 550;
+  padding: 0.375rem 0.875rem;
+  border-radius: 9999px;
+  border: 1px solid transparent;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .nav-link:hover {
-  color: #e2e8f0;
-}
-.nav-link:hover::after {
-  width: 100%;
+  color: #ffffff;
+  background: rgba(59, 130, 246, 0.08);
+  border-color: rgba(59, 130, 246, 0.25);
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.12);
 }
 
 /* Stage card accent bar */

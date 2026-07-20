@@ -206,18 +206,18 @@ export default function AdminClient({
   );
 
   return (
-    <main className="min-h-screen bg-space-grid text-white flex flex-col md:flex-row relative overflow-hidden">
+    <main className="min-h-screen bg-space-grid text-white flex flex-row relative overflow-hidden">
       
-      {/* ── Sidebar ── */}
-      <aside className="w-full md:w-72 bg-slate-900/90 backdrop-blur-xl border-b md:border-b-0 md:border-r border-slate-800/80 flex flex-col z-20 shrink-0">
+      {/* ── Sidebar (Slim w-16 on mobile, expanded w-72 on desktop) ── */}
+      <aside className="w-16 md:w-72 bg-slate-900/90 backdrop-blur-xl border-r border-slate-800/80 flex flex-col z-20 shrink-0 transition-all duration-300">
         
         {/* Brand Logo */}
-        <div className="p-6 border-b border-slate-800/60 flex items-center justify-between">
+        <div className="p-3.5 md:p-6 border-b border-slate-800/60 flex items-center justify-center md:justify-start">
           <Link href="/" className="flex items-center gap-3 group">
             <div className="relative h-9 w-9 rounded-lg overflow-hidden border border-slate-700/60 group-hover:border-blue-500/50 transition">
               <Image src="/logo.png" alt="logo" fill className="object-contain" style={{ mixBlendMode: 'screen' }} />
             </div>
-            <span className="text-base font-extrabold flex items-center">
+            <span className="hidden md:flex items-center text-base font-extrabold">
               <span className="bg-gradient-to-r from-blue-400 to-blue-500 bg-clip-text text-transparent">Yantriksha</span>
               <span className="inline-block relative h-6 w-8 mx-0.5 align-middle shrink-0">
                 <Image src="/logo.png" fill className="object-contain" style={{ mixBlendMode: 'screen' }} alt="X" />
@@ -228,7 +228,7 @@ export default function AdminClient({
         </div>
 
         {/* Menu items */}
-        <nav className="flex-1 p-5 space-y-1">
+        <nav className="flex-1 p-2 md:p-5 space-y-1">
           {[
             { id: 'overview', label: 'Overview Console', icon: '📊' },
             { id: 'users', label: 'User Directory', icon: '👥' },
@@ -239,28 +239,30 @@ export default function AdminClient({
             <button
               key={t.id}
               onClick={() => { setActiveTab(t.id as any); setErrorMsg(''); setSuccessMsg(''); }}
-              className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-200 ${
+              className={`w-full flex items-center justify-center md:justify-start gap-3.5 p-3 md:px-4 md:py-3 rounded-xl text-sm font-semibold transition-all duration-200 ${
                 activeTab === t.id
                   ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/30'
                   : 'text-gray-400 hover:text-white hover:bg-slate-800/60'
               }`}
+              title={t.label}
             >
-              <span className="text-lg">{t.icon}</span>
-              {t.label}
+              <span className="text-lg shrink-0">{t.icon}</span>
+              <span className="hidden md:inline">{t.label}</span>
             </button>
           ))}
         </nav>
 
         {/* Dash link / Logout */}
-        <div className="p-5 border-t border-slate-800/60 space-y-2">
-          <Link href="/dashboard" className="w-full flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-750 text-gray-300 py-3 rounded-xl font-bold text-sm transition-all duration-200">
-            🏠 User Dashboard
+        <div className="p-2 md:p-5 border-t border-slate-800/60 space-y-2">
+          <Link href="/dashboard" className="w-full flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-750 text-gray-300 p-3 md:py-3 rounded-xl font-bold text-sm transition-all duration-200" title="User Dashboard">
+            <span>🏠</span><span className="hidden md:inline"> User Dashboard</span>
           </Link>
           <button
             onClick={handleLogout}
-            className="w-full flex items-center justify-center gap-2 bg-red-950/40 hover:bg-red-900/60 border border-red-900/40 text-red-400 py-3 rounded-xl font-bold text-sm transition-all duration-200"
+            className="w-full flex items-center justify-center gap-2 bg-red-950/40 hover:bg-red-900/60 border border-red-900/40 text-red-400 p-3 md:py-3 rounded-xl font-bold text-sm transition-all duration-200"
+            title="Logout"
           >
-            🚪 Logout
+            <span>🚪</span><span className="hidden md:inline"> Logout</span>
           </button>
         </div>
       </aside>

@@ -67,8 +67,21 @@ export default function Footer() {
 
           {/* Contact & Socials */}
           <div>
-            <h4 className="text-white font-bold text-sm uppercase tracking-widest mb-5">Connect</h4>
-            <ul className="space-y-3">
+            <h4 className="text-white font-bold text-sm uppercase tracking-widest mb-5">Contact &amp; Connect</h4>
+            
+            {/* Contact Details */}
+            <div className="mb-5 space-y-3 text-sm text-gray-500">
+              <p className="flex items-center gap-2">
+                <span className="text-blue-400">📞</span>
+                <a href="tel:+919182169185" className="hover:text-blue-400 transition font-mono">+91 91821 69185</a>
+              </p>
+              <p className="flex items-center gap-2">
+                <span className="text-blue-400">✉</span>
+                <a href="mailto:yantrikshaxhub@gmail.com" className="hover:text-blue-400 transition font-mono break-all">yantrikshaxhub@gmail.com</a>
+              </p>
+            </div>
+
+            <ul className="space-y-3 border-t border-slate-900/60 pt-4">
               {socials.map(({ label, href }) => (
                 <li key={label}>
                   <a href={href} className="text-sm text-gray-500 hover:text-blue-400 transition-colors duration-200 flex items-center gap-1.5">
