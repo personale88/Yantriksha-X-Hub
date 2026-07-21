@@ -4,13 +4,10 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 
 export default function SplashPreloader() {
-  const [mounted, setMounted] = useState(false);
   const [visible, setVisible] = useState(true);
   const [fadeOut, setFadeOut] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
-    
     // Start fade out after 1.6 seconds
     const fadeTimer = setTimeout(() => {
       setFadeOut(true);
@@ -27,7 +24,7 @@ export default function SplashPreloader() {
     };
   }, []);
 
-  if (!mounted || !visible) return null;
+  if (!visible) return null;
 
   return (
     <div
