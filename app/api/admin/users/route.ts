@@ -13,7 +13,7 @@ export async function GET(req: Request) {
 
     // Fetch all users with basic columns
     const users = await query(`
-      SELECT id, veltech_id, name, email, role, discipline, status, phone_number, year_of_studying, branch, created_at 
+      SELECT id, veltech_id, name, email, role, discipline, status, phone_number, year_of_studying, branch, school, created_at 
       FROM users 
       ORDER BY name ASC
     `);

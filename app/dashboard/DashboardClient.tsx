@@ -27,6 +27,7 @@ interface User {
   phone_number?: string;
   year_of_studying?: number;
   branch?: string;
+  school?: string;
   notificationPreferences?: {
     club_updates: boolean;
     event_notifications: boolean;
@@ -35,6 +36,37 @@ interface User {
     recruitment_notifications: boolean;
   };
 }
+
+const DEPARTMENTS = [
+  { value: 'CSE', label: 'CSE - Computer Science & Engineering' },
+  { value: 'ECE', label: 'ECE - Electronics & Communication Engineering' },
+  { value: 'EEE', label: 'EEE - Electrical & Electronics Engineering' },
+  { value: 'MECH', label: 'MECH - Mechanical Engineering' },
+  { value: 'CIVIL', label: 'CIVIL - Civil Engineering' },
+  { value: 'AERO', label: 'AERO - Aeronautical Engineering' },
+  { value: 'BIOTECH', label: 'BIOTECH - Biotechnology' },
+  { value: 'IT', label: 'IT - Information Technology' },
+  { value: 'MBA', label: 'MBA - Master of Business Administration' },
+  { value: 'BBA', label: 'BBA - Bachelor of Business Administration' },
+  { value: 'B.Com', label: 'B.Com - Bachelor of Commerce' },
+  { value: 'BA LLB', label: 'BA LLB (Hons)' },
+  { value: 'BBA LLB', label: 'BBA LLB (Hons)' },
+  { value: 'LLB', label: 'LLB - Bachelor of Laws' },
+  { value: 'BCA', label: 'BCA - Bachelor of Computer Applications' },
+  { value: 'B.Sc', label: 'B.Sc - Bachelor of Science' },
+  { value: 'Other', label: 'Other Department' },
+];
+
+const SCHOOLS = [
+  { value: 'School of Computing', label: 'School of Computing' },
+  { value: 'School of Electrical & Electronics', label: 'School of Electrical & Electronics' },
+  { value: 'School of Mechanical & Construction', label: 'School of Mechanical & Construction' },
+  { value: 'School of Law', label: 'School of Law' },
+  { value: 'School of Management', label: 'School of Management' },
+  { value: 'School of Science & Humanities', label: 'School of Science & Humanities' },
+  { value: 'School of Media & Design', label: 'School of Media & Design' },
+  { value: 'Other', label: 'Other School / Division' },
+];
 
 interface TeamMember {
   id: number;
@@ -498,6 +530,16 @@ export default function DashboardClient({
     setLoading(true);
     setErrorMsg('');
     setSuccessMsg('');
+    
+    if (user.role === 'student') {
+      const phoneClean = (user.phone_number || '').trim();
+      if (!/^\d{10}$/.test(phoneClean)) {
+        setErrorMsg('Phone number must be exactly 10 digits.');
+        setLoading(false);
+        return;
+      }
+    }
+    
     try {
       const res = await fetch('/api/users/profile', {
         method: 'PUT',
@@ -507,6 +549,7 @@ export default function DashboardClient({
           phone_number: user.phone_number,
           year_of_studying: user.year_of_studying,
           branch: user.branch,
+          school: user.school,
           discipline: user.discipline,
           notificationPreferences: user.notificationPreferences || {
             club_updates: true,
@@ -1450,29 +1493,52 @@ export default function DashboardClient({
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
                   <div>
-                    <label className="block text-xs font-semibold text-gray-400 uppercase tracking-widest mb-2">Branch / Major</label>
-                    <input
-                      type="text"
-                      value={user.branch || ''}
-                      onChange={e => setUser({ ...user, branch: e.target.value })}
-                      placeholder="e.g. CSE"
-                      className={inp}
-                    />
+                    <label className="block text-xs font-semibold text-gray-400 uppercase tracking-widest mb-2">School / Schooling</label>
+                    <div className="relative">
+                      <select
+                        value={user.school || ''}
+                        onChange={e => setUser({ ...user, school: e.target.value })}
+                        className={sel}
+                      >
+                        <option value="" disabled className="bg-slate-900 text-gray-500">Select School</option>
+                        {SCHOOLS.map(s => (
+                          <option key={s.value} value={s.value} className="bg-slate-900">{s.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-400 uppercase tracking-widest mb-2">Branch / Department</label>
+                    <div className="relative">
+                      <select
+                        value={user.branch || ''}
+                        onChange={e => setUser({ ...user, branch: e.target.value })}
+                        className={sel}
+                      >
+                        <option value="" disabled className="bg-slate-900 text-gray-500">Select Department</option>
+                        {DEPARTMENTS.map(d => (
+                          <option key={d.value} value={d.value} className="bg-slate-900">{d.label}</option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
 
                   <div>
                     <label className="block text-xs font-semibold text-gray-400 uppercase tracking-widest mb-2">Year of Study</label>
-                    <select
-                      value={user.year_of_studying || 1}
-                      onChange={e => setUser({ ...user, year_of_studying: parseInt(e.target.value, 10) })}
-                      className={sel}
-                    >
-                      {[1, 2, 3, 4].map(y => (
-                        <option key={y} value={y} className="bg-slate-900">{y}nd Year</option>
-                      ))}
-                    </select>
+                    <div className="relative">
+                      <select
+                        value={user.year_of_studying || 1}
+                        onChange={e => setUser({ ...user, year_of_studying: parseInt(e.target.value, 10) })}
+                        className={sel}
+                      >
+                        {[1, 2, 3, 4].map(y => (
+                          <option key={y} value={y} className="bg-slate-900">{y}nd Year</option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
                 </div>
 

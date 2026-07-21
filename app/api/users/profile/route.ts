@@ -11,7 +11,7 @@ export async function GET(req: Request) {
     }
 
     const users = await query(`
-      SELECT u.id, u.veltech_id, u.name, u.email, u.role, u.discipline, u.phone_number, u.year_of_studying, u.branch, u.created_at,
+      SELECT u.id, u.veltech_id, u.name, u.email, u.role, u.discipline, u.phone_number, u.year_of_studying, u.branch, u.school, u.created_at,
              np.club_updates, np.event_notifications, np.general_announcements, np.newsletter, np.recruitment_notifications
       FROM users u
       LEFT JOIN notification_preferences np ON u.id = np.user_id
@@ -34,6 +34,7 @@ export async function GET(req: Request) {
       phone_number: dbUser.phone_number,
       year_of_studying: dbUser.year_of_studying,
       branch: dbUser.branch,
+      school: dbUser.school,
       created_at: dbUser.created_at,
       notificationPreferences: {
         club_updates: dbUser.club_updates === null ? true : !!dbUser.club_updates,
@@ -60,7 +61,7 @@ export async function PUT(req: Request) {
     }
 
     const body = await req.json();
-    const { name, phone_number, year_of_studying, branch, discipline, notificationPreferences } = body;
+    const { name, phone_number, year_of_studying, branch, school, discipline, notificationPreferences } = body;
 
     if (!name) {
       return NextResponse.json({ success: false, error: 'Name is required' }, { status: 400 });
@@ -71,13 +72,14 @@ export async function PUT(req: Request) {
     // 1. Update basic user details
     await query(
       `UPDATE users 
-       SET name = ?, phone_number = ?, year_of_studying = ?, branch = ?, discipline = ?
+       SET name = ?, phone_number = ?, year_of_studying = ?, branch = ?, school = ?, discipline = ?
        WHERE id = ?`,
       [
         name,
         phone_number || null,
         parsedYear,
         branch || null,
+        school || null,
         discipline || 'engineering',
         auth.userId
       ]

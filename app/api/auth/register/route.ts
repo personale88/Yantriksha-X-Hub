@@ -7,7 +7,7 @@ import { queueEmail, generateEmailTemplate } from '@/lib/emailQueue';
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { veltech_id, name, email, role, discipline, password, phone_number, year_of_studying, branch, college } = body;
+    const { veltech_id, name, email, role, discipline, password, phone_number, year_of_studying, branch, school, college } = body;
 
     // 1. Basic validation
     if (!veltech_id || !name || !email || !role || !discipline || !password) {
@@ -19,9 +19,15 @@ export async function POST(req: Request) {
 
     // Student fields validation
     if (role === 'student') {
-      if (!phone_number || !year_of_studying || !branch) {
+      if (!phone_number || !year_of_studying || !branch || !school) {
         return NextResponse.json(
-          { success: false, error: 'Phone number, year of studying, and branch are required for students' },
+          { success: false, error: 'Phone number, year of studying, branch, and school are required for students' },
+          { status: 400 }
+        );
+      }
+      if (!/^\d{10}$/.test(phone_number.trim())) {
+        return NextResponse.json(
+          { success: false, error: 'Phone number must be exactly 10 digits' },
           { status: 400 }
         );
       }
@@ -66,8 +72,8 @@ export async function POST(req: Request) {
     try {
       const parsedYear = year_of_studying ? parseInt(year_of_studying, 10) : null;
       await query(
-        `INSERT INTO users (veltech_id, name, email, role, discipline, password_hash, phone_number, year_of_studying, branch, status) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        `INSERT INTO users (veltech_id, name, email, role, discipline, password_hash, phone_number, year_of_studying, branch, school, status) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           // veltech_id field stores the student ID (may be from any college)
           `${college || 'vel_tech'}:${veltech_id}`,
@@ -79,6 +85,7 @@ export async function POST(req: Request) {
           phone_number || null,
           parsedYear,
           branch || null,
+          school || null,
           'pending'
         ]
       );

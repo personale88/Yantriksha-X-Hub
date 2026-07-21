@@ -135,6 +135,10 @@ async function ensureEmailSystemTables(p: mysql.Pool) {
         console.log("[DB] Adding reset_token_expires to users table...");
         await connection.query("ALTER TABLE users ADD COLUMN reset_token_expires TIMESTAMP NULL;");
       }
+      if (!columnNames.includes('school')) {
+        console.log("[DB] Adding school to users table...");
+        await connection.query("ALTER TABLE users ADD COLUMN school VARCHAR(100) NULL;");
+      }
 
       console.log("[DB] Email system tables and columns successfully verified.");
     } finally {

@@ -19,6 +19,37 @@ const COLLEGES = [
   { value: 'other',      label: 'Other College / University',                  emailDomain: '',                   idPlaceholder: 'Enter your student/roll number', idLabel: 'Student ID / Roll Number' },
 ];
 
+const DEPARTMENTS = [
+  { value: 'CSE', label: 'CSE - Computer Science & Engineering' },
+  { value: 'ECE', label: 'ECE - Electronics & Communication Engineering' },
+  { value: 'EEE', label: 'EEE - Electrical & Electronics Engineering' },
+  { value: 'MECH', label: 'MECH - Mechanical Engineering' },
+  { value: 'CIVIL', label: 'CIVIL - Civil Engineering' },
+  { value: 'AERO', label: 'AERO - Aeronautical Engineering' },
+  { value: 'BIOTECH', label: 'BIOTECH - Biotechnology' },
+  { value: 'IT', label: 'IT - Information Technology' },
+  { value: 'MBA', label: 'MBA - Master of Business Administration' },
+  { value: 'BBA', label: 'BBA - Bachelor of Business Administration' },
+  { value: 'B.Com', label: 'B.Com - Bachelor of Commerce' },
+  { value: 'BA LLB', label: 'BA LLB (Hons)' },
+  { value: 'BBA LLB', label: 'BBA LLB (Hons)' },
+  { value: 'LLB', label: 'LLB - Bachelor of Laws' },
+  { value: 'BCA', label: 'BCA - Bachelor of Computer Applications' },
+  { value: 'B.Sc', label: 'B.Sc - Bachelor of Science' },
+  { value: 'Other', label: 'Other Department' },
+];
+
+const SCHOOLS = [
+  { value: 'School of Computing', label: 'School of Computing' },
+  { value: 'School of Electrical & Electronics', label: 'School of Electrical & Electronics' },
+  { value: 'School of Mechanical & Construction', label: 'School of Mechanical & Construction' },
+  { value: 'School of Law', label: 'School of Law' },
+  { value: 'School of Management', label: 'School of Management' },
+  { value: 'School of Science & Humanities', label: 'School of Science & Humanities' },
+  { value: 'School of Media & Design', label: 'School of Media & Design' },
+  { value: 'Other', label: 'Other School / Division' },
+];
+
 /* ── Reusable field wrapper with left icon ── */
 function Field({
   icon, label, hint, children,
@@ -65,7 +96,7 @@ export default function RegisterPage() {
 
   const [formData, setFormData] = useState({
     name: '', college: 'vel_tech', college_name: '', veltech_id: '',
-    email: '', phone_number: '', year_of_studying: '1', branch: '',
+    email: '', phone_number: '', year_of_studying: '1', branch: '', school: '',
     role: 'student', discipline: 'engineering', password: '',
   });
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -88,6 +119,15 @@ export default function RegisterPage() {
     setError(''); setSuccess(''); setPasswordError('');
     if (formData.password !== confirmPassword) { setPasswordError('Passwords do not match.'); return; }
     if (formData.password.length < 8) { setPasswordError('Password must be at least 8 characters.'); return; }
+    
+    if (formData.role === 'student') {
+      const phoneClean = formData.phone_number.trim();
+      if (!/^\d{10}$/.test(phoneClean)) {
+        setError('Phone number must be exactly 10 digits.');
+        return;
+      }
+    }
+    
     setLoading(true);
     try {
       const res = await fetch('/api/auth/register', {
@@ -305,10 +345,11 @@ export default function RegisterPage() {
                 {formData.role === 'student' && (
                   <div className="bg-blue-950/20 border border-blue-900/30 rounded-xl p-5 space-y-4">
                     <SectionHeader icon="📋" title="Student Profile Details" color="blue" />
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                      <Field icon="📞" label="Phone Number">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <Field icon="📞" label="Phone Number" hint="(10 digits)">
                         <input type="tel" name="phone_number" value={formData.phone_number}
-                          onChange={handleChange} placeholder="10-digit number"
+                          onChange={handleChange} placeholder="e.g. 9182169185"
+                          pattern="[0-9]{10}" maxLength={10}
                           className={inp} required />
                       </Field>
 
@@ -325,10 +366,30 @@ export default function RegisterPage() {
                         </div>
                       </Field>
 
-                      <Field icon="🌿" label="Branch">
-                        <input type="text" name="branch" value={formData.branch}
-                          onChange={handleChange} placeholder="e.g. CSE, ECE, LLB"
-                          className={inp} required />
+                      <Field icon="🏫" label="Schooling / School">
+                        <div className="relative">
+                          <select name="school" value={formData.school}
+                            onChange={handleChange} className={sel} required>
+                            <option value="" disabled className="bg-slate-900 text-gray-550">Select School</option>
+                            {SCHOOLS.map(s => (
+                              <option key={s.value} value={s.value} className="bg-slate-900">{s.label}</option>
+                            ))}
+                          </select>
+                          <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none text-xs">▾</span>
+                        </div>
+                      </Field>
+
+                      <Field icon="🌿" label="Branch / Department">
+                        <div className="relative">
+                          <select name="branch" value={formData.branch}
+                            onChange={handleChange} className={sel} required>
+                            <option value="" disabled className="bg-slate-900 text-gray-550">Select Department</option>
+                            {DEPARTMENTS.map(d => (
+                              <option key={d.value} value={d.value} className="bg-slate-900">{d.label}</option>
+                            ))}
+                          </select>
+                          <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none text-xs">▾</span>
+                        </div>
                       </Field>
                     </div>
                   </div>
