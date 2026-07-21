@@ -1,6 +1,7 @@
 import mysql from 'mysql2/promise';
 
 let pool: mysql.Pool | null = null;
+let initPromise: Promise<void> | null = null;
 
 export function getPool(): mysql.Pool {
   if (!pool) {
@@ -29,7 +30,7 @@ export function getPool(): mysql.Pool {
     });
     
     // Asynchronously ensure database tables exist on startup
-    ensureEmailSystemTables(pool);
+    initPromise = ensureEmailSystemTables(pool);
   }
   return pool;
 }
@@ -150,6 +151,9 @@ async function ensureEmailSystemTables(p: mysql.Pool) {
  */
 export async function query<T = any>(sql: string, params?: any[]): Promise<T> {
   const connectionPool = getPool();
+  if (initPromise) {
+    await initPromise;
+  }
   const [rows] = await connectionPool.execute(sql, params);
   return rows as T;
 }
