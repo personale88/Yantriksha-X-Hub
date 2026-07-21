@@ -82,6 +82,89 @@ export default function About() {
           </div>
 
         </div>
+
+        {/* Meaning of YantrikshaX Hub Section */}
+        <div className="mt-20 border-t border-slate-900/60 pt-16">
+          <div className="text-center max-w-3xl mx-auto mb-12">
+            <span className="section-pill inline-block">✦ Decoding YantrikshaX</span>
+            <h3 className="text-3xl font-extrabold text-white mt-4 tracking-tight">
+              The Meaning of{" "}
+              <span className="bg-gradient-to-r from-blue-400 via-indigo-400 to-amber-400 bg-clip-text text-transparent">
+                YantrikshaX Hub
+              </span>
+            </h3>
+            <p className="text-gray-400 text-sm mt-3 font-light">
+              Our name represents the perfect fusion of technical capability, limitless vision, and collaborative synergy.
+            </p>
+          </div>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[
+              {
+                term: "Yantra (यंत्र)",
+                definition: "Refers to machines, technology, and engineering, symbolizing the foundation of innovation and technical expertise.",
+                icon: "⚙️",
+                border: "hover:border-blue-500/40"
+              },
+              {
+                term: "Antariksha (अंतरिक्ष)",
+                definition: "Represents space and limitless possibilities, signifying exploration, creativity, and the universe of ideas.",
+                icon: "🌌",
+                border: "hover:border-indigo-500/40"
+              },
+              {
+                term: "X",
+                definition: "Denotes cross-disciplinary collaboration, where diverse fields like Engineering (CSE, ECE, EEE, MECH, CIVIL, AERO), Management, and Law converge to spark innovation.",
+                icon: "✖️",
+                border: "hover:border-amber-500/40"
+              },
+              {
+                term: "Hub",
+                definition: "Refers to a central place or nexus for collaboration, knowledge exchange, and innovation, where people come together to brainstorm, create, and bring ideas to life.",
+                icon: "🔌",
+                border: "hover:border-rose-500/40"
+              }
+            ].map(({ term, definition, icon, border }) => (
+              <div 
+                key={term} 
+                className={`glass-card rounded-2xl p-6 border border-slate-800/60 transition-all duration-300 hover:-translate-y-1 ${border} flex flex-col justify-between`}
+              >
+                <div>
+                  <span className="text-3xl mb-4 block">{icon}</span>
+                  <h4 className="text-lg font-bold text-white mb-2">{term}</h4>
+                  <p className="text-gray-400 text-xs leading-relaxed font-light">{definition}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Overall Meaning Callout */}
+          <div className="mt-10 glass-card rounded-3xl p-8 border border-slate-800/60 relative overflow-hidden bg-gradient-to-br from-slate-900/50 via-slate-900/30 to-slate-950/80">
+            <div className="absolute -bottom-10 -left-10 w-64 h-64 bg-blue-600/5 rounded-full blur-[80px] pointer-events-none" />
+            <div className="absolute -top-10 -right-10 w-64 h-64 bg-amber-500/5 rounded-full blur-[80px] pointer-events-none" />
+            
+            <div className="relative z-10 grid md:grid-cols-5 gap-8 items-center">
+              <div className="md:col-span-2">
+                <span className="text-xs font-black uppercase text-amber-400 tracking-widest block mb-2">Overall Vision</span>
+                <p className="text-base text-gray-200 font-medium leading-relaxed">
+                  &ldquo;YantrikshaX Hub&rdquo; is a dynamic space that fosters collaboration, blending technology (Yantra) and limitless exploration (Antariksha) through cross-disciplinary efforts (X).
+                </p>
+              </div>
+              <div className="hidden md:block md:col-span-1 text-center">
+                <span className="text-4xl text-slate-800 font-extrabold select-none">❯</span>
+              </div>
+              <div className="md:col-span-2 text-gray-300 text-xs leading-relaxed font-light space-y-4">
+                <p>
+                  It serves as a center of innovation, where diverse knowledge from multiple fields converges to create groundbreaking solutions for the future.
+                </p>
+                <p>
+                  Yantriksha X Hub is a student-driven innovation platform designed to help aspiring innovators navigate the journey from confusion to product development. It fosters interdisciplinary collaboration, knowledge sharing, and mentorship from industry experts, enabling students to solve real-world and industrial problems. By providing structured team dynamics, exposure to competitions, research opportunities, and networking events, Yantriksha X Hub empowers students to transform ideas into impactful solutions, startups, and businesses.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
     </section>
   );
