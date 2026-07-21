@@ -56,8 +56,8 @@ export async function PUT(req: Request) {
       );
 
       if (prevUser) {
-        // Welcome email if status transitions from pending to active
-        if (prevUser.status === 'pending' && status === 'active') {
+        // Welcome email if status transitions from pending/hold to active
+        if ((prevUser.status === 'pending' || prevUser.status === 'hold') && status === 'active') {
           const welcomeContent = `
             <p>Dear <strong>${prevUser.name}</strong>,</p>
             <p>We are thrilled to let you know that your request to join <strong>YantrikshaX Hub</strong> has been reviewed and accepted by the Admins!</p>
@@ -76,6 +76,28 @@ export async function PUT(req: Request) {
             to: prevUser.email,
             subject: 'Welcome to YantrikshaX Hub!',
             html: welcomeHtml
+          });
+        }
+        
+        // Hold email if status transitions to hold
+        else if (status === 'hold') {
+          const holdContent = `
+            <p>Dear <strong>${prevUser.name}</strong>,</p>
+            <p>Thank you for your interest in joining <strong>YantrikshaX Hub</strong>.</p>
+            <p>Your membership application has been reviewed by the Hub Administration and is currently placed <strong>on hold</strong> pending further review.</p>
+            <p>We will contact you if additional details or an interview are required. You do not need to take any action at this time.</p>
+            <p>Thank you for your patience!</p>
+          `;
+          const holdHtml = generateEmailTemplate({
+            title: 'Application Placed on Hold - YantrikshaX Hub',
+            content: holdContent,
+            preheader: 'Your YantrikshaX Hub membership application has been placed on hold.'
+          });
+
+          await queueEmail({
+            to: prevUser.email,
+            subject: 'YantrikshaX Hub Membership Application Status: On Hold',
+            html: holdHtml
           });
         }
         
@@ -148,7 +170,7 @@ export async function DELETE(req: Request) {
     const targetUser = targetUsers && targetUsers.length > 0 ? targetUsers[0] : null;
 
     if (targetUser) {
-      if (targetUser.status === 'pending') {
+      if (targetUser.status === 'pending' || targetUser.status === 'hold') {
         // Send rejection email
         const rejectContent = `
           <p>Dear <strong>${targetUser.name}</strong>,</p>

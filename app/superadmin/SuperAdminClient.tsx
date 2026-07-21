@@ -94,7 +94,7 @@ export default function SuperAdminClient({ currentAdmin }: { currentAdmin: SaUse
   // Search & Filters
   const [globalSearch, setGlobalSearch] = useState('');
   const [studentSearch, setStudentSearch] = useState('');
-  const [studentFilter, setStudentFilter] = useState<'all' | 'active' | 'suspended' | 'pending'>('all');
+  const [studentFilter, setStudentFilter] = useState<'all' | 'active' | 'suspended' | 'pending' | 'hold'>('all');
   const [clubSearch, setClubSearch] = useState('');
   const [eventSearch, setEventSearch] = useState('');
 
@@ -266,6 +266,28 @@ export default function SuperAdminClient({ currentAdmin }: { currentAdmin: SaUse
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to approve student');
       setSuccessMsg('Student join request approved successfully!');
+      loadAllData();
+    } catch (err: any) {
+      setErrorMsg(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleHoldStudent = async (userId: number) => {
+    if (!confirm('Are you sure you want to put this student join request on hold?')) return;
+    setLoading(true);
+    setErrorMsg('');
+    setSuccessMsg('');
+    try {
+      const res = await fetch('/api/admin/users', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, status: 'hold' })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to place student on hold');
+      setSuccessMsg('Student join request placed on hold.');
       loadAllData();
     } catch (err: any) {
       setErrorMsg(err.message);
@@ -479,6 +501,7 @@ export default function SuperAdminClient({ currentAdmin }: { currentAdmin: SaUse
     if (studentFilter === 'active') return matchesSearch && s.status === 'active';
     if (studentFilter === 'suspended') return matchesSearch && s.status === 'suspended';
     if (studentFilter === 'pending') return matchesSearch && s.status === 'pending';
+    if (studentFilter === 'hold') return matchesSearch && s.status === 'hold';
     return matchesSearch;
   });
 
@@ -771,7 +794,7 @@ export default function SuperAdminClient({ currentAdmin }: { currentAdmin: SaUse
             {/* Filter and Search header */}
             <div className="flex flex-wrap gap-4 items-center justify-between">
               <div className="flex gap-2 bg-slate-900 p-1 rounded-xl border border-slate-800/80">
-                {(['all', 'active', 'suspended', 'pending'] as const).map(f => (
+                {(['all', 'active', 'suspended', 'pending', 'hold'] as const).map(f => (
                   <button
                     key={f}
                     onClick={() => setStudentFilter(f)}
@@ -828,13 +851,15 @@ export default function SuperAdminClient({ currentAdmin }: { currentAdmin: SaUse
                                 ? 'bg-emerald-950 text-emerald-400 border border-emerald-900/30' 
                                 : s.status === 'pending'
                                 ? 'bg-amber-950 text-amber-400 border border-amber-900/30'
+                                : s.status === 'hold'
+                                ? 'bg-blue-950 text-blue-400 border border-blue-900/30'
                                 : 'bg-red-950 text-red-400 border border-red-900/30'
                             }`}>
                               {s.status}
                             </span>
                           </td>
                           <td className="py-4 px-6 text-right space-x-2">
-                            {s.status === 'pending' ? (
+                            {s.status === 'pending' || s.status === 'hold' ? (
                               <>
                                 <button
                                   onClick={() => handleApproveStudent(s.id)}
@@ -842,6 +867,14 @@ export default function SuperAdminClient({ currentAdmin }: { currentAdmin: SaUse
                                 >
                                   Approve
                                 </button>
+                                {s.status === 'pending' && (
+                                  <button
+                                    onClick={() => handleHoldStudent(s.id)}
+                                    className="bg-blue-950 hover:bg-blue-900/50 border border-blue-900/40 text-blue-400 text-[10px] font-bold px-2.5 py-1 rounded-lg transition"
+                                  >
+                                    Hold
+                                  </button>
+                                )}
                                 <button
                                   onClick={() => handleRejectStudent(s.id)}
                                   className="bg-red-950 hover:bg-red-900/50 border border-red-900/40 text-red-400 text-[10px] font-bold px-2.5 py-1 rounded-lg transition"
