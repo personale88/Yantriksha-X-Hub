@@ -199,7 +199,7 @@ export function generateEmailTemplate({ title, content, buttonText, buttonUrl, p
                 <td style="background-color: #f8fafc; padding: 25px 40px; text-align: center; border-top: 1px solid #f1f5f9; font-size: 12px; color: #64748b;">
                   
                   <p style="margin: 0 0 6px 0; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.05em; font-size: 11px;">
-                    YantrikshaX Hub Incubation Center
+                    YantrikshaX Hub
                   </p>
                   <p style="margin: 0 0 10px 0; line-height: 1.4;">
                     Vel Tech Rangarajan Dr. Sagunthala R&D Institute of Science and Technology
