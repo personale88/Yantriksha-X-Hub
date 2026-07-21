@@ -84,9 +84,9 @@ export default function About() {
         </div>
 
         {/* Meaning of YantrikshaX Hub Section */}
-        <div className="mt-20 border-t border-slate-900/60 pt-16">
-          <div className="text-center max-w-3xl mx-auto mb-12">
-            <span className="section-pill inline-block">✦ Decoding YantrikshaX</span>
+        <div className="mt-10 border-t border-slate-900/60 pt-8">
+          <div className="text-center max-w-3xl mx-auto mb-8">
+            <span className="section-pill inline-block">✦ Decoding YantrikshaXHub</span>
             <h3 className="text-3xl font-extrabold text-white mt-4 tracking-tight">
               The Meaning of{" "}
               <span className="bg-gradient-to-r from-blue-400 via-indigo-400 to-amber-400 bg-clip-text text-transparent">
