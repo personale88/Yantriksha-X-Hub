@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 import { verifyAuth } from '@/lib/auth';
 import { logActivity } from '@/lib/logger';
-import { sendEmail } from '@/lib/email';
+import { queueEmail, generateEmailTemplate } from '@/lib/emailQueue';
 
 export async function GET(req: Request) {
   try {
@@ -52,19 +52,29 @@ export async function POST(req: Request) {
     try {
       const activeMembers = await query("SELECT email, name FROM users WHERE status = 'active' AND role != 'admin'");
       if (activeMembers && activeMembers.length > 0) {
+        const announceContent = `
+          <p>A new important update has been posted in <strong>YantrikshaX Hub</strong>:</p>
+          <div style="padding: 15px; border-left: 4px solid #2563eb; background-color: #f8fafc; border-radius: 0 8px 8px 0; margin: 20px 0;">
+            <p style="margin-top: 0; font-weight: bold; color: #1e293b; font-size: 16px;">${title}</p>
+            <p style="white-space: pre-wrap; line-height: 1.6; color: #475569; font-size: 14px; margin-bottom: 0;">${content}</p>
+          </div>
+          <p>Please log in to your student dashboard to review details and take any necessary action.</p>
+        `;
+
+        const announceHtml = generateEmailTemplate({
+          title: `New Club Announcement`,
+          content: announceContent,
+          buttonText: 'View Dashboard Announcement',
+          buttonUrl: 'http://localhost:3000/dashboard',
+          preheader: `New Announcement: ${title}`
+        });
+
         for (const member of activeMembers) {
-          await sendEmail({
+          await queueEmail({
             to: member.email,
-            subject: `📢 Club Announcement: ${title}`,
-            html: `
-              <div style="font-family: sans-serif; max-width: 600px; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px; background-color: #ffffff;">
-                <h2 style="color: #2563eb; border-bottom: 2px solid #3b82f6; padding-bottom: 8px; margin-top: 0;">📢 New Announcement from Yantriksha X Hub</h2>
-                <h3 style="color: #1e293b; margin-top: 15px; font-size: 16px;">${title}</h3>
-                <p style="color: #475569; font-size: 14px; line-height: 1.6; white-space: pre-wrap;">${content}</p>
-                <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 25px 0;" />
-                <p style="font-size: 12px; color: #64748b;">Yantriksha X Hub Incubation System</p>
-              </div>
-            `
+            subject: `📢 New Club Announcement: ${title}`,
+            html: announceHtml,
+            category: 'general_announcements'
           });
         }
       }

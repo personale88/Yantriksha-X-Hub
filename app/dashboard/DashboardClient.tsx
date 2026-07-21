@@ -27,6 +27,13 @@ interface User {
   phone_number?: string;
   year_of_studying?: number;
   branch?: string;
+  notificationPreferences?: {
+    club_updates: boolean;
+    event_notifications: boolean;
+    general_announcements: boolean;
+    newsletter: boolean;
+    recruitment_notifications: boolean;
+  };
 }
 
 interface TeamMember {
@@ -501,6 +508,13 @@ export default function DashboardClient({
           year_of_studying: user.year_of_studying,
           branch: user.branch,
           discipline: user.discipline,
+          notificationPreferences: user.notificationPreferences || {
+            club_updates: true,
+            event_notifications: true,
+            general_announcements: true,
+            newsletter: true,
+            recruitment_notifications: true,
+          }
         }),
       });
       const data = await res.json();
@@ -1462,10 +1476,68 @@ export default function DashboardClient({
                   </div>
                 </div>
 
+                {/* Email Notification Preferences */}
+                <div className="pt-5 border-t border-slate-800/80 space-y-4">
+                  <div>
+                    <h4 className="text-sm font-bold text-white tracking-wide">
+                      Email Notification Preferences
+                    </h4>
+                    <p className="text-[11px] text-gray-500 mt-1">
+                      Choose which categories of operational notifications you want to receive via email.
+                    </p>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    {[
+                      { key: 'club_updates', label: 'Club Updates & Announcements', desc: 'Receive recruitment news, workshops, and meeting details from your registered clubs.' },
+                      { key: 'event_notifications', label: 'Event Announcements & Cancellations', desc: 'Get invitations to bootcamps, hackathons, and registration confirmations.' },
+                      { key: 'general_announcements', label: 'General Campus Announcements', desc: 'Receive holiday alerts, technical fest dates, and critical placement updates.' },
+                      { key: 'newsletter', label: 'Newsletters & Monthly Spotlights', desc: 'Monthly highlights of innovation hub accomplishments and start-up features.' },
+                      { key: 'recruitment_notifications', label: 'Recruitment & Member Campaigns', desc: 'Be notified of team forming requests and new club admission drives.' }
+                    ].map(({ key, label, desc }) => {
+                      const prefs = user.notificationPreferences || {
+                        club_updates: true,
+                        event_notifications: true,
+                        general_announcements: true,
+                        newsletter: true,
+                        recruitment_notifications: true,
+                      };
+                      const checked = (prefs as any)[key] ?? true;
+                      
+                      return (
+                        <label key={key} className="flex items-start gap-3.5 cursor-pointer select-none group">
+                          <input
+                            type="checkbox"
+                            checked={checked}
+                            onChange={e => {
+                              setUser({
+                                ...user,
+                                notificationPreferences: {
+                                  ...prefs,
+                                  [key]: e.target.checked
+                                }
+                              });
+                            }}
+                            className="mt-0.5 h-4.5 w-4.5 rounded border-slate-700 bg-slate-900/60 text-blue-600 focus:ring-0 focus:ring-offset-0 cursor-pointer accent-blue-600"
+                          />
+                          <div>
+                            <span className="text-xs font-bold text-gray-200 group-hover:text-white transition-colors duration-150">
+                              {label}
+                            </span>
+                            <p className="text-[10px] text-gray-500 leading-normal mt-0.5">
+                              {desc}
+                            </p>
+                          </div>
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
+
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition duration-200"
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition duration-200 mt-4"
                 >
                   Update Profile Details
                 </button>

@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 import { hashPassword } from '@/lib/auth';
 import { logActivity } from '@/lib/logger';
-import { sendEmail } from '@/lib/email';
+import { queueEmail, generateEmailTemplate } from '@/lib/emailQueue';
 
 export async function POST(req: Request) {
   try {
@@ -99,55 +99,74 @@ export async function POST(req: Request) {
 
     // 6. Send Email Notifications
     // Email to candidate user
-    await sendEmail({
-      to: emailLower,
-      subject: 'Join Request Submitted - Yantriksha X Hub',
-      html: `
-        <div style="font-family: sans-serif; max-width: 600px; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px; background-color: #ffffff;">
-          <h2 style="color: #2563eb;">Welcome to Yantriksha X Hub!</h2>
-          <p>Dear <strong>${name}</strong>,</p>
-          <p>Your join request to the academic incubation club has been submitted successfully.</p>
-          <p>Your application details are currently pending review and approval by the Hub Administrators. Once approved, you will receive a notification email permitting you to log in.</p>
-          <p>Thank you for your interest and patience!</p>
-          <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
-          <p style="font-size: 12px; color: #64748b;">This is an automated notification. Please do not reply directly to this email.</p>
-        </div>
-      `
+    const studentContent = `
+      <p>Dear <strong>${name}</strong>,</p>
+      <p>Thank you for submitting your request to join <strong>YantrikshaX Hub</strong>.</p>
+      <p>Your application details are currently pending review and approval by the Hub Administrators. Once approved, you will receive a welcome notification permitting you to log in to the student dashboard.</p>
+      <p>Thank you for your interest and patience!</p>
+    `;
+    const studentHtml = generateEmailTemplate({
+      title: 'Club Joining Request Submitted',
+      content: studentContent,
+      buttonText: 'View Dashboard Preview',
+      buttonUrl: 'http://localhost:3000/dashboard',
+      preheader: 'Your joining request for YantrikshaX Hub has been received.'
     });
 
-    // Email to Super Admin
-    await sendEmail({
-      to: 'vtu28891@veltech.edu.in',
-      subject: 'New Club Joining Request - Yantriksha X Hub',
-      html: `
-        <div style="font-family: sans-serif; max-width: 600px; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px; background-color: #ffffff;">
-          <h2 style="color: #f59e0b;">Pending Joining Request</h2>
-          <p>Hello Admin,</p>
-          <p>A new student has submitted an registration request to join Yantriksha X Hub:</p>
-          <table style="width: 100%; border-collapse: collapse; margin: 15px 0;">
-            <tr>
-              <td style="padding: 6px 0; font-weight: bold; width: 120px;">Name:</td>
-              <td>${name}</td>
-            </tr>
-            <tr>
-              <td style="padding: 6px 0; font-weight: bold;">Email:</td>
-              <td>${emailLower}</td>
-            </tr>
-            <tr>
-              <td style="padding: 6px 0; font-weight: bold;">Role:</td>
-              <td style="text-transform: capitalize;">${role}</td>
-            </tr>
-            <tr>
-              <td style="padding: 6px 0; font-weight: bold;">Discipline:</td>
-              <td style="text-transform: capitalize;">${discipline}</td>
-            </tr>
-          </table>
-          <p>Please log in to the <a href="http://localhost:3000/superadmin" style="color: #2563eb; font-weight: bold;">Super Admin Portal</a> to review and approve/reject this request.</p>
-          <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
-          <p style="font-size: 12px; color: #64748b;">Yantriksha X Hub System Automation</p>
-        </div>
-      `
+    await queueEmail({
+      to: emailLower,
+      subject: 'Your Club Membership Request Has Been Submitted',
+      html: studentHtml
     });
+
+    // Email to active administrators
+    const adminContent = `
+      <p>Hello Admin,</p>
+      <p>A new student has submitted an registration request to join <strong>YantrikshaX Hub</strong>:</p>
+      <table style="width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px; color: #334155;">
+        <tr>
+          <td style="padding: 6px 0; font-weight: bold; width: 120px;">Name:</td>
+          <td>${name}</td>
+        </tr>
+        <tr>
+          <td style="padding: 6px 0; font-weight: bold;">Email:</td>
+          <td><a href="mailto:${emailLower}">${emailLower}</a></td>
+        </tr>
+        <tr>
+          <td style="padding: 6px 0; font-weight: bold;">Role:</td>
+          <td style="text-transform: capitalize;">${role}</td>
+        </tr>
+        <tr>
+          <td style="padding: 6px 0; font-weight: bold;">Discipline:</td>
+          <td style="text-transform: capitalize;">${discipline}</td>
+        </tr>
+      </table>
+      <p>Please log in to the administrator portal to review, evaluate, and approve or reject this request.</p>
+    `;
+    const adminHtml = generateEmailTemplate({
+      title: 'New Club Membership Request',
+      content: adminContent,
+      buttonText: 'Review in Admin Portal',
+      buttonUrl: 'http://localhost:3000/superadmin',
+      preheader: `Pending request: ${name} (${role})`
+    });
+
+    try {
+      const activeAdmins = await query("SELECT email FROM users WHERE role = 'admin' AND status = 'active'");
+      const adminAddresses = activeAdmins && activeAdmins.length > 0 
+        ? activeAdmins.map((a: any) => a.email) 
+        : ['vtu28891@veltech.edu.in'];
+
+      for (const adminAddr of adminAddresses) {
+        await queueEmail({
+          to: adminAddr,
+          subject: 'New Club Membership Request',
+          html: adminHtml
+        });
+      }
+    } catch (adminEmailErr) {
+      console.error('Failed to queue admin alert emails:', adminEmailErr);
+    }
 
     return NextResponse.json(
       { success: true, message: 'User registered successfully!' },

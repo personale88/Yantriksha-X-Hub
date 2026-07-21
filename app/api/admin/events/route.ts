@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 import { verifyAuth } from '@/lib/auth';
 import { logActivity } from '@/lib/logger';
-import { sendEmail } from '@/lib/email';
+import { queueEmail, generateEmailTemplate } from '@/lib/emailQueue';
 
 export async function GET(req: Request) {
   try {
@@ -59,45 +59,53 @@ export async function POST(req: Request) {
     try {
       const activeMembers = await query("SELECT email, name FROM users WHERE status = 'active' AND role != 'admin'");
       if (activeMembers && activeMembers.length > 0) {
-        for (const member of activeMembers) {
-          const formattedDate = new Date(eventDate).toLocaleString('en-US', {
-            weekday: 'long',
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-          });
+        const formattedDate = new Date(eventDate).toLocaleString('en-US', {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
 
-          await sendEmail({
+        const eventContent = `
+          <p>We are excited to announce a new scheduled event at <strong>YantrikshaX Hub</strong>!</p>
+          <table style="width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px; color: #334155;">
+            <tr>
+              <td style="padding: 6px 0; font-weight: bold; width: 120px;">Event Name:</td>
+              <td style="font-weight: bold; color: #1e293b;">${title}</td>
+            </tr>
+            <tr>
+              <td style="padding: 6px 0; font-weight: bold;">Category:</td>
+              <td><span style="background-color: #f1f5f9; color: #475569; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: bold;">${category || 'Other'}</span></td>
+            </tr>
+            <tr>
+              <td style="padding: 6px 0; font-weight: bold;">Date & Time:</td>
+              <td style="color: #2563eb; font-weight: 600;">${formattedDate}</td>
+            </tr>
+            ${description ? `
+            <tr>
+              <td style="padding: 6px 0; font-weight: bold; vertical-align: top;">Description:</td>
+              <td style="white-space: pre-wrap; line-height: 1.5; color: #475569;">${description}</td>
+            </tr>` : ''}
+          </table>
+          <p>Please log in to your student dashboard to register for this event and secure your attendance seat.</p>
+        `;
+
+        const eventHtml = generateEmailTemplate({
+          title: `New Event Scheduled`,
+          content: eventContent,
+          buttonText: 'Register for Event',
+          buttonUrl: 'http://localhost:3000/dashboard',
+          preheader: `New Event: ${title} scheduled for ${formattedDate}`
+        });
+
+        for (const member of activeMembers) {
+          await queueEmail({
             to: member.email,
             subject: `📅 New Event Scheduled: ${title}`,
-            html: `
-              <div style="font-family: sans-serif; max-width: 600px; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px; background-color: #ffffff;">
-                <h2 style="color: #10b981; border-bottom: 2px solid #10b981; padding-bottom: 8px; margin-top: 0;">📅 New Event Announcement</h2>
-                <h3 style="color: #1e293b; margin-top: 15px; font-size: 16px;">${title}</h3>
-                
-                <table style="width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 14px;">
-                  <tr>
-                    <td style="padding: 6px 0; font-weight: bold; width: 120px; color: #475569;">Category:</td>
-                    <td><span style="background-color: #f1f5f9; color: #475569; padding: 3px 8px; border-radius: 4px; font-size: 12px; font-weight: bold;">${category || 'Other'}</span></td>
-                  </tr>
-                  <tr>
-                    <td style="padding: 6px 0; font-weight: bold; color: #475569;">Date & Time:</td>
-                    <td style="color: #1e293b; font-weight: 500;">${formattedDate}</td>
-                  </tr>
-                  ${description ? `
-                  <tr>
-                    <td style="padding: 6px 0; font-weight: bold; color: #475569; vertical-align: top;">Description:</td>
-                    <td style="color: #475569; line-height: 1.5; white-space: pre-wrap;">${description}</td>
-                  </tr>` : ''}
-                </table>
-                
-                <p style="margin-top: 20px; font-size: 14px;">Log in to the dashboard to register for this event and lock in your attendance slot!</p>
-                <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 25px 0;" />
-                <p style="font-size: 12px; color: #64748b;">Yantriksha X Hub Incubation System</p>
-              </div>
-            `
+            html: eventHtml,
+            category: 'event_notifications'
           });
         }
       }
@@ -126,10 +134,52 @@ export async function PUT(req: Request) {
       return NextResponse.json({ success: false, error: 'Missing required fields' }, { status: 400 });
     }
 
+    // Fetch previous status of the event to check for transition to cancelled
+    const prevEvents = await query('SELECT title, status FROM events WHERE id = ?', [eventId]);
+    const prevEvent = prevEvents && prevEvents.length > 0 ? prevEvents[0] : null;
+
     await query(
       `UPDATE events SET title = ?, description = ?, category = ?, event_date = ?, status = ? WHERE id = ?`,
       [title, description || null, category || 'Other', eventDate, status, eventId]
     );
+
+    // If transitioned to cancelled, notify registered participants!
+    if (prevEvent && prevEvent.status !== 'cancelled' && status === 'cancelled') {
+      try {
+        const participants = await query(
+          `SELECT u.email, u.name FROM event_registrations er 
+           JOIN users u ON er.user_id = u.id 
+           WHERE er.event_id = ?`,
+          [eventId]
+        );
+
+        if (participants && participants.length > 0) {
+          const cancelContent = `
+            <p>Dear Participant,</p>
+            <p>This is to notify you that the upcoming event <strong>"${prevEvent.title}"</strong> has been cancelled by the Hub organizers.</p>
+            <p>If the event is rescheduled, you will receive a new announcement notification with the updated date and details.</p>
+            <p>We apologize for any inconvenience caused.</p>
+          `;
+
+          const cancelHtml = generateEmailTemplate({
+            title: 'Event Cancellation Notice',
+            content: cancelContent,
+            preheader: `Cancellation notice for event: ${prevEvent.title}`
+          });
+
+          for (const user of participants) {
+            await queueEmail({
+              to: user.email,
+              subject: `⚠️ Event Cancelled: ${prevEvent.title}`,
+              html: cancelHtml,
+              category: 'event_notifications'
+            });
+          }
+        }
+      } catch (emailErr) {
+        console.error('Failed to send event cancellation emails:', emailErr);
+      }
+    }
 
     await logActivity(
       auth.userId,
@@ -162,6 +212,48 @@ export async function DELETE(req: Request) {
     }
 
     const eventId = parseInt(eventIdStr, 10);
+
+    // Fetch event title to use in cancellation email
+    const events = await query('SELECT title FROM events WHERE id = ?', [eventId]);
+    const eventTitle = events && events.length > 0 ? events[0].title : null;
+
+    if (eventTitle) {
+      try {
+        const participants = await query(
+          `SELECT u.email, u.name FROM event_registrations er 
+           JOIN users u ON er.user_id = u.id 
+           WHERE er.event_id = ?`,
+          [eventId]
+        );
+
+        if (participants && participants.length > 0) {
+          const cancelContent = `
+            <p>Dear Participant,</p>
+            <p>This is to notify you that the upcoming event <strong>"${eventTitle}"</strong> has been cancelled by the Hub organizers.</p>
+            <p>If the event is rescheduled, you will receive a new announcement notification with the updated date and details.</p>
+            <p>We apologize for any inconvenience caused.</p>
+          `;
+
+          const cancelHtml = generateEmailTemplate({
+            title: 'Event Cancellation Notice',
+            content: cancelContent,
+            preheader: `Cancellation notice for event: ${eventTitle}`
+          });
+
+          for (const user of participants) {
+            await queueEmail({
+              to: user.email,
+              subject: `⚠️ Event Cancelled: ${eventTitle}`,
+              html: cancelHtml,
+              category: 'event_notifications'
+            });
+          }
+        }
+      } catch (emailErr) {
+        console.error('Failed to send event cancellation emails:', emailErr);
+      }
+    }
+
     await query('DELETE FROM events WHERE id = ?', [eventId]);
 
     await logActivity(

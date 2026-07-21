@@ -10,18 +10,7 @@ const SMTP_PASS = process.env.SMTP_PASS || '';
 const SMTP_FROM = process.env.SMTP_FROM || 'Yantriksha_X_Hub <noreply@yantriksha.com>';
 
 export async function sendEmail({ to, subject, html }: { to: string; subject: string; html: string }) {
-  const originalTo = to;
-  let targetTo = to;
-  let finalSubject = subject;
-
-  // Resend free accounts can only send emails to the owner's verified address
-  if (SMTP_HOST.includes('resend.com') && to.toLowerCase() !== 'boddedavignesh3@gmail.com') {
-    targetTo = 'boddedavignesh3@gmail.com';
-    finalSubject = `[SANDBOX FOR: ${originalTo}] ${subject}`;
-    console.log(`[EMAIL UTILITY] Resend sandbox restriction active. Redirecting email from ${originalTo} to verified owner: ${targetTo}`);
-  } else {
-    console.log(`[EMAIL UTILITY] Sending email to: ${to} | Subject: ${subject}`);
-  }
+  console.log(`[EMAIL UTILITY] Preparing email to: ${to} | Subject: ${subject}`);
   
   // 1. Create simulated email log entry for local development verification
   const logDir = path.join(process.cwd(), 'scratch');
@@ -32,8 +21,8 @@ export async function sendEmail({ to, subject, html }: { to: string; subject: st
   const emailLogEntry = `
 ========================================
 [TIMESTAMP] ${new Date().toISOString()}
-[TO] ${targetTo} (Original: ${originalTo})
-[SUBJECT] ${finalSubject}
+[TO] ${to}
+[SUBJECT] ${subject}
 [BODY]
 ${html}
 ========================================
@@ -61,14 +50,15 @@ ${html}
 
       await transporter.sendMail({
         from: SMTP_FROM,
-        to: targetTo,
-        subject: finalSubject,
+        to,
+        subject,
         html,
       });
 
-      console.log(`[EMAIL UTILITY] Real email successfully sent via SMTP to: ${targetTo}`);
+      console.log(`[EMAIL UTILITY] Real email successfully sent via SMTP to: ${to}`);
     } catch (smtpErr) {
       console.error(`[EMAIL UTILITY] Real SMTP email delivery failed (falling back to simulator logs):`, smtpErr);
+      throw smtpErr;
     }
   } else {
     console.log(`[EMAIL UTILITY] SMTP credentials missing in .env. Real email skipped, simulated locally.`);
