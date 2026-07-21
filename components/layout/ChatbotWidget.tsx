@@ -23,7 +23,7 @@ export default function ChatbotWidget() {
     {
       id: 'welcome',
       sender: 'bot',
-      text: 'Hello! I am the Yantriksha Assistant Bot. Ask me anything about registration, milestones, the 14-stage journey, or seed funding!',
+      text: 'Hello! I am Mithra, your Yantriksha AI Assistant. Ask me anything about registration, milestones, the 14-stage journey, or seed funding!',
       timestamp: new Date()
     }
   ]);
@@ -153,7 +153,7 @@ export default function ChatbotWidget() {
                 <Image src="/logo.png" fill className="object-contain" style={{ mixBlendMode: 'screen' }} alt="Bot" />
               </div>
               <div>
-                <h4 className="font-extrabold text-sm text-white">Yantriksha Assistant</h4>
+                <h4 className="font-extrabold text-sm text-white">Mithra</h4>
                 <div className="flex items-center gap-1.5 mt-0.5">
                   <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
                   <span className="text-[10px] text-gray-500 font-semibold uppercase">Online Support</span>

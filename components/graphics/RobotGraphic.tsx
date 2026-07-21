@@ -246,7 +246,7 @@ export default function RobotGraphic() {
         {/* Outer UI Indicators */}
         <div className="absolute -bottom-8 bg-slate-900/90 border border-blue-500/20 backdrop-blur px-5 py-2.5 rounded-full flex items-center gap-3 text-xs shadow-lg">
           <span className="h-2 w-2 rounded-full bg-emerald-500 animate-ping" />
-          <span className="font-mono text-blue-400 font-bold uppercase tracking-wider">Yantriksha Assistant Online</span>
+          <span className="font-mono text-blue-400 font-bold uppercase tracking-wider">Mithra Online</span>
         </div>
 
       </div>
