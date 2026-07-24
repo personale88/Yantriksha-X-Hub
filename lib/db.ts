@@ -193,6 +193,17 @@ async function ensureEmailSystemTables(p: mysql.Pool) {
         ) ENGINE=InnoDB;
       `);
 
+      // 3i. Create reports_sent_log table to track periodic admin reports
+      await connection.query(`
+        CREATE TABLE IF NOT EXISTS reports_sent_log (
+          id INT AUTO_INCREMENT PRIMARY KEY,
+          report_type VARCHAR(50) NOT NULL, -- 'daily', 'weekly', 'monthly', '6months', '12months'
+          sent_to VARCHAR(500) NOT NULL,
+          summary TEXT NULL,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB;
+      `);
+
       // 4. Alter users table for reset token
       const [columns]: any = await connection.query("SHOW COLUMNS FROM users;");
       const columnNames = columns.map((c: any) => c.Field);

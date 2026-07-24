@@ -89,6 +89,8 @@ export default function SuperAdminClient({ currentAdmin }: { currentAdmin: SaUse
   const [events, setEvents] = useState<Event[]>([]);
   const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
+  const [reportsSentLogs, setReportsSentLogs] = useState<any[]>([]);
+  const [selectedReportTimeframe, setSelectedReportTimeframe] = useState('daily');
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
 
   // Search & Filters
@@ -165,6 +167,7 @@ export default function SuperAdminClient({ currentAdmin }: { currentAdmin: SaUse
       if (logData.success) {
         setActivityLogs(logData.activityLogs);
         setAuditLogs(logData.auditLogs);
+        setReportsSentLogs(logData.reportsSentLogs || []);
       }
 
       // 6. Fetch announcements
@@ -175,6 +178,34 @@ export default function SuperAdminClient({ currentAdmin }: { currentAdmin: SaUse
     } catch (err) {
       console.error(err);
       setErrorMsg('Failed to aggregate portal database contents.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Report Dispatch Action
+  const handleDispatchReport = async () => {
+    setLoading(true);
+    setErrorMsg('');
+    setSuccessMsg('');
+    try {
+      const res = await fetch('/api/admin/reports-worker', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ timeframe: selectedReportTimeframe })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to dispatch report.');
+      setSuccessMsg(data.message || 'Report generated and emailed to administrators!');
+      
+      // Refresh logs
+      const logRes = await fetch('/api/admin/logs');
+      const logData = await logRes.json();
+      if (logData.success) {
+        setReportsSentLogs(logData.reportsSentLogs || []);
+      }
+    } catch (err: any) {
+      setErrorMsg(err.message);
     } finally {
       setLoading(false);
     }
@@ -1586,40 +1617,99 @@ export default function SuperAdminClient({ currentAdmin }: { currentAdmin: SaUse
         {activeMenu === 'reports' && (
           <div className="space-y-8 animate-fadeIn">
             <div>
-              <span className="section-pill">✦ Auditing Logs</span>
+              <span className="section-pill">✦ Operational Digest</span>
               <h1 className="text-4xl font-extrabold text-white tracking-tight">Reports & Analytics</h1>
-              <p className="text-gray-400 mt-2 text-sm">Download printable summaries, user lists, and monthly club registrations reports.</p>
+              <p className="text-gray-400 mt-2 text-sm">Download printable cohort summaries or dispatch automated email reports to admin inboxes.</p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl">
-              {[
-                { title: 'Student Directory Registry', desc: 'Complete lists of registered, active, and suspended students with demographic information.', file: 'students' },
-                { title: 'Incubation Club Metrics', desc: 'List of active innovation clubs, designated administrators, and current student compliance check reports.', file: 'clubs' },
-                { title: 'Event Participation log', desc: 'Attendance stats, registration trends, and category breakdown reports.', file: 'events' },
-                { title: 'Platform Security Audits', desc: 'Consolidated admin audit records and system activities logs (non-editable).', file: 'logs' }
-              ].map(rep => (
-                <div key={rep.title} className="glass-card rounded-2xl p-6 border border-slate-800/60 flex flex-col justify-between">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              {/* Downloadable Reports Grid */}
+              <div className="lg:col-span-2 space-y-6">
+                <h3 className="text-lg font-bold text-white mb-2">System Static Reports</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  {[
+                    { title: 'Student Directory Registry', desc: 'Complete lists of registered, active, and suspended students with demographic information.', file: 'students' },
+                    { title: 'Incubation Club Metrics', desc: 'List of active innovation clubs, designated administrators, and current student compliance check reports.', file: 'clubs' },
+                    { title: 'Event Participation log', desc: 'Attendance stats, registration trends, and category breakdown reports.', file: 'events' },
+                    { title: 'Platform Security Audits', desc: 'Consolidated admin audit records and system activities logs (non-editable).', file: 'logs' }
+                  ].map(rep => (
+                    <div key={rep.title} className="glass-card rounded-2xl p-6 border border-slate-800/60 flex flex-col justify-between">
+                      <div>
+                        <h3 className="font-extrabold text-white text-xs uppercase tracking-wider">{rep.title}</h3>
+                        <p className="text-[11px] text-gray-400 mt-2 leading-relaxed font-light">{rep.desc}</p>
+                      </div>
+
+                      <div className="flex gap-2 mt-6 pt-4 border-t border-slate-800/40">
+                        <button
+                          onClick={() => alert(`Generating Excel report for ${rep.title}... Done!`)}
+                          className="flex-1 bg-slate-800 hover:bg-slate-750 text-gray-300 text-[10px] font-bold py-2 rounded-lg transition"
+                        >
+                          📥 Excel Format
+                        </button>
+                        <button
+                          onClick={() => alert(`Generating PDF report for ${rep.title}... Done!`)}
+                          className="flex-1 bg-blue-950/40 hover:bg-blue-900/60 border border-blue-900/40 text-blue-400 text-[10px] font-bold py-2 rounded-lg transition"
+                        >
+                          📄 PDF Format
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Automated Periodic Report Center */}
+              <div className="glass-card rounded-3xl p-6 border border-slate-800/60 space-y-6">
+                <div>
+                  <h3 className="text-lg font-bold text-white">Periodic Report Dispatcher</h3>
+                  <p className="text-[10px] text-gray-500 mt-1">Generate operational digests and email them to administrators.</p>
+                </div>
+
+                <div className="space-y-4">
                   <div>
-                    <h3 className="font-extrabold text-white text-sm uppercase tracking-wider">{rep.title}</h3>
-                    <p className="text-xs text-gray-400 mt-2.5 leading-relaxed font-light">{rep.desc}</p>
+                    <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Interval Timeframe</label>
+                    <select
+                      value={selectedReportTimeframe}
+                      onChange={e => setSelectedReportTimeframe(e.target.value)}
+                      className="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-white text-xs outline-none focus:border-blue-500/80"
+                    >
+                      <option value="daily">Daily Report (Past 24 Hours)</option>
+                      <option value="weekly">Weekly Report (Past 7 Days)</option>
+                      <option value="monthly">Monthly Report (Past 30 Days)</option>
+                      <option value="6months">Semi-Annual Report (Past 6 Months)</option>
+                      <option value="12months">Annual Report (Past 12 Months)</option>
+                    </select>
                   </div>
 
-                  <div className="flex gap-2 mt-6 pt-4 border-t border-slate-800/40">
-                    <button
-                      onClick={() => alert(`Generating Excel report for ${rep.title}... Done!`)}
-                      className="flex-1 bg-slate-800 hover:bg-slate-750 text-gray-300 text-[10px] font-bold py-2 rounded-lg transition"
-                    >
-                      📥 Excel Format
-                    </button>
-                    <button
-                      onClick={() => alert(`Generating PDF report for ${rep.title}... Done!`)}
-                      className="flex-1 bg-blue-950/40 hover:bg-blue-900/60 border border-blue-900/40 text-blue-400 text-[10px] font-bold py-2 rounded-lg transition"
-                    >
-                      📄 PDF Format
-                    </button>
+                  <button
+                    onClick={handleDispatchReport}
+                    disabled={loading}
+                    className="w-full bg-blue-650 hover:bg-blue-700 text-white font-bold text-xs py-3 rounded-xl transition shadow-lg shadow-blue-950/30"
+                  >
+                    {loading ? 'Generating...' : '⚡ Dispatch Email Report'}
+                  </button>
+                </div>
+
+                {/* Sent Reports Logs list */}
+                <div className="pt-6 border-t border-slate-800/60">
+                  <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">📧 Sent Reports History Log</h4>
+                  <div className="space-y-3 max-h-[220px] overflow-y-auto pr-1">
+                    {reportsSentLogs.length === 0 ? (
+                      <p className="text-[10px] text-gray-600 text-center py-4">No automated reports sent yet.</p>
+                    ) : (
+                      reportsSentLogs.map(log => (
+                        <div key={log.id} className="p-3 bg-slate-950/40 border border-slate-900 rounded-2xl text-[10px] space-y-1">
+                          <div className="flex justify-between items-center">
+                            <span className="font-extrabold text-blue-400 uppercase">{log.report_type} REPORT</span>
+                            <span className="text-gray-500">{isMounted ? new Date(log.created_at).toLocaleDateString() : ''}</span>
+                          </div>
+                          <p className="text-gray-400 truncate"><span className="font-bold text-gray-500">Sent to:</span> {log.sent_to}</p>
+                        </div>
+                      ))
+                    )}
                   </div>
                 </div>
-              ))}
+              </div>
             </div>
           </div>
         )}

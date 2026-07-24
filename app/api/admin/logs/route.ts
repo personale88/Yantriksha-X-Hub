@@ -23,7 +23,14 @@ export async function GET(req: Request) {
       LIMIT 100
     `);
 
-    return NextResponse.json({ success: true, activityLogs, auditLogs });
+    const reportsSentLogs = await query(`
+      SELECT id, report_type, sent_to, summary, created_at
+      FROM reports_sent_log
+      ORDER BY created_at DESC
+      LIMIT 50
+    `);
+
+    return NextResponse.json({ success: true, activityLogs, auditLogs, reportsSentLogs });
   } catch (err: any) {
     console.error('Admin logs GET error:', err);
     return NextResponse.json({ success: false, error: 'Internal Server Error' }, { status: 500 });
