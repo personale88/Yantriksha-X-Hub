@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Boddeda Vignesh - Resume</title>
+  <!-- Georgia and standard serif fallback to match academic/LaTeX style -->
+  <style>
+    /* RESET AND BASIC STYLES */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Times New Roman", Times, Georgia, serif;
+      background-color: #f3f4f6;
+      color: #000000;
+      line-height: 1.35;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    /* ACTION BAR */
+    .action-bar {
+      width: 100%;
+      max-width: 800px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #ffffff;
+      padding: 12px 24px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      border: 1px solid #d1d5db;
+      z-index: 10;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    .action-title {
+      font-weight: 700;
+      color: #111827;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 4px;
+      font-weight: 600;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      text-decoration: none;
+      border: 1px solid transparent;
+    }
+
+    .btn-primary {
+      background-color: #111827;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background-color: #1f2937;
+    }
+
+    .btn-secondary {
+      background-color: #f3f4f6;
+      color: #1f2937;
+      border-color: #d1d5db;
+    }
+
+    .btn-secondary:hover {
+      background-color: #e5e7eb;
+    }
+
+    /* RESUME SHEET */
+    .resume-sheet {
+      width: 100%;
+      max-width: 800px;
+      background-color: #ffffff;
+      padding: 0.6in 0.6in;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      border: 1px solid #e5e7eb;
+      min-height: 1030px;
+    }
+
+    /* HEADER */
+    .resume-header {
+      text-align: center;
+      margin-bottom: 18px;
+    }
+
+    .name {
+      font-size: 2.1rem;
+      font-weight: bold;
+      letter-spacing: 1px;
+      line-height: 1.1;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .contact-info {
+      font-size: 0.88rem;
+      color: #000000;
+      line-height: 1.4;
+    }
+
+    .contact-info a {
+      color: #0000ff;
+      text-decoration: underline;
+    }
+
+    /* SECTIONS */
+    .section {
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      font-size: 1.05rem;
+      font-weight: bold;
+      text-transform: capitalize;
+      border-bottom: 1px solid #000000;
+      padding-bottom: 1px;
+      margin-bottom: 8px;
+    }
+
+    /* PARAGRAPH BLOCKS */
+    .objective-text {
+      font-size: 0.88rem;
+      text-align: justify;
+      line-height: 1.35;
+    }
+
+    /* ITEM STYLING */
+    .item-block {
+      margin-bottom: 10px;
+    }
+
+    .item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-weight: bold;
+      font-size: 0.9rem;
+    }
+
+    .item-subheader {
+      font-size: 0.88rem;
+      font-style: italic;
+      margin-top: 1px;
+    }
+
+    .item-details {
+      font-size: 0.88rem;
+      margin-top: 1px;
+    }
+
+    .item-bullets {
+      margin-top: 4px;
+      margin-left: 16px;
+      list-style-type: disc;
+    }
+
+    .item-bullets li {
+      font-size: 0.86rem;
+      margin-bottom: 2px;
+      text-align: justify;
+      line-height: 1.3;
+    }
+
+    /* TECHNICAL SKILLS */
+    .skills-list {
+      font-size: 0.88rem;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .skills-line {
+      line-height: 1.35;
+    }
+
+    .skills-label {
+      font-weight: bold;
+    }
+
+    /* PRINT RULES */
+    @media print {
+      body {
+        background-color: #ffffff;
+        padding: 0;
+      }
+
+      .action-bar {
+        display: none !important;
+      }
+
+      .resume-sheet {
+        box-shadow: none !important;
+        border: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        max-width: 100% !important;
+      }
+
+      @page {
+        size: A4;
+        margin: 0.5in;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ACTION BAR -->
+  <div class="action-bar">
+    <div class="action-title">
+      <svg style="width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2.5;" viewBox="0 0 24 24">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+        <polyline points="14 2 14 8 20 8"></polyline>
+      </svg>
+      Academic Resume Style
+    </div>
+    <div class="action-buttons">
+      <a href="/" class="btn btn-secondary">
+        Go to Website
+      </a>
+      <button class="btn btn-primary" onclick="window.print()">
+        Print / Save PDF
+      </button>
+    </div>
+  </div>
+
+  <!-- RESUME SHEET -->
+  <div class="resume-sheet">
+    
+    <!-- HEADER -->
+    <header class="resume-header">
+      <h1 class="name">Boddeda Vignesh</h1>
+      <div class="contact-info">
+        Mail: <a href="mailto:boddedavignesh3@gmail.com">boddedavignesh3@gmail.com</a> - 
+        Linkedin: <a href="https://linkedin.com/in/vignesh-boddeda" target="_blank">linkedin.com/in/vignesh-boddeda</a><br>
+        Contact: +91 91821 69185 - Visakhapatnam, Andhra Pradesh
+      </div>
+    </header>
+
+    <!-- OBJECTIVE -->
+    <section class="section">
+      <h2 class="section-title">Objective</h2>
+      <p class="objective-text">
+        Enthusiastic and dedicated B.Tech Computer Science student (3rd year, 1st semester) who excels at leveraging AI-assisted development tools (such as LLMs, Copilot, and Cursor) to accelerate full-stack web engineering. Combines a solid understanding of core computer science concepts with advanced AI workflows to rapid-prototype features, debug complex database schemas, and deploy secure backend APIs at high velocity. Eager to bring high-productivity, AI-driven development capabilities to an internship role.
+      </p>
+    </section>
+
+    <!-- EDUCATION -->
+    <section class="section">
+      <h2 class="section-title">Education</h2>
+      
+      <!-- B.Tech -->
+      <div class="item-block">
+        <div class="item-header">
+          <span>B.Tech in Computer Science and Engineering</span>
+          <span>Year: Expected 2028 (3rd Year, 1st Sem)</span>
+        </div>
+        <div class="item-subheader">
+          Vel Tech Rangarajan Dr. Sagunthala R&D Institute of Science and Technology, Chennai
+        </div>
+        <div class="item-details">
+          Percentage: 74%
+        </div>
+      </div>
+
+      <!-- Intermediate -->
+      <div class="item-block">
+        <div class="item-header">
+          <span>Intermediate (12th Grade)</span>
+          <span>Year: 2024</span>
+        </div>
+        <div class="item-subheader">
+          Sri Chaitanya Jr. College, Visakhapatnam
+        </div>
+        <div class="item-details">
+          Percentage: 77%
+        </div>
+      </div>
+    </section>
+
+    <!-- PROFESSIONAL EXPERIENCE -->
+    <section class="section">
+      <h2 class="section-title">Professional Experience</h2>
+
+      <!-- Tribly Tech -->
+      <div class="item-block">
+        <div class="item-header">
+          <span>Backend Engineer Intern</span>
+          <span>Jul 2026 – Present</span>
+        </div>
+        <div class="item-subheader">
+          Tribly Tech Pvt Limited
+        </div>
+        <ul class="item-bullets">
+          <li>Led the backend systems design and API integrations for the <strong>Fineset</strong> web application, utilizing AI code assistants to increase development velocity.</li>
+          <li>Built secure RESTful endpoints and configured session logs (JWT/bcrypt) using prompt-driven coding and review workflows.</li>
+          <li>Optimized database schemas and SQL queries under AI-guided profiling.</li>
+        </ul>
+      </div>
+
+      <!-- Tekspot -->
+      <div class="item-block">
+        <div class="item-header">
+          <span>Full Stack Engineer Intern</span>
+          <span>Jun 2026 – Jul 2026</span>
+        </div>
+        <div class="item-subheader">
+          Tekspot Global Solutions
+        </div>
+        <ul class="item-bullets">
+          <li>Developed full-stack web application features, leveraging LLM debugging tools to quickly identify and resolve state-management bugs.</li>
+          <li>Created database configurations and designed React UI dashboards using AI-assisted rapid prototyping methods.</li>
+          <li>Integrated server logging and configured structured API responses.</li>
+        </ul>
+      </div>
+
+      <!-- Yantriksha Core Coordinator -->
+      <div class="item-block">
+        <div class="item-header">
+          <span>Core Coordinator & Web Developer</span>
+          <span>Feb 2026 – Present</span>
+        </div>
+        <div class="item-subheader">
+          Yantriksha X Hub (Vel Tech)
+        </div>
+        <ul class="item-bullets">
+          <li>Coordinating technical activities across multidisciplinary clubs (Engineering, Law, Business).</li>
+          <li>Built the official Next.js web application utilizing AI-assisted workflows to draft the team matching logic, milestone reports, and admin panels.</li>
+        </ul>
+      </div>
+
+      <!-- Just Between Us -->
+      <div class="item-block">
+        <div class="item-header">
+          <span>Post Logistics & Production Head</span>
+          <span>Apr 2026 – Present</span>
+        </div>
+        <div class="item-subheader">
+          Just Between Us Official
+        </div>
+        <ul class="item-bullets">
+          <li>Maintained logistics schedules, managed production resource logs, and coordinated teams to ensure project releases run on schedule.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- TECHNICAL SKILLS -->
+    <section class="section">
+      <h2 class="section-title">Technical Skills</h2>
+      <div class="skills-list">
+        <div class="skills-line">
+          <span class="skills-label">AI-Assisted Development:</span> Cursor, GitHub Copilot, Prompt Engineering for code generation, debugging, and code review
+        </div>
+        <div class="skills-line">
+          <span class="skills-label">Languages (Core Concepts):</span> JavaScript, TypeScript, Python, C, C++, SQL
+        </div>
+        <div class="skills-line">
+          <span class="skills-label">Backend & Databases:</span> Node.js, Express, Next.js API Routes, MySQL, PostgreSQL, SQLite, JWT, Bcrypt, Nodemailer
+        </div>
+        <div class="skills-line">
+          <span class="skills-label">Frontend & Design:</span> React, HTML5, CSS3, TailwindCSS
+        </div>
+        <div class="skills-line">
+          <span class="skills-label">IoT & Hardware:</span> Arduino, ESP8266, Microcontrollers, Sensors
+        </div>
+        <div class="skills-line">
+          <span class="skills-label">Machine Learning:</span> TensorFlow, Text Classification, Object Detection, Landmark Detection
+        </div>
+      </div>
+    </section>
+
+    <!-- PROJECTS -->
+    <section class="section">
+      <h2 class="section-title">Projects</h2>
+
+      <!-- Yantriksha Hub Portal -->
+      <div class="item-block">
+        <div class="item-header">
+          <span>Yantriksha X Hub Web Platform</span>
+          <span>Next.js & MySQL</span>
+        </div>
+        <ul class="item-bullets">
+          <li>Developed an online team matchmaker allowing student groups to validate legal, business, and engineering requirements.</li>
+          <li>Structured a gamified 14-stage roadmap checklist to track project milestones from brainstorming to corporate funding.</li>
+        </ul>
+      </div>
+
+      <!-- AI Projects -->
+      <div class="item-block">
+        <div class="item-header">
+          <span>AI & Computer Vision Frameworks</span>
+          <span>Python & TensorFlow</span>
+        </div>
+        <ul class="item-bullets">
+          <li>Implemented deep learning models for classification, object recognition, and coordinate landmark localization.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- CERTIFICATIONS & ACHIEVEMENTS -->
+    <section class="section">
+      <h2 class="section-title">Certifications & Achievements</h2>
+      <ul class="item-bullets">
+        <li>Won 3rd prize in Aerospace Hackathon, Hyderabad (MLRIT University).</li>
+        <li>Earned Python AIML-based Internship Certificate during project terms.</li>
+        <li>Developed IoT Environmental Sensor Hub utilizing C++, Arduino, and ESP8266 modules.</li>
+      </ul>
+    </section>
+
+  </div>
+
+</body>
+</html>

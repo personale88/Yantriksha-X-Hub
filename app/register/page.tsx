@@ -20,23 +20,49 @@ const COLLEGES = [
 ];
 
 const DEPARTMENTS = [
+  // Computing / IT
   { value: 'CSE', label: 'CSE - Computer Science & Engineering' },
+  { value: 'CSE (AI & ML)', label: 'CSE (AI & ML) - Artificial Intelligence & Machine Learning' },
+  { value: 'CSE (Cyber Security)', label: 'CSE (Cyber Security) - Cyber Security' },
+  { value: 'CSE (Data Science)', label: 'CSE (Data Science) - Data Science' },
+  { value: 'AI & DS', label: 'AI & DS - Artificial Intelligence & Data Science' },
+  { value: 'CSD', label: 'CSD - Computer Science & Design' },
+  { value: 'IT', label: 'IT - Information Technology' },
+  { value: 'MCA', label: 'MCA - Master of Computer Applications' },
+  { value: 'BCA', label: 'BCA - Bachelor of Computer Applications' },
+  
+  // Electrical / Communication
   { value: 'ECE', label: 'ECE - Electronics & Communication Engineering' },
   { value: 'EEE', label: 'EEE - Electrical & Electronics Engineering' },
-  { value: 'MECH', label: 'MECH - Mechanical Engineering' },
-  { value: 'CIVIL', label: 'CIVIL - Civil Engineering' },
-  { value: 'AERO', label: 'AERO - Aeronautical Engineering' },
-  { value: 'BIOTECH', label: 'BIOTECH - Biotechnology' },
-  { value: 'IT', label: 'IT - Information Technology' },
+  { value: 'Biomedical', label: 'Biomedical Engineering' },
+  
+  // Mechanical / Construction / Other Engineering
+  { value: 'Mechanical', label: 'Mechanical Engineering' },
+  { value: 'Civil', label: 'Civil Engineering' },
+  { value: 'Aeronautical', label: 'Aeronautical Engineering' },
+  { value: 'Automobile', label: 'Automobile Engineering' },
+  { value: 'Biotechnology', label: 'Biotechnology' },
+  { value: 'Mechatronics', label: 'Mechatronics Engineering' },
+  { value: 'Agricultural', label: 'Agricultural Engineering' },
+  { value: 'Chemical', label: 'Chemical Engineering' },
+  { value: 'Petroleum', label: 'Petroleum Engineering' },
+  { value: 'Marine', label: 'Marine Engineering' },
+  { value: 'Food Technology', label: 'Food Technology' },
+  
+  // Business / Management
   { value: 'MBA', label: 'MBA - Master of Business Administration' },
   { value: 'BBA', label: 'BBA - Bachelor of Business Administration' },
   { value: 'B.Com', label: 'B.Com - Bachelor of Commerce' },
+  
+  // Law / Legal Studies
   { value: 'BA LLB', label: 'BA LLB (Hons)' },
   { value: 'BBA LLB', label: 'BBA LLB (Hons)' },
   { value: 'LLB', label: 'LLB - Bachelor of Laws' },
-  { value: 'BCA', label: 'BCA - Bachelor of Computer Applications' },
+  { value: 'Law', label: 'Law / Legal Studies (Other)' },
+  
+  // Science / Others
   { value: 'B.Sc', label: 'B.Sc - Bachelor of Science' },
-  { value: 'Other', label: 'Other Department' },
+  { value: 'other', label: 'Other Department' },
 ];
 
 const SCHOOLS = [

@@ -75,7 +75,7 @@ const features = [
 
 export default function Features() {
   return (
-    <section id="events" className="bg-slate-950 py-16 text-white relative overflow-hidden">
+    <section id="features" className="bg-slate-950 py-16 text-white relative overflow-hidden">
 
       {/* Background decorative glows */}
       <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-blue-600/5 rounded-full blur-[140px] pointer-events-none" />

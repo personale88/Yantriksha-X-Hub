@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Image from 'next/image';
 
 interface Milestone {
   number: string;
@@ -13,6 +12,7 @@ interface Milestone {
   dotColor: string;
   borderHoverColor: string;
   checklist: string[];
+  isGate?: boolean;
 }
 
 const roadmapData: Milestone[] = [
@@ -20,174 +20,214 @@ const roadmapData: Milestone[] = [
     number: "01",
     stage: "Stage -1: Confusion",
     title: "Problem Discovery",
-    desc: "Identify high-impact, real-world pain points in society or industry. Perform preliminary searches on literature and patent databases to ensure originality.",
+    desc: "Identify high-impact, real-world pain points in society or industry. Sourced from industrial visits, community surveys, user observation, and SDG targets.",
     stageColor: "text-red-400",
     badgeColor: "bg-red-950/40 text-red-400 border-red-900/50",
     dotColor: "bg-red-500",
     borderHoverColor: "hover:border-red-500/40",
-    checklist: ["Formulate initial problem hypothesis", "Review 5 academic literature papers", "Perform Google Patent prior-art search"]
+    checklist: ["Identify challenge areas", "Conduct literature review", "Verify problem originality"],
+    isGate: false
   },
   {
     number: "02",
     stage: "Stage -1: Confusion",
-    title: "Cross-Disciplinary Team",
-    desc: "Assemble a compliant 10-member student team bridging Engineering, Law, and Business faculties, guided by a Faculty Advisor.",
+    title: "Team & Mentor Allocation",
+    desc: "Assemble a compliant 10-member cross-disciplinary student team (Engineering, Law, Business) and assign Faculty, Industry, and Alumni mentors.",
     stageColor: "text-red-400",
     badgeColor: "bg-red-950/40 text-red-400 border-red-900/50",
     dotColor: "bg-red-500",
     borderHoverColor: "hover:border-red-500/40",
-    checklist: ["Onboard 4 Engineering, 3 Law, and 3 MBA students", "Sign-off Faculty Advisor alignment log", "Register team details in Yantriksha registry"]
+    checklist: ["Form 10-member team", "Assign Faculty Mentor", "Assign Industry/Alumni Mentors"],
+    isGate: false
   },
   {
     number: "03",
-    stage: "Stage 0: Idea",
-    title: "Idea Validation",
-    desc: "Validate the problem statements by conducting user surveys and field research. Define the core value proposition of your startup solution.",
-    stageColor: "text-yellow-400",
-    badgeColor: "bg-yellow-950/40 text-yellow-400 border-yellow-900/50",
-    dotColor: "bg-yellow-500",
-    borderHoverColor: "hover:border-yellow-500/40",
-    checklist: ["Survey 50 potential target users", "Conduct 5 face-to-face consumer interviews", "Draft Business Model Canvas (BMC) value block"]
+    stage: "Stage -1: Confusion",
+    title: "Problem Validation",
+    desc: "Validate the problem statement through customer discovery, user interviews, market research, and technical feasibility checks.",
+    stageColor: "text-red-400",
+    badgeColor: "bg-red-950/40 text-red-400 border-red-900/50",
+    dotColor: "bg-red-500",
+    borderHoverColor: "hover:border-red-500/40",
+    checklist: ["Validate customer discovery", "Execute 5+ user interviews", "Draft validated problem statement"],
+    isGate: false
+  },
+  {
+    number: "QR1",
+    stage: "Stage -1: Gate Checkpoint",
+    title: "Quality Review – QR1 (Problem Assessment)",
+    desc: "A rigorous review gate to determine whether the identified problem is worth solving before investing time and resources.",
+    stageColor: "text-blue-400",
+    badgeColor: "bg-blue-950/40 text-blue-300 border-blue-800/40",
+    dotColor: "bg-blue-500",
+    borderHoverColor: "hover:border-blue-500/40",
+    checklist: ["Verify problem significance", "Assess customer need and urgency", "Confirm technical feasibility & documentation quality"],
+    isGate: true
   },
   {
     number: "04",
     stage: "Stage 0: Idea",
-    title: "Prototype Blueprinting",
-    desc: "Draft complete schematics, technical flowcharts, and hardware component lists required for fabricating the prototype.",
-    stageColor: "text-yellow-400",
-    badgeColor: "bg-yellow-950/40 text-yellow-400 border-yellow-900/50",
-    dotColor: "bg-yellow-500",
-    borderHoverColor: "hover:border-yellow-500/40",
-    checklist: ["Create electrical circuit CAD schematics", "Select microcontrollers, sensors, and actuators", "Design physical enclosure structural dimensions"]
+    title: "Ideation & Research",
+    desc: "Brainstorm solutions using design thinking. Perform prior-art patent searches and outline product architecture blueprints.",
+    stageColor: "text-amber-400",
+    badgeColor: "bg-amber-950/40 text-amber-400 border-amber-900/50",
+    dotColor: "bg-amber-500",
+    borderHoverColor: "hover:border-amber-500/40",
+    checklist: ["Conduct patent prior-art searches", "Create electrical CAD schematics", "Draft product architecture vision"],
+    isGate: false
+  },
+  {
+    number: "QR2",
+    stage: "Stage 0: Gate Checkpoint",
+    title: "Quality Review – QR2 (Solution Assessment)",
+    desc: "Evaluate whether the proposed solution is technically feasible, innovative, and aligned with user needs before prototype seed funding.",
+    stageColor: "text-blue-400",
+    badgeColor: "bg-blue-950/40 text-blue-300 border-blue-800/40",
+    dotColor: "bg-blue-500",
+    borderHoverColor: "hover:border-blue-500/40",
+    checklist: ["Verify solution originality & innovation level", "Confirm alignment with validated user needs", "Approve for prototype seed funding"],
+    isGate: true
   },
   {
     number: "05",
     stage: "Stage 0: Idea",
-    title: "Feasibility Review",
-    desc: "Verify feasibility across three incubation pillars: engineering viability, business market sizing, and legal patent/prior-art search clearance.",
-    stageColor: "text-yellow-400",
-    badgeColor: "bg-yellow-950/40 text-yellow-400 border-yellow-900/50",
-    dotColor: "bg-yellow-500",
-    borderHoverColor: "hover:border-yellow-500/40",
-    checklist: ["Complete engineering blueprint verification", "Formulate Total Addressable Market (TAM) sizing", "Document prior-art patent search checklist"]
+    title: "Funding & Resources",
+    desc: "Secure prototype seed grants. Access campus makerspaces (AICTE IDEA Lab, Robotics/IoT/PCB labs) to procure components and start fabrication.",
+    stageColor: "text-amber-400",
+    badgeColor: "bg-amber-950/40 text-amber-400 border-amber-900/50",
+    dotColor: "bg-amber-500",
+    borderHoverColor: "hover:border-amber-500/40",
+    checklist: ["Detail components bill of materials (BOM)", "Submit resource request to coordinators", "Access design & fabrication labs"],
+    isGate: false
   },
   {
     number: "06",
-    stage: "Stage 1: Product",
-    title: "Resource Request",
-    desc: "Submit your final itemized bill of materials (BOM) to the incubation panel for review and component procurement approval.",
-    stageColor: "text-emerald-400",
-    badgeColor: "bg-emerald-950/40 text-emerald-400 border-emerald-900/50",
-    dotColor: "bg-emerald-500",
-    borderHoverColor: "hover:border-emerald-500/40",
-    checklist: ["Detail components supplier links & quotes", "Submit Bill of Materials (BOM) for approval", "Verify components delivery logs in sandbox storage"]
+    stage: "Stage 0: Idea",
+    title: "Prototype Development & Testing",
+    desc: "Build your Proof of Concept (PoC) / Minimum Viable Product (MVP). Perform internal testing, troubleshooting, and coding.",
+    stageColor: "text-amber-400",
+    badgeColor: "bg-amber-950/40 text-amber-400 border-amber-900/50",
+    dotColor: "bg-amber-500",
+    borderHoverColor: "hover:border-amber-500/40",
+    checklist: ["Complete functional hardware assembly", "Write and flash micro-controller firmware", "Debug structural casings & test performance"],
+    isGate: false
+  },
+  {
+    number: "QR3",
+    stage: "Stage 0: Gate Checkpoint",
+    title: "Quality Review – QR3 (Prototype Assessment)",
+    desc: "Assess whether the prototype is technically sound, reliable, and ready for external validation.",
+    stageColor: "text-blue-400",
+    badgeColor: "bg-blue-950/40 text-blue-300 border-blue-800/40",
+    dotColor: "bg-blue-500",
+    borderHoverColor: "hover:border-blue-500/40",
+    checklist: ["Validate functional performance", "Verify structural engineering quality", "Pass electrical & mechanical safety checks"],
+    isGate: true
   },
   {
     number: "07",
     stage: "Stage 1: Product",
-    title: "Seed Funding Request",
-    desc: "Secure prototype seed grants. Eligible teams can claim up to ₹50,000 for purchasing components and hiring fabrication services.",
+    title: "Product Validation",
+    desc: "Conduct user acceptance testing, field trials, pilot deployment, and customer feedback surveys to refine the product.",
     stageColor: "text-emerald-400",
     badgeColor: "bg-emerald-950/40 text-emerald-400 border-emerald-900/50",
     dotColor: "bg-emerald-500",
     borderHoverColor: "hover:border-emerald-500/40",
-    checklist: ["Upload official parts invoices to dashboard", "Complete treasurer bank account linking", "Receive advisor sign-off for grant disbursement"]
+    checklist: ["Launch pilot deployment under load", "Gather customer feedback metrics", "Formulate validation report dossier"],
+    isGate: false
+  },
+  {
+    number: "QR4",
+    stage: "Stage 1: Gate Checkpoint",
+    title: "Quality Review – QR4 (Product Readiness Review)",
+    desc: "Verify that the product demonstrates sufficient novelty, execution quality, validation results, and commercial potential.",
+    stageColor: "text-blue-400",
+    badgeColor: "bg-blue-950/40 text-blue-300 border-blue-800/40",
+    dotColor: "bg-blue-500",
+    borderHoverColor: "hover:border-blue-500/40",
+    checklist: ["Verify product novelty criteria", "Review user feedback data", "Confirm technical documentation completeness"],
+    isGate: true
   },
   {
     number: "08",
     stage: "Stage 1: Product",
-    title: "Mentorship Connect",
-    desc: "Schedule expert review slots to optimize your prototype performance, design packaging, and draft legal patent claims.",
+    title: "Research & IPR filing",
+    desc: "Protect your intellectual property. Draft patents, submit provisional filings, or publish research papers in academic conferences.",
     stageColor: "text-emerald-400",
     badgeColor: "bg-emerald-950/40 text-emerald-400 border-emerald-900/50",
     dotColor: "bg-emerald-500",
     borderHoverColor: "hover:border-emerald-500/40",
-    checklist: ["Book 1-on-1 session with Engineering Mentor", "Review financial unit economics with MBA Lead", "Draft patent claim outlines with Law Advisor"]
+    checklist: ["Execute patent prior-art audits", "Draft and submit provisional patent application", "Prepare research abstract for publication"],
+    isGate: false
   },
   {
     number: "09",
     stage: "Stage 1: Product",
-    title: "Progress Reporting",
-    desc: "Submit bi-weekly reports tracking prototype benchmarks, testing outcomes, and seed funding spending.",
+    title: "Incubation (TBI Onboarding)",
+    desc: "Get incubation support from the Technology Business Incubator (TBI). Register company, outline business models, and establish legal frameworks.",
     stageColor: "text-emerald-400",
     badgeColor: "bg-emerald-950/40 text-emerald-400 border-emerald-900/50",
     dotColor: "bg-emerald-500",
     borderHoverColor: "hover:border-emerald-500/40",
-    checklist: ["Document bi-weekly technical performance stats", "File seed funding spent-budget logs", "Submit progress report for coordinator validation"]
+    checklist: ["Onboard team into TBI incubator", "Draft startup registry profile", "Complete business model canvas (BMC) validation"],
+    isGate: false
+  },
+  {
+    number: "QR5",
+    stage: "Stage 1: Gate Checkpoint",
+    title: "Quality Review – QR5 (Startup Readiness Review)",
+    desc: "Evaluate whether the innovation is ready to become a scalable startup before receiving scaling funding.",
+    stageColor: "text-blue-400",
+    badgeColor: "bg-blue-950/40 text-blue-300 border-blue-800/40",
+    dotColor: "bg-blue-500",
+    borderHoverColor: "hover:border-blue-500/40",
+    checklist: ["Verify business model viability", "Verify team capability & roles", "Confirm market readiness and manufacturing plans"],
+    isGate: true
   },
   {
     number: "10",
     stage: "Stage 1: Product",
-    title: "Hackathon Challenge",
-    desc: "Test your MVP in external competitions. Participate in Smart India Hackathon (SIH) or other regional ideathons for external validation.",
+    title: "Funding & Startup Scaling",
+    desc: "Secure scaling capital (Startup India, AICTE, MSME, Venture Capitals, Angels) and scale production operations.",
     stageColor: "text-emerald-400",
     badgeColor: "bg-emerald-950/40 text-emerald-400 border-emerald-900/50",
     dotColor: "bg-emerald-500",
     borderHoverColor: "hover:border-emerald-500/40",
-    checklist: ["Register MVP prototype for SIH sandbox track", "Complete 5-minute live investor pitch deck", "Log jury/peer feedback comments inside dashboard"]
+    checklist: ["Pitch startup to venture capital funds", "Open commercial business bank account", "Set up bulk manufacturing facilities"],
+    isGate: false
   },
   {
     number: "11",
     stage: "Stage 1: Product",
-    title: "Sandbox Testing",
-    desc: "Conduct bi-monthly real-world environment tests. Log telemetry data and structural integrity during continuous sandbox operations.",
+    title: "Commercialization & Impact",
+    desc: "Officially launch your product to the market. Generate revenue, expand operations, and onboard alumni mentors.",
     stageColor: "text-emerald-400",
     badgeColor: "bg-emerald-950/40 text-emerald-400 border-emerald-900/50",
     dotColor: "bg-emerald-500",
     borderHoverColor: "hover:border-emerald-500/40",
-    checklist: ["Run prototype under continuous load for 2 hours", "Identify and log 3 operational failure points", "Incorporate safety fail-safes in firmware code"]
-  },
-  {
-    number: "12",
-    stage: "Stage 1: Product",
-    title: "Research & IPR filing",
-    desc: "Protect your proprietary tech. Work with School of Law advisors to file patents, register trademarks, or draft research publications.",
-    stageColor: "text-emerald-400",
-    badgeColor: "bg-emerald-950/40 text-emerald-400 border-emerald-900/50",
-    dotColor: "bg-emerald-500",
-    borderHoverColor: "hover:border-emerald-500/40",
-    checklist: ["Finalize patent prior-art documentation log", "Draft and submit provisional patent application", "Submit research abstract for conference publication"]
-  },
-  {
-    number: "13",
-    stage: "Stage 1: Product",
-    title: "Commercialization Plan",
-    desc: "Formulate pricing models, go-to-market strategies, and pitch your startup to early stage venture capitals or angel investors.",
-    stageColor: "text-emerald-400",
-    badgeColor: "bg-emerald-950/40 text-emerald-400 border-emerald-900/50",
-    dotColor: "bg-emerald-500",
-    borderHoverColor: "hover:border-emerald-500/40",
-    checklist: ["Formulate customer acquisition cost (CAC) metrics", "Design Go-To-Market (GTM) rollout timelines", "Conduct mock pitches with 3 incubation experts"]
-  },
-  {
-    number: "14",
-    stage: "Stage 1: Product",
-    title: "Startup Launch",
-    desc: "Register your startup as a private limited entity, open a business bank account, and officially deploy your product to the market.",
-    stageColor: "text-emerald-400",
-    badgeColor: "bg-emerald-950/40 text-emerald-400 border-emerald-900/50",
-    dotColor: "bg-emerald-500",
-    borderHoverColor: "hover:border-emerald-500/40",
-    checklist: ["Complete MCA company registration documents", "Obtain official startup GST number credentials", "Deploy live production app and welcome first customers"]
+    checklist: ["Onboard first 100 paying customers", "Log early revenue generation streams", "Establish active alumni advisory mentoring feedback loops"],
+    isGate: false
   }
 ];
 
-// Coordinates along the winding S-curve road in a 400x900 SVG viewport
+// Coordinates along the winding S-curve road in a 400x1000 SVG viewport
 const STOPS_COORDINATES = [
-  { x: 80, y: 50, rot: 30 },     // Stop 1
-  { x: 200, y: 110, rot: 15 },   // Stop 2
-  { x: 320, y: 170, rot: 135 },  // Stop 3
-  { x: 200, y: 230, rot: 165 },  // Stop 4
-  { x: 80, y: 290, rot: 30 },    // Stop 5
-  { x: 200, y: 350, rot: 15 },   // Stop 6
-  { x: 320, y: 410, rot: 135 },  // Stop 7
-  { x: 200, y: 470, rot: 165 },  // Stop 8
-  { x: 80, y: 530, rot: 30 },    // Stop 9
-  { x: 200, y: 590, rot: 15 },   // Stop 10
-  { x: 320, y: 650, rot: 135 },  // Stop 11
-  { x: 200, y: 710, rot: 165 },  // Stop 12
-  { x: 80, y: 770, rot: 30 },    // Stop 13
-  { x: 200, y: 830, rot: 90 }    // Stop 14
+  { x: 80, y: 50, rot: 30 },     // Stop 1 (01)
+  { x: 200, y: 110, rot: 15 },   // Stop 2 (02)
+  { x: 320, y: 170, rot: 135 },  // Stop 3 (03)
+  { x: 200, y: 230, rot: 165 },  // Stop 4 (QR1)
+  { x: 80, y: 290, rot: 30 },    // Stop 5 (04)
+  { x: 200, y: 350, rot: 15 },   // Stop 6 (QR2)
+  { x: 320, y: 410, rot: 135 },  // Stop 7 (05)
+  { x: 200, y: 470, rot: 165 },  // Stop 8 (06)
+  { x: 80, y: 530, rot: 30 },    // Stop 9 (QR3)
+  { x: 200, y: 590, rot: 15 },   // Stop 10 (07)
+  { x: 320, y: 650, rot: 135 },  // Stop 11 (QR4)
+  { x: 200, y: 710, rot: 165 },  // Stop 12 (08)
+  { x: 80, y: 770, rot: 30 },    // Stop 13 (09)
+  { x: 200, y: 830, rot: 15 },   // Stop 14 (QR5)
+  { x: 320, y: 890, rot: 135 },  // Stop 15 (10)
+  { x: 200, y: 950, rot: 90 }    // Stop 16 (11)
 ];
 
 export default function Roadmap() {
@@ -209,7 +249,6 @@ export default function Roadmap() {
     return () => clearInterval(timer);
   }, [isPlaying]);
 
-  // Handle resetting and pausing when reaching the end of the trip
   useEffect(() => {
     if (isPlaying && selectedIdx === roadmapData.length - 1) {
       const resetTimer = setTimeout(() => {
@@ -223,7 +262,6 @@ export default function Roadmap() {
   const activeMilestone = roadmapData[selectedIdx];
   const activeCoord = STOPS_COORDINATES[selectedIdx];
 
-  // Dynamic car paint & underglow matching the current stage color
   let carThemeColor = '#3b82f6';
   let carGlowColor = 'rgba(59, 130, 246, 0.2)';
   let carHeadlightColor = '#00f2fe';
@@ -249,29 +287,31 @@ export default function Roadmap() {
     carHeadlightColor = '#6ee7b7';
     activeBorderGlow = 'border-emerald-500/40 shadow-[0_0_15px_rgba(16,185,129,0.15)]';
     activeStageText = 'text-emerald-400';
+  } else if (activeMilestone.isGate) {
+    carThemeColor = '#3b82f6';
+    carGlowColor = 'rgba(59, 130, 246, 0.35)';
+    carHeadlightColor = '#60a5fa';
+    activeBorderGlow = 'border-blue-500/40 shadow-[0_0_15px_rgba(59,130,246,0.15)]';
+    activeStageText = 'text-blue-400';
   }
-
-
 
   return (
     <section id="roadmap" className="bg-slate-950 py-16 text-white relative overflow-hidden">
       
-      {/* Safe responsive stylesheet to bypass SSR hydration mismatches */}
       <style dangerouslySetInnerHTML={{ __html: `
         .road-col { width: 145px !important; padding: 10px !important; }
-        .road-track { width: 120px !important; height: 100% !important; min-height: 380px !important; }
+        .road-track { width: 120px !important; height: 100% !important; min-height: 480px !important; }
         
         @media (min-width: 640px) {
           .road-col { width: 250px !important; padding: 16px !important; }
-          .road-track { width: 210px !important; height: 100% !important; min-height: 460px !important; }
+          .road-track { width: 210px !important; height: 100% !important; min-height: 560px !important; }
         }
         @media (min-width: 1024px) {
           .road-col { width: auto !important; padding: 24px !important; }
-          .road-track { width: 400px !important; height: 100% !important; min-height: 460px !important; }
+          .road-track { width: 400px !important; height: 100% !important; min-height: 560px !important; }
         }
       `}} />
       
-      {/* Decorative background glows */}
       <div className="absolute top-1/4 left-10 w-96 h-96 bg-blue-600/5 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute bottom-1/4 right-10 w-96 h-96 bg-amber-500/5 rounded-full blur-[150px] pointer-events-none" />
 
@@ -289,10 +329,9 @@ export default function Roadmap() {
             </span>
           </h2>
           <p className="mt-6 text-gray-400 text-base max-w-2xl mx-auto leading-relaxed">
-            Click on any stop along the cyber highway path to drive the Yantriksha rover to that milestone and reveal the detailed startup requirements!
+            Click on any stop or Quality Review (QR) Gate along the winding highway to drive the Yantriksha rover to that checkpoint and reveal detailed parameters!
           </p>
 
-          {/* Drive Simulator Controller */}
           <div className="mt-8 flex justify-center">
             <button
               onClick={() => {
@@ -315,19 +354,15 @@ export default function Roadmap() {
         {/* Highway Winding Canvas & Detail Split Layout */}
         <div className="flex lg:grid lg:grid-cols-12 gap-3 sm:gap-6 lg:gap-12 items-start mt-12 w-full">
           
-          {/* LEFT COLUMN: The Winding Highway Track Map (col-span-6 on desktop, dynamic width on mobile) */}
+          {/* LEFT COLUMN: The Winding Highway Track Map */}
           <div className="road-col lg:col-span-6 flex justify-center relative bg-slate-900/30 border border-slate-900/60 rounded-2xl sm:rounded-3xl backdrop-blur shrink-0">
-            
-            {/* Ambient track glow */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-blue-500/5 rounded-full blur-[40px] sm:blur-[70px] pointer-events-none" />
 
             <div className="road-track relative">
-              
-              {/* SVG Highway Winding Path (Stretches vertically to cover the space!) */}
               <svg
                 width="100%"
                 height="100%"
-                viewBox="0 0 400 900"
+                viewBox="0 0 400 1000"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
                 className="absolute inset-0"
@@ -335,7 +370,7 @@ export default function Roadmap() {
               >
                 {/* 1. Glow border under the road */}
                 <path
-                  d="M 80,50 Q 200,80 200,110 Q 200,140 320,170 Q 200,200 200,230 Q 200,260 80,290 Q 200,320 200,350 Q 200,380 320,410 Q 200,440 200,470 Q 200,500 80,530 Q 200,560 200,590 Q 200,620 320,650 Q 200,680 200,710 Q 200,740 80,770 Q 200,800 200,830"
+                  d="M 80,50 Q 200,80 200,110 Q 200,140 320,170 Q 200,200 200,230 Q 200,260 80,290 Q 200,320 200,350 Q 200,380 320,410 Q 200,440 200,470 Q 200,500 80,530 Q 200,560 200,590 Q 200,620 320,650 Q 200,680 200,710 Q 200,740 80,770 Q 200,800 200,830 Q 200,860 320,890 Q 200,920 200,950"
                   stroke="#3b82f6"
                   strokeWidth="28"
                   strokeLinecap="round"
@@ -345,7 +380,7 @@ export default function Roadmap() {
 
                 {/* 2. Asphalt Road Base */}
                 <path
-                  d="M 80,50 Q 200,80 200,110 Q 200,140 320,170 Q 200,200 200,230 Q 200,260 80,290 Q 200,320 200,350 Q 200,380 320,410 Q 200,440 200,470 Q 200,500 80,530 Q 200,560 200,590 Q 200,620 320,650 Q 200,680 200,710 Q 200,740 80,770 Q 200,800 200,830"
+                  d="M 80,50 Q 200,80 200,110 Q 200,140 320,170 Q 200,200 200,230 Q 200,260 80,290 Q 200,320 200,350 Q 200,380 320,410 Q 200,440 200,470 Q 200,500 80,530 Q 200,560 200,590 Q 200,620 320,650 Q 200,680 200,710 Q 200,740 80,770 Q 200,800 200,830 Q 200,860 320,890 Q 200,920 200,950"
                   stroke="#1e293b"
                   strokeWidth="22"
                   strokeLinecap="round"
@@ -354,7 +389,7 @@ export default function Roadmap() {
 
                 {/* 3. Center Yellow Dashed Divider Lane */}
                 <path
-                  d="M 80,50 Q 200,80 200,110 Q 200,140 320,170 Q 200,200 200,230 Q 200,260 80,290 Q 200,320 200,350 Q 200,380 320,410 Q 200,440 200,470 Q 200,500 80,530 Q 200,560 200,590 Q 200,620 320,650 Q 200,680 200,710 Q 200,740 80,770 Q 200,800 200,830"
+                  d="M 80,50 Q 200,80 200,110 Q 200,140 320,170 Q 200,200 200,230 Q 200,260 80,290 Q 200,320 200,350 Q 200,380 320,410 Q 200,440 200,470 Q 200,500 80,530 Q 200,560 200,590 Q 200,620 320,650 Q 200,680 200,710 Q 200,740 80,770 Q 200,800 200,830 Q 200,860 320,890 Q 200,920 200,950"
                   stroke="#fbbf24"
                   strokeWidth="2"
                   strokeDasharray="6, 8"
@@ -362,15 +397,14 @@ export default function Roadmap() {
                   strokeLinejoin="round"
                   opacity="0.85"
                 />
-
               </svg>
 
-              {/* 4. Glowing Cyber Rover Car Absolute Overlay (never deforms!) */}
+              {/* 4. Glowing Cyber Rover Car Absolute Overlay */}
               <div 
                 className="absolute pointer-events-none z-20"
                 style={{ 
                   left: `${(activeCoord.x / 400) * 100}%`, 
-                  top: `${(activeCoord.y / 900) * 100}%`,
+                  top: `${(activeCoord.y / 1000) * 100}%`,
                   width: '48px',
                   height: '28px',
                   marginLeft: '-24px',
@@ -380,28 +414,24 @@ export default function Roadmap() {
                 }}
               >
                 <svg width="48" height="28" viewBox="-24 -14 48 28" fill="none">
-                  {/* Outer laser hover glow */}
                   <rect x="-24" y="-14" width="48" height="28" rx="8" fill={carGlowColor} filter="blur(4px)" style={{ transition: 'fill 0.5s ease' }} />
-                  {/* Cyber sports car chassis */}
                   <rect x="-18" y="-10" width="36" height="20" rx="6" fill="#0f172a" stroke={carThemeColor} strokeWidth="2.5" style={{ transition: 'stroke 0.5s ease' }} />
-                  {/* Windshield */}
                   <rect x="5" y="-7" width="9" height="14" rx="2" fill={carHeadlightColor} opacity="0.8" style={{ transition: 'fill 0.5s ease' }} />
-                  {/* Dual Neon Headlights */}
                   <circle cx="16" cy="-5" r="2" fill={carHeadlightColor} style={{ transition: 'fill 0.5s ease' }} />
                   <circle cx="16" cy="5" r="2" fill={carHeadlightColor} style={{ transition: 'fill 0.5s ease' }} />
-                  {/* Rear exhaust thrust flame */}
                   <path d="M -18 0 L -29 -4 L -25 0 L -29 4 Z" fill={carThemeColor} opacity="0.75" style={{ transition: 'fill 0.5s ease' }} />
                 </svg>
               </div>
 
-              {/* 5. Stops / Milestones Overlay Buttons */}
+              {/* 5. Stops / Milestones Buttons */}
               {STOPS_COORDINATES.map((stop, idx) => {
                 const milestone = roadmapData[idx];
                 const isSelected = selectedIdx === idx;
                 
-                // Set color scheme depending on stage phase
                 let stopGlow = 'bg-blue-500 shadow-[0_0_12px_rgba(59,130,246,0.8)]';
-                if (milestone.stage.includes('Confusion')) {
+                if (milestone.isGate) {
+                  stopGlow = 'bg-blue-600 shadow-[0_0_15px_rgba(59,130,246,1)] border border-blue-300';
+                } else if (milestone.stage.includes('Confusion')) {
                   stopGlow = 'bg-red-500 shadow-[0_0_12px_rgba(239,68,68,0.8)]';
                 } else if (milestone.stage.includes('Idea')) {
                   stopGlow = 'bg-amber-500 shadow-[0_0_12px_rgba(234,179,8,0.8)]';
@@ -409,32 +439,56 @@ export default function Roadmap() {
                   stopGlow = 'bg-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.8)]';
                 }
 
-                // Adjust positions inside SVG viewbox relative values
                 const leftPercent = `${(stop.x / 400) * 100}%`;
-                const topPercent = `${(stop.y / 900) * 100}%`;
+                const topPercent = `${(stop.y / 1000) * 100}%`;
 
                 return (
                   <button
                     key={idx}
                     onClick={() => { setSelectedIdx(idx); setIsPlaying(false); }}
-                    className="absolute -translate-x-1/2 -translate-y-1/2 group"
+                    className="absolute -translate-x-1/2 -translate-y-1/2 group z-10"
                     style={{ left: leftPercent, top: topPercent }}
                   >
-                    {/* Ring Pulse for active stop */}
                     {isSelected && (
                       <span className="absolute inset-[-5px] sm:inset-[-10px] rounded-full bg-blue-500/20 border border-blue-400/40 animate-ping pointer-events-none" />
                     )}
 
-                    {/* Glowing Stop Circle */}
-                    <div className={`h-5 w-5 sm:h-7 sm:w-7 rounded-full border-[2px] sm:border-[3.5px] border-slate-950 flex items-center justify-center font-black text-[7px] sm:text-[9px] cursor-pointer transition duration-300 hover:scale-125 ${
-                      isSelected 
-                        ? 'bg-white text-slate-950 scale-110 shadow-[0_0_15px_#ffffff]'
-                        : `${stopGlow} text-white`
-                    }`}>
-                      {milestone.number}
-                    </div>
+                    {milestone.isGate ? (
+                      <div className={`relative h-8 w-8 sm:h-10 sm:w-10 border border-blue-500/50 rounded-xl flex items-center justify-center font-black transition duration-300 hover:scale-110 overflow-hidden bg-slate-950 ${
+                        isSelected 
+                          ? 'border-white shadow-[0_0_15px_rgba(59,130,246,0.6)]'
+                          : 'shadow-[0_0_8px_rgba(59,130,246,0.3)]'
+                      }`}>
+                        {/* Winding Gate Doors */}
+                        <div className={`absolute top-0 bottom-0 left-0 w-1/2 bg-slate-900 border-r border-blue-500/60 transition-transform duration-500 ${
+                          isSelected ? '-translate-x-[70%]' : 'translate-x-0'
+                        }`} />
+                        <div className={`absolute top-0 bottom-0 right-0 w-1/2 bg-slate-900 border-l border-blue-500/60 transition-transform duration-500 ${
+                          isSelected ? 'translate-x-[70%]' : 'translate-x-0'
+                        }`} />
+                        {/* Laser / Scanner Line when closed */}
+                        {!isSelected && (
+                          <div className="absolute inset-0 bg-blue-500/10 flex items-center justify-center pointer-events-none">
+                            <div className="w-[1px] h-full bg-blue-400 shadow-[0_0_6px_#60a5fa] animate-pulse" />
+                          </div>
+                        )}
+                        {/* QR label */}
+                        <span className="relative z-10 text-[7px] sm:text-[9px] font-black tracking-tighter text-blue-400">
+                          {milestone.number}
+                        </span>
+                      </div>
+                    ) : (
+                      <div className={`h-6 w-6 sm:h-8 sm:w-8 rounded-full border-[2px] sm:border-[3.5px] border-slate-950 flex items-center justify-center font-black transition duration-300 hover:scale-125 ${
+                        isSelected 
+                          ? 'bg-white text-slate-950 scale-110 shadow-[0_0_15px_#ffffff]'
+                          : `${stopGlow} text-white`
+                      }`}>
+                        <span className="text-[8px] sm:text-[10px]">
+                          {milestone.number}
+                        </span>
+                      </div>
+                    )}
 
-                    {/* Tooltip Hover tag */}
                     <div className="absolute left-1/2 -translate-x-1/2 bottom-8 bg-slate-950 border border-slate-800 px-2.5 py-1 rounded-lg text-[10px] text-white font-bold whitespace-nowrap opacity-0 group-hover:opacity-100 transition pointer-events-none shadow-lg">
                       {milestone.title}
                     </div>
@@ -445,11 +499,10 @@ export default function Roadmap() {
             </div>
           </div>
 
-          {/* RIGHT COLUMN: The Interactive Milestone Control Dashboard (col-span-6 on desktop, flex-1 remaining width on mobile) */}
+          {/* RIGHT COLUMN: The Interactive Milestone Control Dashboard */}
           <div className="flex-1 min-w-0 lg:col-span-6 space-y-4 lg:space-y-6">
             
-            {/* Highlighted selected Card */}
-            <div className="glass-card rounded-3xl p-4 sm:p-6 lg:p-8 border border-slate-800/80 shadow-2xl relative overflow-hidden bg-gradient-to-br from-slate-900/90 via-slate-900/60 to-blue-950/10 min-h-[380px] sm:min-h-[460px] flex flex-col justify-between">
+            <div className="glass-card rounded-3xl p-4 sm:p-6 lg:p-8 border border-slate-800/80 shadow-2xl relative overflow-hidden bg-gradient-to-br from-slate-900/90 via-slate-900/60 to-blue-950/10 min-h-[380px] sm:min-h-[480px] flex flex-col justify-between">
               
               <div className="absolute top-0 right-0 w-36 h-36 bg-blue-600/5 rounded-full blur-[40px] pointer-events-none" />
               
@@ -459,17 +512,26 @@ export default function Roadmap() {
                 <div className="flex flex-wrap items-center justify-between gap-2 pb-3 sm:pb-5 border-b border-slate-800/60">
                   <div className="flex items-center gap-2 sm:gap-3">
                     <span className="text-gray-500 font-bold text-[9px] sm:text-sm tracking-wider font-mono">
-                      STOP #{activeMilestone.number}
+                      {activeMilestone.isGate ? 'CHECKPOINT GATE' : `STOP #${activeMilestone.number}`}
                     </span>
-                    <span className={`px-1.5 py-0.5 sm:px-2.5 sm:py-0.5 rounded-full text-[8px] sm:text-[10px] font-bold border uppercase tracking-wider ${activeMilestone.badgeColor}`}>
+                    <span className={`px-1.5 py-0.5 sm:px-2.5 sm:py-0.5 rounded-full text-[8px] sm:text-[10px] font-bold border uppercase tracking-wider ${
+                      activeMilestone.isGate ? 'bg-blue-950/60 text-blue-300 border-blue-800/60' : activeMilestone.badgeColor
+                    }`}>
                       {activeMilestone.stage.split(': ')[1] || activeMilestone.stage}
                     </span>
                   </div>
                   <span className="text-[8px] sm:text-xs text-gray-500 font-bold">Incubation Phase</span>
                 </div>
 
+                {/* Gate Indicator Banner */}
+                {activeMilestone.isGate && (
+                  <div className="bg-blue-950/40 border border-blue-800/40 rounded-xl px-3 py-2 mt-4 flex items-center gap-2 text-blue-300 text-xs font-bold uppercase tracking-wider animate-pulse">
+                    <span>🔐 Quality Review Gate Checkpoint</span>
+                  </div>
+                )}
+
                 {/* Stop Title */}
-                <h3 className="text-base sm:text-3xl font-black mt-3 sm:mt-6 tracking-tight text-white">
+                <h3 className="text-base sm:text-2xl font-black mt-3 sm:mt-6 tracking-tight text-white leading-tight">
                   {activeMilestone.title}
                 </h3>
 
@@ -479,14 +541,14 @@ export default function Roadmap() {
                 </p>
 
                 {/* Milestone Quest Checklist */}
-                <div className="mt-4 sm:mt-8 bg-slate-950/60 rounded-xl sm:rounded-2xl p-3 sm:p-5 border border-slate-800/80">
+                <div className="mt-4 sm:mt-6 bg-slate-950/60 rounded-xl sm:rounded-2xl p-3 sm:p-5 border border-slate-800/80">
                   <h4 className="text-[9px] sm:text-xs font-bold text-blue-400 uppercase tracking-widest mb-2 sm:mb-3.5">
-                    📋 Checklist to Pass this Stop:
+                    {activeMilestone.isGate ? '📋 Review Criteria to Pass Gate:' : '📋 Checklist to Pass this Stop:'}
                   </h4>
                   <ul className="space-y-1.5 sm:space-y-2.5 text-[9px] sm:text-xs text-gray-400">
                     {activeMilestone.checklist.map((item, idx) => (
                       <li key={idx} className="flex items-start gap-1.5 sm:gap-2.5 leading-relaxed">
-                        <span className="text-blue-500 shrink-0">✔</span>
+                        <span className="text-blue-500 shrink-0">➢</span>
                         <span>{item}</span>
                       </li>
                     ))}
@@ -496,14 +558,14 @@ export default function Roadmap() {
               </div>
 
               {/* Join Incubation Club callout */}
-              <div className="mt-4 sm:mt-8 flex flex-col sm:flex-row justify-between items-center bg-blue-600/5 border border-blue-500/10 rounded-xl sm:rounded-2xl p-3 sm:p-5 gap-3 sm:gap-4 text-center sm:text-left">
+              <div className="mt-4 sm:mt-6 flex flex-col sm:flex-row justify-between items-center bg-blue-600/5 border border-blue-500/10 rounded-xl sm:rounded-2xl p-3 sm:p-5 gap-3 sm:gap-4 text-center sm:text-left">
                 <div className="text-left">
-                  <h4 className="font-bold text-[10px] sm:text-xs text-white">Inspired to launch your product?</h4>
-                  <p className="text-[8px] sm:text-[10px] text-gray-500 mt-0.5 sm:mt-1 leading-normal">Form your 10-member team and request your ₹50k seed funding today!</p>
+                  <h4 className="font-bold text-[10px] sm:text-xs text-white">Ready to register your team?</h4>
+                  <p className="text-[8px] sm:text-[10px] text-gray-500 mt-0.5 sm:mt-1 leading-normal">Onboard your project and clear the Quality Review (QR) Gates today!</p>
                 </div>
                 <a
                   href="/register"
-                  className="w-full sm:w-auto text-center bg-blue-600 hover:bg-blue-750 text-white font-bold text-[9px] sm:text-xs px-4 py-2.5 sm:px-5 sm:py-3 rounded-lg sm:rounded-xl transition shadow-lg shadow-blue-900/30 hover:-translate-y-0.5 shrink-0"
+                  className="w-full sm:w-auto text-center bg-blue-600 hover:bg-blue-700 text-white font-bold text-[9px] sm:text-xs px-4 py-2.5 sm:px-5 sm:py-3 rounded-lg sm:rounded-xl transition shadow-lg shadow-blue-900/30 hover:-translate-y-0.5 shrink-0"
                 >
                   Join Hub Now →
                 </a>
@@ -515,10 +577,10 @@ export default function Roadmap() {
 
         </div>
 
-        {/* Stage Quick Jump Shortcuts (Moved outside to take full width and cover the empty space) */}
+        {/* Stage Quick Jump Shortcuts */}
         <div className="glass-card rounded-3xl p-6 border border-slate-800/60 space-y-4 mt-8 sm:mt-12 w-full">
           <h4 className="text-xs font-extrabold text-gray-500 uppercase tracking-widest mb-2">
-            🚀 Quick Jump Stops by Stages
+            🚀 Quick Jump Checkpoints by Phase
           </h4>
           
           <div className="space-y-3">
@@ -533,13 +595,15 @@ export default function Roadmap() {
                     <button
                       key={item.number}
                       onClick={() => { setSelectedIdx(idx); setIsPlaying(false); }}
-                      className={`h-8 w-8 rounded-full flex items-center justify-center text-xs font-extrabold transition-all duration-300 ${
+                      className={`h-8 w-8 rounded-full flex items-center justify-center text-[10px] font-extrabold transition-all duration-300 ${
+                        item.isGate ? 'rounded-lg rotate-45 border border-blue-400' : ''
+                      } ${
                         isSelected
                           ? 'bg-white text-slate-950 shadow-[0_0_15px_rgba(255,255,255,0.8)] scale-110'
                           : 'bg-red-950/40 border border-red-900/40 text-red-400 hover:bg-red-900/20'
                       }`}
                     >
-                      {item.number}
+                      <span className={item.isGate ? '-rotate-45' : ''}>{item.number}</span>
                     </button>
                   );
                 })}
@@ -557,13 +621,15 @@ export default function Roadmap() {
                     <button
                       key={item.number}
                       onClick={() => { setSelectedIdx(idx); setIsPlaying(false); }}
-                      className={`h-8 w-8 rounded-full flex items-center justify-center text-xs font-extrabold transition-all duration-300 ${
+                      className={`h-8 w-8 rounded-full flex items-center justify-center text-[10px] font-extrabold transition-all duration-300 ${
+                        item.isGate ? 'rounded-lg rotate-45 border border-blue-400' : ''
+                      } ${
                         isSelected
                           ? 'bg-white text-slate-950 shadow-[0_0_15px_rgba(255,255,255,0.8)] scale-110'
                           : 'bg-amber-950/40 border border-amber-900/40 text-amber-400 hover:bg-amber-900/20'
                       }`}
                     >
-                      {item.number}
+                      <span className={item.isGate ? '-rotate-45' : ''}>{item.number}</span>
                     </button>
                   );
                 })}
@@ -581,13 +647,15 @@ export default function Roadmap() {
                     <button
                       key={item.number}
                       onClick={() => { setSelectedIdx(idx); setIsPlaying(false); }}
-                      className={`h-8 w-8 rounded-full flex items-center justify-center text-xs font-extrabold transition-all duration-300 ${
+                      className={`h-8 w-8 rounded-full flex items-center justify-center text-[10px] font-extrabold transition-all duration-300 ${
+                        item.isGate ? 'rounded-lg rotate-45 border border-blue-400' : ''
+                      } ${
                         isSelected
                           ? 'bg-white text-slate-950 shadow-[0_0_15px_rgba(255,255,255,0.8)] scale-110'
                           : 'bg-emerald-950/40 border border-emerald-900/40 text-emerald-400 hover:bg-emerald-900/20'
                       }`}
                     >
-                      {item.number}
+                      <span className={item.isGate ? '-rotate-45' : ''}>{item.number}</span>
                     </button>
                   );
                 })}

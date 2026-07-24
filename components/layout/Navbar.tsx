@@ -31,6 +31,7 @@ export default function Navbar() {
           {[
             { label: "Home", href: "/#home" },
             { label: "About", href: "/#about" },
+            { label: "Ecosystem", href: "/#features" },
             { label: "Roadmap", href: "/#roadmap" },
             { label: "Events", href: "/#events" },
             { label: "Core Team", href: "/team" },

@@ -43,3 +43,13 @@ next-env.d.ts
 # scrapers
 kakinada-scraper/
 
+# lab tasks
+vtu28891-pst-lab-tasks/
+*.class
+Task2.java
+
+# database exports, scratch files, and presentations
+*.zst
+scratch/
+Yantriksha_X_Hub_Semester_Presentation.pptx
+

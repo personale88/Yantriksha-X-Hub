@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import DashboardJourney from '@/components/roadmap/DashboardJourney';
 
 const inp = [
   'w-full px-4 py-3.5 rounded-xl text-white text-sm outline-none border transition-all duration-200',
@@ -38,23 +39,49 @@ interface User {
 }
 
 const DEPARTMENTS = [
+  // Computing / IT
   { value: 'CSE', label: 'CSE - Computer Science & Engineering' },
+  { value: 'CSE (AI & ML)', label: 'CSE (AI & ML) - Artificial Intelligence & Machine Learning' },
+  { value: 'CSE (Cyber Security)', label: 'CSE (Cyber Security) - Cyber Security' },
+  { value: 'CSE (Data Science)', label: 'CSE (Data Science) - Data Science' },
+  { value: 'AI & DS', label: 'AI & DS - Artificial Intelligence & Data Science' },
+  { value: 'CSD', label: 'CSD - Computer Science & Design' },
+  { value: 'IT', label: 'IT - Information Technology' },
+  { value: 'MCA', label: 'MCA - Master of Computer Applications' },
+  { value: 'BCA', label: 'BCA - Bachelor of Computer Applications' },
+  
+  // Electrical / Communication
   { value: 'ECE', label: 'ECE - Electronics & Communication Engineering' },
   { value: 'EEE', label: 'EEE - Electrical & Electronics Engineering' },
-  { value: 'MECH', label: 'MECH - Mechanical Engineering' },
-  { value: 'CIVIL', label: 'CIVIL - Civil Engineering' },
-  { value: 'AERO', label: 'AERO - Aeronautical Engineering' },
-  { value: 'BIOTECH', label: 'BIOTECH - Biotechnology' },
-  { value: 'IT', label: 'IT - Information Technology' },
+  { value: 'Biomedical', label: 'Biomedical Engineering' },
+  
+  // Mechanical / Construction / Other Engineering
+  { value: 'Mechanical', label: 'Mechanical Engineering' },
+  { value: 'Civil', label: 'Civil Engineering' },
+  { value: 'Aeronautical', label: 'Aeronautical Engineering' },
+  { value: 'Automobile', label: 'Automobile Engineering' },
+  { value: 'Biotechnology', label: 'Biotechnology' },
+  { value: 'Mechatronics', label: 'Mechatronics Engineering' },
+  { value: 'Agricultural', label: 'Agricultural Engineering' },
+  { value: 'Chemical', label: 'Chemical Engineering' },
+  { value: 'Petroleum', label: 'Petroleum Engineering' },
+  { value: 'Marine', label: 'Marine Engineering' },
+  { value: 'Food Technology', label: 'Food Technology' },
+  
+  // Business / Management
   { value: 'MBA', label: 'MBA - Master of Business Administration' },
   { value: 'BBA', label: 'BBA - Bachelor of Business Administration' },
   { value: 'B.Com', label: 'B.Com - Bachelor of Commerce' },
+  
+  // Law / Legal Studies
   { value: 'BA LLB', label: 'BA LLB (Hons)' },
   { value: 'BBA LLB', label: 'BBA LLB (Hons)' },
   { value: 'LLB', label: 'LLB - Bachelor of Laws' },
-  { value: 'BCA', label: 'BCA - Bachelor of Computer Applications' },
+  { value: 'Law', label: 'Law / Legal Studies (Other)' },
+  
+  // Science / Others
   { value: 'B.Sc', label: 'B.Sc - Bachelor of Science' },
-  { value: 'Other', label: 'Other Department' },
+  { value: 'other', label: 'Other Department' },
 ];
 
 const SCHOOLS = [
@@ -816,131 +843,11 @@ export default function DashboardClient({
             TAB: JOURNEY (ROADMAP)
         ═══════════════════════════════════════════════ */}
         {activeTab === 'journey' && (
-          <div className="space-y-8 animate-fadeIn">
-            <div>
-              <span className="section-pill">✦ Milestone Tracker</span>
-              <h1 className="text-4xl font-extrabold text-white tracking-tight">My Journey</h1>
-              <p className="text-gray-400 mt-2 text-sm max-w-2xl">
-                Submit progress reports at each milestone step. Approvals will move your team forward along the Yantriksha_X_Hub path.
-              </p>
-            </div>
-
-            {team ? (
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Timeline display */}
-                <div className="lg:col-span-2 space-y-4">
-                  {ROADMAP_STEPS.map((s) => {
-                    const isUnlocked = s.step <= team.currentStage;
-                    const isActive = s.step === team.currentStage;
-                    return (
-                      <div
-                        key={s.step}
-                        onClick={() => { if (isUnlocked) setReportMilestoneStep(s.step); }}
-                        className={`p-5 rounded-2xl border transition-all duration-200 cursor-pointer ${
-                          isActive
-                            ? 'bg-blue-950/20 border-blue-500 shadow-[0_0_15px_rgba(37,99,235,0.15)]'
-                            : isUnlocked
-                            ? 'bg-slate-900/70 border-slate-800/80 hover:border-slate-700'
-                            : 'bg-slate-950/20 border-slate-900/40 opacity-40 cursor-not-allowed'
-                        }`}
-                      >
-                        <div className="flex items-center gap-3.5">
-                          <span className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs ${
-                            isActive ? 'bg-blue-600 text-white' : isUnlocked ? 'bg-slate-800 text-blue-400' : 'bg-slate-950 text-gray-600'
-                          }`}>
-                            {s.step}
-                          </span>
-                          <div>
-                            <h4 className="font-bold text-white text-sm flex items-center gap-2">
-                              {s.title}
-                              {isActive && <span className="bg-blue-900/60 text-blue-400 border border-blue-800/50 text-[10px] uppercase px-2 py-0.5 rounded-full font-black">Active</span>}
-                            </h4>
-                            <p className="text-gray-400 text-xs mt-1 leading-relaxed">{s.desc}</p>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                {/* Submissions & Form Panel */}
-                <div className="space-y-6">
-                  {/* Current Active Step Guidelines */}
-                  <div className="glass-card rounded-2xl p-6 border border-slate-800/60">
-                    <h4 className="text-xs font-bold text-blue-400 uppercase tracking-widest mb-3">Selected Deliverable</h4>
-                    <h3 className="text-lg font-bold text-white mb-2">Step {reportMilestoneStep}: {ROADMAP_STEPS[reportMilestoneStep - 1]?.title}</h3>
-                    <p className="text-xs text-gray-400 leading-relaxed mb-4">{ROADMAP_STEPS[reportMilestoneStep - 1]?.deliverable}</p>
-
-                    <form onSubmit={handleSubmitReport} className="space-y-4">
-                      <div>
-                        <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Report Description</label>
-                        <textarea
-                          value={reportContent}
-                          onChange={e => setReportContent(e.target.value)}
-                          placeholder="Provide details about completed work..."
-                          rows={4}
-                          className="w-full p-3 bg-slate-950 border border-slate-800/80 rounded-xl text-white text-sm outline-none focus:border-blue-500/80"
-                          required
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Deliverable File</label>
-                        <input
-                          type="file"
-                          onChange={e => { if (e.target.files?.[0]) setReportFile(e.target.files[0]); }}
-                          className="text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-600/10 file:text-blue-400 hover:file:bg-blue-600/20 file:cursor-pointer"
-                        />
-                      </div>
-
-                      <button
-                        type="submit"
-                        disabled={loading}
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs py-3 rounded-xl transition duration-200 disabled:opacity-40"
-                      >
-                        Submit Step Report
-                      </button>
-                    </form>
-                  </div>
-
-                  {/* Previous Reports logs */}
-                  <div className="glass-card rounded-2xl p-6 border border-slate-800/60">
-                    <h4 className="text-xs font-bold text-amber-400 uppercase tracking-widest mb-4">Milestone History</h4>
-                    {milestoneReports.length === 0 ? (
-                      <p className="text-xs text-gray-500">No submissions yet.</p>
-                    ) : (
-                      <div className="space-y-4">
-                        {milestoneReports.map(r => (
-                          <div key={r.id} className="bg-slate-950/40 p-4 rounded-xl border border-slate-800/40">
-                            <div className="flex justify-between items-center mb-2">
-                              <span className="text-xs font-bold text-white">Step {r.milestone_step}</span>
-                              <span className={`text-[9px] px-2 py-0.5 rounded font-bold ${
-                                r.status === 'approved' ? 'bg-emerald-950 text-emerald-400' : r.status === 'revision_requested' ? 'bg-red-950 text-red-400' : 'bg-slate-900 text-gray-400'
-                              }`}>
-                                {r.status}
-                              </span>
-                            </div>
-                            <p className="text-xs text-gray-400 leading-relaxed line-clamp-2">{r.report_content}</p>
-                            {r.mentor_feedback && (
-                              <p className="text-[10px] text-amber-400 mt-2 bg-amber-950/10 p-2 rounded border border-amber-900/20">
-                                💬 Feedback: {r.mentor_feedback}
-                              </p>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="glass-card rounded-3xl p-10 border border-slate-800/60 text-center max-w-xl mx-auto">
-                <span className="text-4xl">🔒</span>
-                <h3 className="text-xl font-bold text-white mt-5">Roadmap Locked</h3>
-                <p className="text-gray-400 mt-2 text-sm">Create or join a team first to unlock the 14-stage roadmap.</p>
-              </div>
-            )}
-          </div>
+          <DashboardJourney 
+            user={user} 
+            team={team} 
+            onRefresh={fetchTeamAndMembers} 
+          />
         )}
 
         {/* ═══════════════════════════════════════════════
