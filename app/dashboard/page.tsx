@@ -29,6 +29,13 @@ export default async function DashboardPage() {
   }
   const user = users[0];
 
+  // 1.5. Separate dashboards based on user roles
+  if (user.role === 'admin') {
+    redirect('/superadmin');
+  } else if (user.role === 'faculty' || user.role === 'mentor') {
+    redirect('/admin');
+  }
+
   // 2. Fetch team details
   let teams = await query('SELECT id FROM teams WHERE leader_id = ?', [decoded.userId]);
   if (!teams || teams.length === 0) {

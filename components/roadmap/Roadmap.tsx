@@ -233,6 +233,18 @@ const STOPS_COORDINATES = [
 export default function Roadmap() {
   const [selectedIdx, setSelectedIdx] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [events, setEvents] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetch('/api/events')
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          setEvents(data.events || []);
+        }
+      })
+      .catch(err => console.error('Failed to fetch events:', err));
+  }, []);
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -261,6 +273,35 @@ export default function Roadmap() {
 
   const activeMilestone = roadmapData[selectedIdx];
   const activeCoord = STOPS_COORDINATES[selectedIdx];
+
+  const getAssociatedEvents = () => {
+    if (!events.length) return [];
+    const stage = activeMilestone.stage.toLowerCase();
+    const title = activeMilestone.title.toLowerCase();
+    const isGate = activeMilestone.isGate;
+
+    return events.filter(e => {
+      const category = (e.category || '').toLowerCase();
+      const eventTitle = (e.title || '').toLowerCase();
+      const eventDesc = (e.description || '').toLowerCase();
+
+      if (isGate) {
+        return category.includes('review') || category.includes('evaluation') || eventTitle.includes('review') || eventTitle.includes('qr');
+      }
+      if (stage.includes('confusion')) {
+        return category.includes('bootcamp') || category.includes('orientation') || category.includes('seminar') || eventTitle.includes('bootcamp');
+      }
+      if (stage.includes('idea')) {
+        return category.includes('ideathon') || category.includes('workshop') || eventTitle.includes('idea') || eventTitle.includes('concept');
+      }
+      if (stage.includes('product') || stage.includes('prototype')) {
+        return category.includes('hackathon') || category.includes('demo') || category.includes('dev') || eventTitle.includes('hackathon') || eventTitle.includes('prototype');
+      }
+      return false;
+    });
+  };
+
+  const associatedEvents = getAssociatedEvents();
 
   let carThemeColor = '#3b82f6';
   let carGlowColor = 'rgba(59, 130, 246, 0.2)';
@@ -554,6 +595,30 @@ export default function Roadmap() {
                     ))}
                   </ul>
                 </div>
+
+                {/* Associated Events Block */}
+                {associatedEvents.length > 0 && (
+                  <div className="mt-4 sm:mt-6 bg-blue-950/20 border border-blue-500/10 rounded-xl sm:rounded-2xl p-3 sm:p-5">
+                    <h4 className="text-[9px] sm:text-xs font-bold uppercase tracking-widest mb-3 flex items-center gap-1.5 text-blue-400">
+                      <span>📅</span> Associated Upcoming Events
+                    </h4>
+                    <div className="space-y-3">
+                      {associatedEvents.slice(0, 3).map((event: any) => (
+                        <div key={event.id} className="bg-slate-950/50 border border-slate-900 rounded-xl p-3 flex justify-between items-center hover:border-slate-800/80 transition duration-200">
+                          <div>
+                            <h5 className="text-[10px] sm:text-xs font-bold text-white leading-snug">{event.title}</h5>
+                            <p className="text-[8px] sm:text-[10px] text-gray-500 mt-1">
+                              {new Date(event.event_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                            </p>
+                          </div>
+                          <span className="text-[8px] sm:text-[10px] font-black uppercase text-amber-400 px-2 py-0.5 rounded bg-amber-950/40 border border-amber-900/30 animate-pulse shrink-0">
+                            {event.category}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
               </div>
 

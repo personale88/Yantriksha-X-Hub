@@ -27,13 +27,15 @@ export async function GET(req: Request) {
     }
     const leaderId = teams[0].leader_id;
 
-    // Fetch leader and members list
+    // Fetch leader and members list including project_role
     const members = await query(
-      `SELECT id, name, email, role, discipline, branch, year_of_studying, phone_number, veltech_id 
+      `SELECT id, name, email, role, discipline, branch, year_of_studying, phone_number, veltech_id,
+              'Project Leader' as project_role
        FROM users 
        WHERE id = ?
        UNION
-       SELECT u.id, u.name, u.email, u.role, u.discipline, u.branch, u.year_of_studying, u.phone_number, u.veltech_id 
+       SELECT u.id, u.name, u.email, u.role, u.discipline, u.branch, u.year_of_studying, u.phone_number, u.veltech_id,
+              tm.project_role
        FROM team_members tm 
        JOIN users u ON tm.user_id = u.id 
        WHERE tm.team_id = ?`,
@@ -56,7 +58,7 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { user_id } = body;
+    const { user_id, project_role } = body;
 
     if (!user_id) {
       return NextResponse.json({ success: false, error: 'User ID is required' }, { status: 400 });
@@ -88,13 +90,50 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: false, error: 'Target user is already in a team' }, { status: 400 });
     }
 
-    // 5. Add user to the team
-    await query('INSERT INTO team_members (team_id, user_id) VALUES (?, ?)', [teamId, user_id]);
+    // 5. Add user to the team with project role
+    await query(
+      'INSERT INTO team_members (team_id, user_id, project_role) VALUES (?, ?, ?)',
+      [teamId, user_id, project_role || 'Developer']
+    );
 
     const updatedCompliance = await getTeamCompliance(teamId);
     return NextResponse.json({ success: true, team: updatedCompliance }, { status: 201 });
   } catch (err: any) {
     console.error('Error adding team member:', err);
+    return NextResponse.json({ success: false, error: 'Internal Server Error' }, { status: 500 });
+  }
+}
+
+// PUT /api/teams/members - Update a member's project role
+export async function PUT(req: Request) {
+  try {
+    const auth = await verifyAuth(req);
+    if (!auth) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const body = await req.json();
+    const { user_id, project_role } = body;
+
+    if (!user_id || !project_role) {
+      return NextResponse.json({ success: false, error: 'User ID and project role are required' }, { status: 400 });
+    }
+
+    // Verify leader
+    const teams = await query('SELECT id FROM teams WHERE leader_id = ?', [auth.userId]);
+    if (!teams || teams.length === 0) {
+      return NextResponse.json({ success: false, error: 'Only the team leader can update member roles' }, { status: 403 });
+    }
+    const teamId = teams[0].id;
+
+    await query(
+      'UPDATE team_members SET project_role = ? WHERE team_id = ? AND user_id = ?',
+      [project_role.trim(), teamId, parseInt(user_id, 10)]
+    );
+
+    return NextResponse.json({ success: true, message: 'Member project role updated successfully' });
+  } catch (err: any) {
+    console.error('Error updating team member role:', err);
     return NextResponse.json({ success: false, error: 'Internal Server Error' }, { status: 500 });
   }
 }

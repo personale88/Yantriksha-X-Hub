@@ -101,6 +101,7 @@ interface TeamMember {
   email: string;
   role: string;
   discipline: string;
+  project_role?: string;
 }
 
 interface TeamCompliance {
@@ -407,6 +408,24 @@ export default function DashboardClient({
       setErrorMsg(err.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleUpdateMemberRole = async (memberId: number, roleName: string) => {
+    setErrorMsg('');
+    setSuccessMsg('');
+    try {
+      const res = await fetch('/api/teams/members', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: memberId, project_role: roleName }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to update role');
+      setSuccessMsg('Member project role updated successfully.');
+      fetchTeamAndMembers();
+    } catch (err: any) {
+      setErrorMsg(err.message);
     }
   };
 
@@ -717,18 +736,74 @@ export default function DashboardClient({
                 </p>
               </div>
 
-              {/* Progress card */}
-              <div className="glass-card rounded-2xl p-6 border border-slate-800/60 relative overflow-hidden">
-                <div className="absolute top-4 right-4 text-3xl opacity-20">📊</div>
-                <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-widest">Progress</h3>
-                <p className="text-green-400 mt-3 text-3xl font-extrabold">
-                  {team ? Math.min(Math.round((team.currentStage / 14) * 100), 100) : 0}%
-                </p>
-                <div className="w-full bg-slate-950 h-2 rounded-full mt-3 overflow-hidden">
-                  <div
-                    className="bg-green-500 h-full rounded-full transition-all duration-500"
-                    style={{ width: `${team ? Math.min(Math.round((team.currentStage / 14) * 100), 100) : 0}%` }}
-                  />
+              {/* Progress card with rising SVG graph visualization */}
+              <div className="glass-card rounded-2xl p-6 border border-slate-800/60 relative overflow-hidden flex flex-col justify-between min-h-[160px]">
+                <div>
+                  <div className="flex justify-between items-center">
+                    <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-widest">Roadmap Progress</h3>
+                    <span className="text-[10px] font-bold text-green-400 px-2 py-0.5 rounded bg-emerald-950/40 border border-emerald-900/30">Stage {team ? team.currentStage : 0} / 14</span>
+                  </div>
+                  <p className="text-green-400 mt-2 text-3xl font-extrabold">
+                    {team ? Math.min(Math.round((team.currentStage / 14) * 100), 100) : 0}%
+                  </p>
+                </div>
+                
+                {/* rising SVG progress graph track */}
+                <div className="mt-4 w-full h-10 relative">
+                  <svg viewBox="0 0 300 50" className="w-full h-full overflow-visible">
+                    {/* Background track path */}
+                    <path
+                      d="M 10 40 Q 75 10, 150 25 T 290 10"
+                      fill="none; outline: none"
+                      stroke="#1e293b"
+                      strokeWidth="3"
+                      strokeLinecap="round"
+                    />
+                    {/* 14 Milestones Dots */}
+                    {Array.from({ length: 14 }).map((_, idx) => {
+                      const t = idx / 13;
+                      const x = 10 + t * 280;
+                      // Cubic bezier approximation coordinate values
+                      let y = 40;
+                      if (t < 0.5) {
+                        const nt = t / 0.5;
+                        y = 40 * (1 - nt) * (1 - nt) + 2 * 10 * nt * (1 - nt) + 25 * nt * nt;
+                      } else {
+                        const nt = (t - 0.5) / 0.5;
+                        y = 25 * (1 - nt) * (1 - nt) + 2 * 30 * nt * (1 - nt) + 10 * nt * nt;
+                      }
+                      
+                      const isCompleted = team ? team.currentStage > idx : false;
+                      const isCurrent = team ? team.currentStage === idx + 1 : false;
+                      
+                      return (
+                        <g key={idx}>
+                          <circle
+                            cx={x}
+                            cy={y}
+                            r={isCurrent ? "5" : "3.5"}
+                            className={`${
+                              isCompleted 
+                                ? 'fill-emerald-500 stroke-slate-950' 
+                                : isCurrent 
+                                ? 'fill-blue-500 stroke-white' 
+                                : 'fill-slate-800 stroke-slate-900'
+                            } transition-all duration-500`}
+                            strokeWidth={isCurrent ? "1.5" : "1"}
+                          />
+                          {isCurrent && (
+                            <circle
+                              cx={x}
+                              cy={y}
+                              r="9"
+                              className="fill-none stroke-blue-400/40 animate-ping"
+                              strokeWidth="1"
+                            />
+                          )}
+                        </g>
+                      );
+                    })}
+                  </svg>
                 </div>
               </div>
 
@@ -761,53 +836,23 @@ export default function DashboardClient({
 
             </div>
 
-            {/* Compliance & Main Team Overview */}
+            {/* Main Team Overview */}
             {team ? (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* Compliance progress circle */}
-                <div className="glass-card rounded-3xl p-8 border border-slate-800/60 relative">
-                  <h3 className="text-lg font-bold mb-6 text-glow-blue flex items-center gap-2">
-                    🛡️ Team Verification Checklist
-                  </h3>
-
-                  <div className="space-y-3.5">
-                    <div className="flex justify-between items-center bg-slate-950/40 p-3 rounded-xl border border-slate-800/40">
-                      <span className="text-sm">Engineering student included</span>
-                      <span>{getComplianceIcon(team.hasEngineering)}</span>
-                    </div>
-                    <div className="flex justify-between items-center bg-slate-950/40 p-3 rounded-xl border border-slate-800/40">
-                      <span className="text-sm">Law student included</span>
-                      <span>{getComplianceIcon(team.hasLaw)}</span>
-                    </div>
-                    <div className="flex justify-between items-center bg-slate-950/40 p-3 rounded-xl border border-slate-800/40">
-                      <span className="text-sm">Business (MBA) student included</span>
-                      <span>{getComplianceIcon(team.hasBusiness)}</span>
-                    </div>
-                    <div className="flex justify-between items-center bg-slate-950/40 p-3 rounded-xl border border-slate-800/40">
-                      <span className="text-sm">Faculty Advisor assigned</span>
-                      <span>{getComplianceIcon(team.hasFacultyAdvisor)}</span>
-                    </div>
-                    <div className="flex justify-between items-center bg-slate-950/40 p-3 rounded-xl border border-slate-800/40">
-                      <span className="text-sm">Contains exactly 10 members (Current: {team.memberCount})</span>
-                      <span>{getComplianceIcon(team.memberCount === 10)}</span>
-                    </div>
-                  </div>
-                </div>
-
+              <div className="w-full animate-fadeIn">
                 {/* Team Details Summary */}
-                <div className="glass-card rounded-3xl p-8 border border-slate-800/60 flex flex-col justify-between">
+                <div className="glass-card rounded-3xl p-8 border border-slate-800/60 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
                   <div>
-                    <h3 className="text-lg font-bold mb-4 text-glow-amber">📂 Project Sector Details</h3>
-                    <p className="text-xs text-gray-500">TEAM NAME</p>
-                    <p className="text-2xl font-black text-white mt-1 mb-4">{team.teamName}</p>
+                    <span className="text-[10px] text-blue-400 uppercase tracking-widest font-black bg-blue-950/40 border border-blue-900/30 px-2.5 py-1 rounded-lg">📂 Active Project Profile</span>
+                    <h3 className="text-xs text-gray-500 mt-4 uppercase tracking-widest font-bold">Team Name</h3>
+                    <p className="text-2xl font-black text-white mt-1">{team.teamName}</p>
                     
-                    <p className="text-xs text-gray-500">SECTOR / SECTOR FOCUS</p>
+                    <h3 className="text-xs text-gray-500 mt-4 uppercase tracking-widest font-bold">Sector Focus</h3>
                     <p className="text-base font-bold text-gray-200 mt-1">{team.sector}</p>
                   </div>
 
-                  <div className="mt-8 pt-6 border-t border-slate-800/60 flex justify-between items-center">
+                  <div className="pt-6 sm:pt-0 sm:pl-6 border-t sm:border-t-0 sm:border-l border-slate-850 flex flex-row sm:flex-col justify-between items-center sm:items-start gap-6 shrink-0 w-full sm:w-auto">
                     <div>
-                      <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold">Roadmap Percentage</p>
+                      <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold">Roadmap Progress</p>
                       <p className="text-3xl font-black text-blue-400 mt-1">
                         {Math.min(Math.round((team.currentStage / 14) * 100), 100)}%
                       </p>
@@ -836,6 +881,35 @@ export default function DashboardClient({
                 </button>
               </div>
             )}
+
+            {/* Core Team Contacts Section */}
+            <div className="glass-card rounded-3xl p-7 border border-slate-800/60 mt-8">
+              <span className="section-pill">✦ Hub Support Directory</span>
+              <h3 className="text-xl font-bold text-white mb-2">Yantriksha Hub Core Team</h3>
+              <p className="text-gray-400 text-xs mb-6 font-light">Have questions about incubation reviews, prototype labs, or verification? Contact our coordination team.</p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {[
+                  { name: "Dr. K. Kiran", role: "Faculty Incubator Director", email: "kkiran@veltech.edu.in", phone: "+91 98405 12345", dept: "Directorate of Innovation" },
+                  { name: "Vamsi Krishna", role: "Chief Student Coordinator", email: "vamsikrishna@veltech.edu.in", phone: "+91 91821 69185", dept: "School of Computing" },
+                  { name: "Vignesh Boddeda", role: "Technical Platform Lead", email: "vigneshboddeda@veltech.edu.in", phone: "+91 90123 45678", dept: "School of Computing" }
+                ].map((member, idx) => (
+                  <div key={idx} className="bg-slate-950/40 border border-slate-850/60 rounded-2xl p-5 hover:border-slate-800 transition duration-300">
+                    <h4 className="font-extrabold text-white text-sm">{member.name}</h4>
+                    <p className="text-[10px] text-blue-400 font-bold uppercase tracking-wider mt-1">{member.role}</p>
+                    <p className="text-[10px] text-gray-500 mt-0.5">{member.dept}</p>
+                    <div className="mt-4 pt-3 border-t border-slate-900/60 space-y-1.5 text-xs text-gray-450">
+                      <p className="flex items-center gap-2">
+                        <span>📧</span> <a href={`mailto:${member.email}`} className="hover:text-blue-400 transition font-medium">{member.email}</a>
+                      </p>
+                      <p className="flex items-center gap-2">
+                        <span>📞</span> <a href={`tel:${member.phone}`} className="hover:text-blue-400 transition font-medium">{member.phone}</a>
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         )}
 
@@ -902,114 +976,165 @@ export default function DashboardClient({
                 </form>
               </div>
             ) : (
-              <div className="space-y-8">
-                {/* Active members grid */}
-                <div className="glass-card rounded-3xl p-7 border border-slate-800/60">
-                  <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                    👥 Team Roster ({team.memberCount} / 10 Members)
-                  </h3>
-                  
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-left text-sm text-gray-400">
-                      <thead className="text-xs uppercase bg-slate-950/40 text-gray-500 border-b border-slate-800/60">
-                        <tr>
-                          <th className="py-4 px-4">Name</th>
-                          <th className="py-4 px-4">Email</th>
-                          <th className="py-4 px-4">Role</th>
-                          <th className="py-4 px-4">Discipline</th>
-                          <th className="py-4 px-4 text-right">Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-800/40">
-                        {teamMembers.map(m => {
-                          const isLeader = m.id === team.leaderId;
-                          const isMe = m.id === user.id;
-                          return (
-                            <tr key={m.id} className={isMe ? 'bg-blue-950/10' : ''}>
-                              <td className="py-4 px-4 font-bold text-white">
-                                {m.name} {isMe && '(You)'}
-                              </td>
-                              <td className="py-4 px-4">{m.email}</td>
-                              <td className="py-4 px-4">
-                                <span className={`text-[10px] px-2 py-0.5 rounded-full font-black uppercase ${
-                                  isLeader ? 'bg-blue-900/60 text-blue-400 border border-blue-800/40' : 'bg-slate-900 text-gray-400'
-                                }`}>
-                                  {isLeader ? 'LEADER' : m.role}
-                                </span>
-                              </td>
-                              <td className="py-4 px-4 capitalize">{m.discipline}</td>
-                              <td className="py-4 px-4 text-right">
-                                {!isLeader && team.leaderId === user.id ? (
-                                  <button
-                                    onClick={() => handleRemoveMember(m.id)}
-                                    className="text-red-400 hover:text-red-300 text-xs font-semibold hover:underline"
-                                  >
-                                    Remove
-                                  </button>
-                                ) : '—'}
-                              </td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
+              <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 items-start">
+                {/* Left Columns (Roster and Invites) */}
+                <div className="xl:col-span-2 space-y-8">
+                  {/* Active members grid */}
+                  <div className="glass-card rounded-3xl p-7 border border-slate-800/60">
+                    <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                      👥 Team Roster ({team.memberCount} / 10 Members)
+                    </h3>
+                    
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left text-sm text-gray-400">
+                        <thead className="text-xs uppercase bg-slate-950/40 text-gray-500 border-b border-slate-800/60">
+                          <tr>
+                            <th className="py-4 px-4">Name</th>
+                            <th className="py-4 px-4">Email</th>
+                            <th className="py-4 px-4">Role</th>
+                            <th className="py-4 px-4">Discipline</th>
+                            <th className="py-4 px-4">Project Responsibility</th>
+                            <th className="py-4 px-4 text-right">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-800/40">
+                          {teamMembers.map(m => {
+                            const isLeader = m.id === team.leaderId;
+                            const isMe = m.id === user.id;
+                            return (
+                              <tr key={m.id} className={isMe ? 'bg-blue-950/10' : ''}>
+                                <td className="py-4 px-4 font-bold text-white">
+                                  {m.name} {isMe && '(You)'}
+                                </td>
+                                <td className="py-4 px-4">{m.email}</td>
+                                <td className="py-4 px-4">
+                                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-black uppercase ${
+                                    isLeader ? 'bg-blue-900/60 text-blue-400 border border-blue-800/40' : 'bg-slate-900 text-gray-400'
+                                  }`}>
+                                    {isLeader ? 'LEADER' : m.role}
+                                  </span>
+                                </td>
+                                <td className="py-4 px-4 capitalize">{m.discipline}</td>
+                                <td className="py-4 px-4">
+                                  {isLeader ? (
+                                    <span className="text-xs text-gray-450 italic">Project Leader</span>
+                                  ) : team.leaderId === user.id ? (
+                                    <select
+                                      value={m.project_role || 'Developer'}
+                                      onChange={(e) => handleUpdateMemberRole(m.id, e.target.value)}
+                                      className="bg-slate-950 border border-slate-800 text-xs text-gray-300 rounded px-2 py-1 outline-none"
+                                    >
+                                      {['Developer', 'Frontend Developer', 'Backend Developer', 'Database Administrator', 'Automation Engineer', 'Quality Analyst', 'Business Strategist', 'Legal Advisor', 'Research Analyst'].map(r => (
+                                        <option key={r} value={r} className="bg-slate-900 text-gray-300">{r}</option>
+                                      ))}
+                                    </select>
+                                  ) : (
+                                    <span className="text-xs text-gray-300">{m.project_role || 'Developer'}</span>
+                                  )}
+                                </td>
+                                <td className="py-4 px-4 text-right">
+                                  {!isLeader && team.leaderId === user.id ? (
+                                    <button
+                                      onClick={() => handleRemoveMember(m.id)}
+                                      className="text-red-400 hover:text-red-300 text-xs font-semibold hover:underline"
+                                    >
+                                      Remove
+                                    </button>
+                                  ) : '—'}
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
+
+                  {/* Search / Invite Panel */}
+                  {user.role === 'student' && team.leaderId === user.id && (
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                      {/* Add unassigned students */}
+                      <div className="glass-card rounded-3xl p-7 border border-slate-800/60">
+                        <h3 className="text-lg font-bold text-white mb-4">🔍 Available Students</h3>
+                        <div className="space-y-3.5 max-h-96 overflow-y-auto pr-2">
+                          {unassignedStudents.length === 0 ? (
+                            <p className="text-xs text-gray-500">No unassigned students found.</p>
+                          ) : (
+                            unassignedStudents.map(s => (
+                              <div key={s.id} className="flex justify-between items-center bg-slate-950/40 p-3.5 rounded-xl border border-slate-800/40">
+                                <div>
+                                  <h5 className="font-bold text-sm text-white">{s.name}</h5>
+                                  <p className="text-[10px] text-gray-500 capitalize">{s.discipline} | {s.branch || 'General'}</p>
+                                </div>
+                                <button
+                                  onClick={() => handleAddMember(s.id)}
+                                  className="bg-blue-600/20 hover:bg-blue-600 border border-blue-500/30 text-blue-400 hover:text-white px-3.5 py-1.5 rounded-lg text-xs font-bold transition duration-200"
+                                >
+                                  + Add
+                                </button>
+                              </div>
+                            ))
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Add Faculty Advisors */}
+                      <div className="glass-card rounded-3xl p-7 border border-slate-800/60">
+                        <h3 className="text-lg font-bold text-white mb-4">🏫 Available Faculty Advisors</h3>
+                        <div className="space-y-3.5 max-h-96 overflow-y-auto pr-2">
+                          {unassignedFaculty.length === 0 ? (
+                            <p className="text-xs text-gray-500">No unassigned faculty advisors found.</p>
+                          ) : (
+                            unassignedFaculty.map(f => (
+                              <div key={f.id} className="flex justify-between items-center bg-slate-950/40 p-3.5 rounded-xl border border-slate-800/40">
+                                <div>
+                                  <h5 className="font-bold text-sm text-white">{f.name}</h5>
+                                  <p className="text-[10px] text-gray-500">Faculty Advisor</p>
+                                </div>
+                                <button
+                                  onClick={() => handleAddMember(f.id)}
+                                  className="bg-blue-600/20 hover:bg-blue-600 border border-blue-500/30 text-blue-400 hover:text-white px-3.5 py-1.5 rounded-lg text-xs font-bold transition duration-200"
+                                >
+                                  + Add
+                                </button>
+                              </div>
+                            ))
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
-                {/* Search / Invite Panel */}
-                {user.role === 'student' && team.leaderId === user.id && (
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    {/* Add unassigned students */}
-                    <div className="glass-card rounded-3xl p-7 border border-slate-800/60">
-                      <h3 className="text-lg font-bold text-white mb-4">🔍 Available Students</h3>
-                      <div className="space-y-3.5 max-h-96 overflow-y-auto pr-2">
-                        {unassignedStudents.length === 0 ? (
-                          <p className="text-xs text-gray-500">No unassigned students found.</p>
-                        ) : (
-                          unassignedStudents.map(s => (
-                            <div key={s.id} className="flex justify-between items-center bg-slate-950/40 p-3.5 rounded-xl border border-slate-800/40">
-                              <div>
-                                <h5 className="font-bold text-sm text-white">{s.name}</h5>
-                                <p className="text-[10px] text-gray-500 capitalize">{s.discipline} | {s.branch || 'General'}</p>
-                              </div>
-                              <button
-                                onClick={() => handleAddMember(s.id)}
-                                className="bg-blue-600/20 hover:bg-blue-600 border border-blue-500/30 text-blue-400 hover:text-white px-3.5 py-1.5 rounded-lg text-xs font-bold transition duration-200"
-                              >
-                                + Add
-                              </button>
-                            </div>
-                          ))
-                        )}
-                      </div>
-                    </div>
+                {/* Right Column (Checklist) */}
+                <div className="glass-card rounded-3xl p-8 border border-slate-800/60 relative">
+                  <h3 className="text-lg font-bold mb-6 text-glow-blue flex items-center gap-2">
+                    🛡️ Team Verification Checklist
+                  </h3>
 
-                    {/* Add Faculty Advisors */}
-                    <div className="glass-card rounded-3xl p-7 border border-slate-800/60">
-                      <h3 className="text-lg font-bold text-white mb-4">🏫 Available Faculty Advisors</h3>
-                      <div className="space-y-3.5 max-h-96 overflow-y-auto pr-2">
-                        {unassignedFaculty.length === 0 ? (
-                          <p className="text-xs text-gray-500">No unassigned faculty advisors found.</p>
-                        ) : (
-                          unassignedFaculty.map(f => (
-                            <div key={f.id} className="flex justify-between items-center bg-slate-950/40 p-3.5 rounded-xl border border-slate-800/40">
-                              <div>
-                                <h5 className="font-bold text-sm text-white">{f.name}</h5>
-                                <p className="text-[10px] text-gray-500">Faculty Advisor</p>
-                              </div>
-                              <button
-                                onClick={() => handleAddMember(f.id)}
-                                className="bg-blue-600/20 hover:bg-blue-600 border border-blue-500/30 text-blue-400 hover:text-white px-3.5 py-1.5 rounded-lg text-xs font-bold transition duration-200"
-                              >
-                                + Add
-                              </button>
-                            </div>
-                          ))
-                        )}
-                      </div>
+                  <div className="space-y-3.5">
+                    <div className="flex justify-between items-center bg-slate-950/40 p-3 rounded-xl border border-slate-800/40">
+                      <span className="text-sm text-gray-300">Engineering student included</span>
+                      <span>{getComplianceIcon(team.hasEngineering)}</span>
+                    </div>
+                    <div className="flex justify-between items-center bg-slate-950/40 p-3 rounded-xl border border-slate-800/40">
+                      <span className="text-sm text-gray-300">Law student included</span>
+                      <span>{getComplianceIcon(team.hasLaw)}</span>
+                    </div>
+                    <div className="flex justify-between items-center bg-slate-950/40 p-3 rounded-xl border border-slate-800/40">
+                      <span className="text-sm text-gray-300">Business (MBA) student included</span>
+                      <span>{getComplianceIcon(team.hasBusiness)}</span>
+                    </div>
+                    <div className="flex justify-between items-center bg-slate-950/40 p-3 rounded-xl border border-slate-800/40">
+                      <span className="text-sm text-gray-300">Faculty Advisor assigned</span>
+                      <span>{getComplianceIcon(team.hasFacultyAdvisor)}</span>
+                    </div>
+                    <div className="flex justify-between items-center bg-slate-950/40 p-3 rounded-xl border border-slate-800/40">
+                      <span className="text-sm text-gray-300">Contains exactly 10 members (Current: {team.memberCount})</span>
+                      <span>{getComplianceIcon(team.memberCount === 10)}</span>
                     </div>
                   </div>
-                )}
+                </div>
               </div>
             )}
           </div>

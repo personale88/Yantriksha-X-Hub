@@ -322,9 +322,18 @@ export default function DashboardJourney({
   const [showConfetti, setShowConfetti] = useState(false);
   const [robotState, setRobotState] = useState<'idle' | 'walk' | 'sleep' | 'work' | 'disappointed' | 'celebrate'>('idle');
   const [selectedBadge, setSelectedBadge] = useState<any>(null);
+  const [events, setEvents] = useState<any[]>([]);
 
   useEffect(() => {
     fetchJourney();
+    fetch('/api/events')
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          setEvents(data.events || []);
+        }
+      })
+      .catch(err => console.error('Failed to fetch events:', err));
   }, []);
 
   // Update robot state automatically based on milestone focus changes
@@ -526,6 +535,33 @@ export default function DashboardJourney({
   const currentClearedStageBadge = badges.find(b => b.unlocked);
 
   const activeMilestone = progress.find(p => p.milestone_key === selectedKey);
+
+  const getAssociatedEvents = () => {
+    if (!events.length || !activeConfig) return [];
+    const stage = activeConfig.stage?.toLowerCase() || '';
+    const isGate = activeConfig.isGate;
+
+    return events.filter(e => {
+      const category = (e.category || '').toLowerCase();
+      const eventTitle = (e.title || '').toLowerCase();
+
+      if (isGate) {
+        return category.includes('review') || category.includes('evaluation') || eventTitle.includes('review') || eventTitle.includes('qr');
+      }
+      if (stage.includes('confusion')) {
+        return category.includes('bootcamp') || category.includes('orientation') || category.includes('seminar') || eventTitle.includes('bootcamp');
+      }
+      if (stage.includes('idea')) {
+        return category.includes('ideathon') || category.includes('workshop') || eventTitle.includes('idea') || eventTitle.includes('concept');
+      }
+      if (stage.includes('product') || stage.includes('prototype')) {
+        return category.includes('hackathon') || category.includes('demo') || category.includes('dev') || eventTitle.includes('hackathon') || eventTitle.includes('prototype');
+      }
+      return false;
+    });
+  };
+
+  const associatedEvents = getAssociatedEvents();
 
   return (
     <div className="space-y-8 animate-fadeIn relative">
@@ -889,6 +925,30 @@ export default function DashboardJourney({
                     ))}
                   </ul>
                 </div>
+
+                {/* Associated Events Block */}
+                {associatedEvents.length > 0 && (
+                  <div className="mt-6 bg-blue-950/20 border border-blue-500/10 rounded-2xl p-4">
+                    <h4 className="text-[10px] font-bold uppercase tracking-widest mb-3 flex items-center gap-1.5 text-blue-400">
+                      <span>📅</span> Associated Upcoming Events
+                    </h4>
+                    <div className="space-y-3">
+                      {associatedEvents.slice(0, 3).map((event: any) => (
+                        <div key={event.id} className="bg-slate-950/50 border border-slate-900 rounded-xl p-3 flex justify-between items-center hover:border-slate-800/80 transition duration-200">
+                          <div>
+                            <h5 className="text-xs font-bold text-white leading-snug">{event.title}</h5>
+                            <p className="text-[10px] text-gray-500 mt-1">
+                              {new Date(event.event_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                            </p>
+                          </div>
+                          <span className="text-[10px] font-black uppercase text-amber-400 px-2 py-0.5 rounded bg-amber-950/40 border border-amber-900/30 animate-pulse shrink-0">
+                            {event.category}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 <div className="mt-6">
                   {activeMilestone?.status === 'available' && (

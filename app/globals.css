@@ -165,3 +165,19 @@ input:-webkit-autofill:active {
   font-size: clamp(0.85rem, 1.2vw, 1.125rem) !important;
   line-height: 1.625 !important;
 }
+
+/* Custom premium scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.2);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(59, 130, 246, 0.4);
+}

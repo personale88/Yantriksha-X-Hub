@@ -83,11 +83,15 @@ export async function GET(req: Request) {
               <p>Please make sure to arrive on time. We look forward to seeing you there!</p>
             `;
 
+            const host = req.headers.get('host') || 'excited-salk.vercel.app';
+            const protocol = host.includes('localhost') ? 'http' : 'https';
+            const baseUrl = `${protocol}://${host}`;
+
             const reminderHtml = generateEmailTemplate({
               title: 'Upcoming Event Reminder',
               content: reminderContent,
               buttonText: 'View Event Details',
-              buttonUrl: 'http://localhost:3000/dashboard',
+              buttonUrl: `${baseUrl}/dashboard`,
               preheader: `Reminder: ${event.title} starts in ${intervalLabel}!`
             });
 

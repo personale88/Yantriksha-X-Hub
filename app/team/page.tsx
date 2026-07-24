@@ -23,6 +23,51 @@ const CHIEF_CORE_TEAM = [
     badgeColor: 'bg-indigo-950/40 text-indigo-300 border-indigo-800/40',
   },
   {
+    name: 'Position Open',
+    role: 'Deputy Secretary & Student Administration Head',
+    dept: 'Executive Board',
+    bio: 'Position open for recruitment. Assists in managing administrative tasks, student registration queues, and platform databases.',
+    image: '/logo.png',
+    badgeColor: 'bg-amber-950/40 text-amber-300 border-amber-800/40 animate-pulse',
+    isOpen: true,
+  },
+  {
+    name: 'Position Open',
+    role: 'Head of Products and Innovations',
+    dept: 'Products & Innovation',
+    bio: 'Position open (5 vacancies). Leads product evaluation, guides prototyping labs, and coordinates cross-school technical project reviews.',
+    image: '/logo.png',
+    badgeColor: 'bg-amber-950/40 text-amber-300 border-amber-800/40 animate-pulse',
+    isOpen: true,
+  },
+  {
+    name: 'Position Open',
+    role: 'Head of Quality',
+    dept: 'Quality Assurance',
+    bio: 'Position open. Formulates audit criteria, compliance benchmarks, and schedules milestone gates across the innovation journey.',
+    image: '/logo.png',
+    badgeColor: 'bg-amber-950/40 text-amber-300 border-amber-800/40 animate-pulse',
+    isOpen: true,
+  },
+  {
+    name: 'Position Open',
+    role: 'Deputy of Products and Innovations',
+    dept: 'Products & Innovation',
+    bio: 'Position open (6 vacancies). Supports milestone review coordination, documents active project lifecycles, and assists product heads.',
+    image: '/logo.png',
+    badgeColor: 'bg-amber-950/40 text-amber-300 border-amber-800/40 animate-pulse',
+    isOpen: true,
+  },
+  {
+    name: 'Position Open',
+    role: 'Deputy of Quality',
+    dept: 'Quality Assurance',
+    bio: 'Position open. Assists with compliance verification, milestone reports checklist tracking, and follow-ups with innovators.',
+    image: '/logo.png',
+    badgeColor: 'bg-amber-950/40 text-amber-300 border-amber-800/40 animate-pulse',
+    isOpen: true,
+  },
+  {
     name: 'Vamsi',
     role: 'Chief Industry, Alumni & Partnerships and Registration',
     dept: 'External Relations & Intake',
@@ -31,12 +76,39 @@ const CHIEF_CORE_TEAM = [
     badgeColor: 'bg-blue-950/40 text-blue-300 border-blue-800/40',
   },
   {
+    name: 'Position Open',
+    role: 'Head of Industry Alumni and Partnerships',
+    dept: 'External Relations',
+    bio: 'Position open. Leads outreach to industrial research organizations, alumni mentors, startup investors, and funding sponsors.',
+    image: '/logo.png',
+    badgeColor: 'bg-amber-950/40 text-amber-300 border-amber-800/40 animate-pulse',
+    isOpen: true,
+  },
+  {
+    name: 'Position Open',
+    role: 'Deputy of Industry Alumni and Partnerships',
+    dept: 'External Relations',
+    bio: 'Position open. Coordinates networking events, schedules expert panel sessions, and maintains records of alumni connections.',
+    image: '/logo.png',
+    badgeColor: 'bg-amber-950/40 text-amber-300 border-amber-800/40 animate-pulse',
+    isOpen: true,
+  },
+  {
     name: 'Harisai',
     role: 'Chief of Marketing & Branding',
     dept: 'Marketing & Outreach',
     bio: 'Drives overall branding strategies, campaigns, and design assets to promote Yantriksha X Hub projects and initiatives.',
     image: '/logo.png',
     badgeColor: 'bg-pink-950/40 text-pink-300 border-pink-800/40',
+  },
+  {
+    name: 'Position Open',
+    role: 'Deputy of Marketing and Branding',
+    dept: 'Marketing & Outreach',
+    bio: 'Position open. Assists with creating social campaigns, maintaining visual graphics across channels, and handling student outreach.',
+    image: '/logo.png',
+    badgeColor: 'bg-amber-950/40 text-amber-300 border-amber-800/40 animate-pulse',
+    isOpen: true,
   },
   {
     name: 'Dr. A Mutharasan',
@@ -55,12 +127,48 @@ const CHIEF_CORE_TEAM = [
     badgeColor: 'bg-amber-950/40 text-amber-300 border-amber-800/40',
   },
   {
+    name: 'Position Open',
+    role: 'Head of Event Management',
+    dept: 'Event Operations',
+    bio: 'Position open. Organizes hackathons, orientations, bootcamps, and schedules lab access check-ins.',
+    image: '/logo.png',
+    badgeColor: 'bg-amber-950/40 text-amber-300 border-amber-800/40 animate-pulse',
+    isOpen: true,
+  },
+  {
+    name: 'Position Open',
+    role: 'Deputy of Event Management',
+    dept: 'Event Operations',
+    bio: 'Position open. Coordinates event logistics, volunteer pools, student registration desk, and certificates.',
+    image: '/logo.png',
+    badgeColor: 'bg-amber-950/40 text-amber-300 border-amber-800/40 animate-pulse',
+    isOpen: true,
+  },
+  {
     name: 'Nikitha',
     role: 'Chief of Startup Incubation & Intellectual Property (IP)',
     dept: 'Incubation & IP Support',
     bio: 'Guides startup onboarding, drafts provisional patent filings, and facilitates legal compliance.',
     image: '/logo.png',
     badgeColor: 'bg-rose-950/40 text-rose-300 border-rose-800/40',
+  },
+  {
+    name: 'Position Open',
+    role: 'Head of Start Incubation and Intellectual Property (IP)',
+    dept: 'Incubation & IP Support',
+    bio: 'Position open. Facilitates patent specifications reviews, incubation onboardings with TBI, and legal advice.',
+    image: '/logo.png',
+    badgeColor: 'bg-amber-950/40 text-amber-300 border-amber-800/40 animate-pulse',
+    isOpen: true,
+  },
+  {
+    name: 'Position Open',
+    role: 'Deputy of Start Incubation and Intellectual Property (IP)',
+    dept: 'Incubation & IP Support',
+    bio: 'Position open. Assists startup teams with patent paperwork, R&D databases, and advisor meeting coordination.',
+    image: '/logo.png',
+    badgeColor: 'bg-amber-950/40 text-amber-300 border-amber-800/40 animate-pulse',
+    isOpen: true,
   },
 ];
 
@@ -345,13 +453,19 @@ export default function TeamPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {CHIEF_CORE_TEAM.map((m) => (
               <div
-                key={m.name}
-                className="glass-card rounded-3xl p-6 border border-slate-800/60 shadow-lg relative group overflow-hidden transition-all duration-300 hover:border-slate-700 hover:-translate-y-1.5 flex flex-col justify-between"
+                key={`${m.name}-${m.role}`}
+                className={`glass-card rounded-3xl p-6 shadow-lg relative group overflow-hidden transition-all duration-300 hover:-translate-y-1.5 flex flex-col justify-between ${
+                  (m as any).isOpen 
+                    ? 'border border-dashed border-amber-500/25 bg-amber-950/5 hover:border-amber-500/40' 
+                    : 'border border-slate-800/60 hover:border-slate-700'
+                }`}
               >
                 <div>
                   {/* Profile Card Header */}
                   <div className="flex items-center gap-4 mb-5">
-                    <div className="relative h-14 w-14 rounded-2xl overflow-hidden border border-slate-800 bg-slate-950 shrink-0">
+                    <div className={`relative h-14 w-14 rounded-2xl overflow-hidden border shrink-0 bg-slate-950 ${
+                      (m as any).isOpen ? 'border-dashed border-amber-500/30' : 'border-slate-800'
+                    }`}>
                       <Image
                         src={m.image}
                         alt={m.name}
@@ -361,7 +475,7 @@ export default function TeamPage() {
                       />
                     </div>
                     <div>
-                      <h3 className="font-extrabold text-white text-base leading-snug">{m.name}</h3>
+                      <h3 className={`font-extrabold text-base leading-snug ${(m as any).isOpen ? 'text-amber-400' : 'text-white'}`}>{m.name}</h3>
                       <p className="text-[11px] font-bold text-blue-400/85 mt-0.5 leading-snug">{m.role}</p>
                     </div>
                   </div>

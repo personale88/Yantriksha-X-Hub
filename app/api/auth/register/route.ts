@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { query } from '@/lib/db';
+import { query, getBaseUrl } from '@/lib/db';
 import { hashPassword } from '@/lib/auth';
 import { logActivity } from '@/lib/logger';
 import { queueEmail, generateEmailTemplate } from '@/lib/emailQueue';
@@ -86,7 +86,7 @@ export async function POST(req: Request) {
           parsedYear,
           branch || null,
           school || null,
-          'pending'
+          'unverified'
         ]
       );
     } catch (dbErr: any) {
@@ -102,81 +102,54 @@ export async function POST(req: Request) {
 
     const newUsers = await query('SELECT id FROM users WHERE email = ?', [emailLower]);
     const newUserId = newUsers && newUsers.length > 0 ? newUsers[0].id : null;
-    await logActivity(newUserId, name, role, emailLower, `Registered new user account with role: ${role}`, 'Auth', 'Success');
+    await logActivity(newUserId, name, role, emailLower, `Registered unverified user account with role: ${role}`, 'Auth', 'Success');
 
-    // 6. Send Email Notifications
-    // Email to candidate user
+    // 6. Generate Verification Token
+    const crypto = require('crypto');
+    const verificationToken = crypto.randomBytes(32).toString('hex');
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
+    await query(
+      `INSERT INTO email_verification_tokens (email, token, expires_at) VALUES (?, ?, ?)`,
+      [emailLower, verificationToken, expiresAt]
+    );
+
+    // 7. Send Verification Link Email
+    const baseUrl = getBaseUrl(req);
+    const verifyLink = `${baseUrl}/api/auth/verify-email?token=${verificationToken}`;
     const studentContent = `
       <p>Dear <strong>${name}</strong>,</p>
       <p>Thank you for submitting your request to join <strong>YantrikshaX Hub</strong>.</p>
-      <p>Your application details are currently pending review and approval by the Hub Administrators. Once approved, you will receive a welcome notification permitting you to log in to the student dashboard.</p>
-      <p>Thank you for your interest and patience!</p>
+      <p>To activate your registration request, please verify your college email address by clicking the link below:</p>
+      <table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin: 30px 0;">
+        <tr>
+          <td align="center">
+            <a href="${verifyLink}" style="background-color: #2563eb; color: #ffffff; padding: 12px 28px; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 14px; display: inline-block; border: 1px solid #3b82f6;">
+              Verify Email Address
+            </a>
+          </td>
+        </tr>
+      </table>
+      <p>If the button doesn't work, copy and paste this URL into your browser:</p>
+      <p style="word-break: break-all;"><a href="${verifyLink}" style="color: #2563eb;">${verifyLink}</a></p>
+      <p>This verification link is valid for 24 hours. Once verified, your application will be reviewed by the Hub Administrators.</p>
     `;
     const studentHtml = generateEmailTemplate({
-      title: 'Club Joining Request Submitted',
+      title: 'Verify Your Email Address',
       content: studentContent,
-      buttonText: 'View Dashboard Preview',
-      buttonUrl: 'http://localhost:3000/dashboard',
-      preheader: 'Your joining request for YantrikshaX Hub has been received.'
+      buttonText: 'Verify Email Address',
+      buttonUrl: verifyLink,
+      preheader: 'Please verify your email address to activate your YantrikshaX Hub application.'
     });
 
     await queueEmail({
       to: emailLower,
-      subject: 'Your Club Membership Request Has Been Submitted',
+      subject: 'Verify your YantrikshaX Hub Account',
       html: studentHtml
     });
 
-    // Email to active administrators
-    const adminContent = `
-      <p>Hello Admin,</p>
-      <p>A new student has submitted an registration request to join <strong>YantrikshaX Hub</strong>:</p>
-      <table style="width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px; color: #334155;">
-        <tr>
-          <td style="padding: 6px 0; font-weight: bold; width: 120px;">Name:</td>
-          <td>${name}</td>
-        </tr>
-        <tr>
-          <td style="padding: 6px 0; font-weight: bold;">Email:</td>
-          <td><a href="mailto:${emailLower}">${emailLower}</a></td>
-        </tr>
-        <tr>
-          <td style="padding: 6px 0; font-weight: bold;">Role:</td>
-          <td style="text-transform: capitalize;">${role}</td>
-        </tr>
-        <tr>
-          <td style="padding: 6px 0; font-weight: bold;">Discipline:</td>
-          <td style="text-transform: capitalize;">${discipline}</td>
-        </tr>
-      </table>
-      <p>Please log in to the administrator portal to review, evaluate, and approve or reject this request.</p>
-    `;
-    const adminHtml = generateEmailTemplate({
-      title: 'New Club Membership Request',
-      content: adminContent,
-      buttonText: 'Review in Admin Portal',
-      buttonUrl: 'http://localhost:3000/superadmin',
-      preheader: `Pending request: ${name} (${role})`
-    });
-
-    try {
-      const activeAdmins = await query("SELECT email FROM users WHERE role = 'admin' AND status = 'active'");
-      const adminAddresses = activeAdmins && activeAdmins.length > 0 
-        ? activeAdmins.map((a: any) => a.email) 
-        : ['vtu28891@veltech.edu.in'];
-
-      for (const adminAddr of adminAddresses) {
-        await queueEmail({
-          to: adminAddr,
-          subject: 'New Club Membership Request',
-          html: adminHtml
-        });
-      }
-    } catch (adminEmailErr) {
-      console.error('Failed to queue admin alert emails:', adminEmailErr);
-    }
-
     return NextResponse.json(
-      { success: true, message: 'User registered successfully!' },
+      { success: true, message: 'Verification email sent! Please check your inbox.' },
       { status: 201 }
     );
   } catch (err: any) {

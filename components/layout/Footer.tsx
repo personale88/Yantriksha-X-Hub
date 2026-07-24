@@ -10,9 +10,9 @@ const links = [
 ];
 
 const socials = [
-  { label: "LinkedIn", href: "#" },
-  { label: "Instagram", href: "#" },
-  { label: "Twitter / X", href: "#" },
+  { label: "LinkedIn", href: "https://linkedin.com/company/yantriksha-x-hub" },
+  { label: "Instagram", href: "https://instagram.com/yantriksha_x_hub" },
+  { label: "Twitter / X", href: "https://x.com/yantriksha_x" },
 ];
 
 export default function Footer() {

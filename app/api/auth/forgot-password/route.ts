@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { query } from '@/lib/db';
+import { query, getBaseUrl } from '@/lib/db';
 import { queueEmail, generateEmailTemplate } from '@/lib/emailQueue';
 import crypto from 'crypto';
 
@@ -35,7 +35,8 @@ export async function POST(req: Request) {
       );
 
       // 3. Queue the secure password reset email
-      const resetLink = `http://localhost:3000/reset-password?token=${token}`;
+      const baseUrl = getBaseUrl(req);
+      const resetLink = `${baseUrl}/reset-password?token=${token}`;
       const emailContent = `
         <p>Dear <strong>${user.name}</strong>,</p>
         <p>We received a request to reset your password for your <strong>YantrikshaX Hub</strong> account.</p>

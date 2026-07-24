@@ -211,7 +211,7 @@ export function generateEmailTemplate({ title, content, buttonText, buttonUrl, p
                   </p>
 
                   <p style="margin: 0; font-size: 10px; color: #94a3b8; line-height: 1.5; border-t: 1px solid #e2e8f0; padding-top: 15px;">
-                    This is an automated operational system email. You can manage your email notification categories inside your student <a href="http://localhost:3000/dashboard" style="color: #2563eb; text-decoration: underline; font-weight: 500;">Dashboard settings console</a>.
+                    This is an automated operational system email. You can manage your email notification categories inside your student <a href="${process.env.APP_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://excited-salk.vercel.app')}/dashboard" style="color: #2563eb; text-decoration: underline; font-weight: 500;">Dashboard settings console</a>.
                   </p>
 
                 </td>

@@ -41,6 +41,15 @@ export async function POST(req: Request) {
       );
     }
 
+    // Check if account is email unverified
+    if (user.status === 'unverified') {
+      await logActivity(user.id, user.name, user.role, user.email, 'Attempted login to email unverified account', 'Auth', 'Failed');
+      return NextResponse.json(
+        { success: false, error: 'Please verify your email address. Check your college inbox for the verification link.' },
+        { status: 403 }
+      );
+    }
+
     // Check if account is pending approval
     if (user.status === 'pending') {
       await logActivity(user.id, user.name, user.role, user.email, 'Attempted login to pending account', 'Auth', 'Failed');

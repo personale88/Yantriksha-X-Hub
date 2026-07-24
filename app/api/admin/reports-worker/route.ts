@@ -80,7 +80,7 @@ async function getCohortStats(sinceDate: Date) {
 }
 
 // Function to build and queue the report email
-async function dispatchReport(timeframe: string) {
+async function dispatchReport(timeframe: string, baseUrl = 'https://excited-salk.vercel.app') {
   let intervalMs = 24 * 60 * 60 * 1000; // default Daily
   if (timeframe === 'weekly') intervalMs = 7 * 24 * 60 * 60 * 1000;
   else if (timeframe === 'monthly') intervalMs = 30 * 24 * 60 * 60 * 1000;
@@ -134,19 +134,19 @@ async function dispatchReport(timeframe: string) {
         <td style="padding: 10px; border: 1px solid #e2e8f0; text-align: right; font-weight: bold; color: #ea580c;">${stats.pendingReviews}</td>
       </tr>
       <tr style="background-color: #f8fafc;">
-        <td style="padding: 10px; border: 1px solid #e2e8f0;">Prototype Funding Reimbursements Claimed</td>
-        <td style="padding: 10px; border: 1px solid #e2e8f0; text-align: right; font-weight: bold; color: #0284c7;">₹${stats.fundingRequested.toLocaleString()}</td>
+        <td style="padding: 10px; border: 1px solid #e2e8f0;">Seed Funding Capital Requested</td>
+        <td style="padding: 10px; border: 1px solid #e2e8f0; text-align: right; font-weight: bold; color: #4f46e5;">Rs.${stats.fundingRequested.toLocaleString()}</td>
       </tr>
       <tr>
-        <td style="padding: 10px; border: 1px solid #e2e8f0;">Prototype Funding Approved</td>
-        <td style="padding: 10px; border: 1px solid #e2e8f0; text-align: right; font-weight: bold; color: #0f766e;">₹${stats.fundingApproved.toLocaleString()}</td>
+        <td style="padding: 10px; border: 1px solid #e2e8f0;">Seed Funding Capital Approved</td>
+        <td style="padding: 10px; border: 1px solid #e2e8f0; text-align: right; font-weight: bold; color: #059669;">Rs.${stats.fundingApproved.toLocaleString()}</td>
       </tr>
       <tr style="background-color: #f8fafc;">
-        <td style="padding: 10px; border: 1px solid #e2e8f0;">Active Events Listed</td>
-        <td style="padding: 10px; border: 1px solid #e2e8f0; text-align: right; font-weight: bold;">${stats.eventsHosted}</td>
+        <td style="padding: 10px; border: 1px solid #e2e8f0;">Innovation Seminars Organized</td>
+        <td style="padding: 10px; border: 1px solid #e2e8f0; text-align: right; font-weight: bold; color: #0891b2;">${stats.eventsHosted}</td>
       </tr>
       <tr>
-        <td style="padding: 10px; border: 1px solid #e2e8f0;">Total Event Attendee Registrations</td>
+        <td style="padding: 10px; border: 1px solid #e2e8f0;">Cohort Activity Signups</td>
         <td style="padding: 10px; border: 1px solid #e2e8f0; text-align: right; font-weight: bold; color: #4f46e5;">${stats.eventRegistrations}</td>
       </tr>
     </table>
@@ -161,7 +161,7 @@ async function dispatchReport(timeframe: string) {
     title: `${timeframe.charAt(0).toUpperCase() + timeframe.slice(1)} Innovation Report`,
     content: content,
     buttonText: 'Open Admin Console',
-    buttonUrl: 'http://localhost:3000/admin',
+    buttonUrl: `${baseUrl}/admin`,
     preheader: `Yantriksha periodic report: ${timeframe.toUpperCase()}`
   });
 
@@ -185,9 +185,13 @@ async function dispatchReport(timeframe: string) {
 }
 
 // GET /api/admin/reports-worker - Automation checking/polling scheduler endpoint
-export async function GET() {
+export async function GET(req: Request) {
   try {
     console.log('[REPORTS WORKER] Running automatic periodic reports check...');
+
+    const host = req.headers.get('host') || 'excited-salk.vercel.app';
+    const protocol = host.includes('localhost') ? 'http' : 'https';
+    const baseUrl = `${protocol}://${host}`;
 
     const timeframes = [
       { key: 'daily', intervalHours: 24 },
@@ -220,7 +224,7 @@ export async function GET() {
 
       if (shouldRun) {
         console.log(`[REPORTS WORKER] Triggering report dispatch for interval: ${tf.key}`);
-        const result = await dispatchReport(tf.key);
+        const result = await dispatchReport(tf.key, baseUrl);
         reportsDispatched.push({ timeframe: tf.key, recipients: result.adminEmails });
       }
     }
@@ -236,7 +240,6 @@ export async function GET() {
   }
 }
 
-// POST /api/admin/reports-worker - Manual dispatch override endpoint
 export async function POST(req: Request) {
   try {
     const body = await req.json();
@@ -247,8 +250,12 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: false, error: 'Invalid or missing report timeframe type' }, { status: 400 });
     }
 
+    const host = req.headers.get('host') || 'excited-salk.vercel.app';
+    const protocol = host.includes('localhost') ? 'http' : 'https';
+    const baseUrl = `${protocol}://${host}`;
+
     console.log(`[REPORTS WORKER] Manual dispatch requested for timeframe: ${timeframe}`);
-    const result = await dispatchReport(timeframe);
+    const result = await dispatchReport(timeframe, baseUrl);
 
     return NextResponse.json({
       success: true,

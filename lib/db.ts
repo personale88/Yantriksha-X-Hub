@@ -204,6 +204,17 @@ async function ensureEmailSystemTables(p: mysql.Pool) {
         ) ENGINE=InnoDB;
       `);
 
+      // 3j. Create email_verification_tokens table to track student registration confirmation links
+      await connection.query(`
+        CREATE TABLE IF NOT EXISTS email_verification_tokens (
+          id INT AUTO_INCREMENT PRIMARY KEY,
+          email VARCHAR(100) NOT NULL,
+          token VARCHAR(64) UNIQUE NOT NULL,
+          expires_at TIMESTAMP NOT NULL,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB;
+      `);
+
       // 4. Alter users table for reset token
       const [columns]: any = await connection.query("SHOW COLUMNS FROM users;");
       const columnNames = columns.map((c: any) => c.Field);
@@ -219,6 +230,14 @@ async function ensureEmailSystemTables(p: mysql.Pool) {
       if (!columnNames.includes('school')) {
         console.log("[DB] Adding school to users table...");
         await connection.query("ALTER TABLE users ADD COLUMN school VARCHAR(100) NULL;");
+      }
+
+      // Alter team_members table for project_role (e.g. Frontend, Database, Automation)
+      const [tmColumns]: any = await connection.query("SHOW COLUMNS FROM team_members;");
+      const tmColumnNames = tmColumns.map((c: any) => c.Field);
+      if (!tmColumnNames.includes('project_role')) {
+        console.log("[DB] Adding project_role to team_members table...");
+        await connection.query("ALTER TABLE team_members ADD COLUMN project_role VARCHAR(100) NULL;");
       }
 
       console.log("[DB] Email & innovation system tables verified.");
@@ -239,6 +258,42 @@ export async function query<T = any>(sql: string, params?: any[]): Promise<T> {
   if (initPromise) {
     await initPromise;
   }
-  const [rows] = await connectionPool.execute(sql, params);
-  return rows as T;
+  try {
+    const [rows] = await connectionPool.execute(sql, params);
+    return rows as T;
+  } catch (err: any) {
+    const isNetworkErr = err.code === 'ECONNRESET' || err.code === 'PROTOCOL_CONNECTION_LOST' || err.fatal;
+    if (isNetworkErr) {
+      console.warn(`[DB] Connection error (${err.code || 'fatal'}). Retrying query execution once...`);
+      try {
+        const [rows] = await connectionPool.execute(sql, params);
+        return rows as T;
+      } catch (retryErr) {
+        console.error('[DB] Retry query execution failed:', retryErr);
+        throw retryErr;
+      }
+    }
+    throw err;
+  }
+}
+
+/**
+ * Resolves the application's base URL.
+ * Prioritizes process.env.APP_URL, then VERCEL_URL, and falls back to request headers or default domain.
+ */
+export function getBaseUrl(req?: Request): string {
+  if (process.env.APP_URL) {
+    return process.env.APP_URL.replace(/\/$/, '');
+  }
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`;
+  }
+  if (req) {
+    const host = req.headers.get('host');
+    if (host) {
+      const protocol = host.includes('localhost') ? 'http' : 'https';
+      return `${protocol}://${host}`;
+    }
+  }
+  return 'https://excited-salk.vercel.app';
 }

@@ -484,18 +484,18 @@ export default function RegisterPage() {
         <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-6 z-50 animate-fadeIn animate-duration-300">
           <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 max-w-md w-full relative text-center shadow-2xl">
             {/* Glowing success icon */}
-            <div className="mx-auto h-16 w-16 bg-emerald-950/60 border border-emerald-500/30 rounded-full flex items-center justify-center text-3xl mb-6 shadow-[0_0_20px_rgba(16,185,129,0.2)]">
-              🎉
+            <div className="mx-auto h-16 w-16 bg-blue-950/60 border border-blue-500/30 rounded-full flex items-center justify-center text-3xl mb-6 shadow-[0_0_20px_rgba(59,130,246,0.2)]">
+              📧
             </div>
             
             {/* Modal Title */}
             <h3 className="text-2xl font-extrabold text-white tracking-tight">
-              Join Request Submitted!
+              Verification Link Sent!
             </h3>
             
             {/* Modal Description */}
             <p className="text-gray-400 text-sm mt-4 leading-relaxed font-light">
-              Your registration details have been submitted successfully. Your request is now pending approval by the Admin. Once accepted, you will be able to log in to access the Yantriksha Hub dashboard.
+              We have sent an activation link to your official college email address. Please open your college email inbox and click the verification link to activate your Yantriksha Hub membership application.
             </p>
             
             {/* OK Button */}

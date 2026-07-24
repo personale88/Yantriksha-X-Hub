@@ -64,11 +64,15 @@ export async function PUT(req: Request) {
             <p>Your student account is now fully activated. You can log in, form/manage your cross-disciplinary teams, register for workshops, and progress through our 14-stage academic incubator roadmap.</p>
             <p>Welcome to the incubation community!</p>
           `;
+          const host = req.headers.get('host') || 'excited-salk.vercel.app';
+          const protocol = host.includes('localhost') ? 'http' : 'https';
+          const baseUrl = `${protocol}://${host}`;
+
           const welcomeHtml = generateEmailTemplate({
             title: 'Welcome to YantrikshaX Hub!',
             content: welcomeContent,
             buttonText: 'Log In to Platform',
-            buttonUrl: 'http://localhost:3000/login',
+            buttonUrl: `${baseUrl}/login`,
             preheader: 'Your request to join YantrikshaX Hub has been approved.'
           });
 

@@ -92,11 +92,15 @@ export async function POST(req: Request) {
           <p>Please log in to your student dashboard to register for this event and secure your attendance seat.</p>
         `;
 
+        const host = req.headers.get('host') || 'excited-salk.vercel.app';
+        const protocol = host.includes('localhost') ? 'http' : 'https';
+        const baseUrl = `${protocol}://${host}`;
+
         const eventHtml = generateEmailTemplate({
           title: `New Event Scheduled`,
           content: eventContent,
           buttonText: 'Register for Event',
-          buttonUrl: 'http://localhost:3000/dashboard',
+          buttonUrl: `${baseUrl}/dashboard`,
           preheader: `New Event: ${title} scheduled for ${formattedDate}`
         });
 

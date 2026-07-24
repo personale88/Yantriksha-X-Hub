@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { query } from '@/lib/db';
+import { query, getBaseUrl } from '@/lib/db';
 import { hashPassword } from '@/lib/auth';
 import { queueEmail, generateEmailTemplate } from '@/lib/emailQueue';
 
@@ -53,11 +53,13 @@ export async function POST(req: Request) {
       </p>
     `;
 
+    const baseUrl = getBaseUrl(req);
+
     const emailHtml = generateEmailTemplate({
       title: 'Password Changed Successfully',
       content: emailContent,
       buttonText: 'Log In to Platform',
-      buttonUrl: 'http://localhost:3000/login',
+      buttonUrl: `${baseUrl}/login`,
       preheader: 'Your YantrikshaX Hub account password was reset successfully.'
     });
 
