@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface Team {
   id: number;
@@ -38,6 +38,44 @@ interface CoreMembersManagerProps {
 }
 
 export default function CoreMembersManager({ members, roles, teams, onRefresh }: CoreMembersManagerProps) {
+  const [localMembers, setLocalMembers] = useState<Member[]>(members || []);
+  const [localRoles, setLocalRoles] = useState<Role[]>(roles || []);
+  const [localTeams, setLocalTeams] = useState<Team[]>(teams || []);
+
+  const fetchCoreData = async () => {
+    try {
+      const [mRes, rRes] = await Promise.all([
+        fetch('/api/admin/core-members'),
+        fetch('/api/admin/roles')
+      ]);
+      const mData = await mRes.json();
+      const rData = await rRes.json();
+
+      if (mData.success) {
+        if (Array.isArray(mData.members)) setLocalMembers(mData.members);
+        if (Array.isArray(mData.allTeams)) setLocalTeams(mData.allTeams);
+      }
+      if (rData.success && Array.isArray(rData.roles)) {
+        setLocalRoles(rData.roles);
+      }
+    } catch (err) {
+      console.error('[CoreMembersManager] fetch error:', err);
+    }
+  };
+
+  useEffect(() => {
+    fetchCoreData();
+  }, []);
+
+  useEffect(() => {
+    if (members && members.length > 0) setLocalMembers(members);
+    if (roles && roles.length > 0) setLocalRoles(roles);
+    if (teams && teams.length > 0) setLocalTeams(teams);
+  }, [members, roles, teams]);
+
+  const displayMembers = localMembers.length > 0 ? localMembers : members;
+  const displayRoles = localRoles.length > 0 ? localRoles : roles;
+  const displayTeams = localTeams.length > 0 ? localTeams : teams;
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [showAssignModal, setShowAssignModal] = useState<Member | null>(null);
   const [loading, setLoading] = useState(false);
@@ -65,7 +103,7 @@ export default function CoreMembersManager({ members, roles, teams, onRefresh }:
       personalEmail: '',
       phoneNumber: '',
       department: '',
-      roleId: roles[0]?.id ? String(roles[0].id) : '',
+      roleId: displayRoles[0]?.id ? String(displayRoles[0].id) : '',
       designation: 'Core Team Member'
     });
     setShowInviteModal(true);
@@ -220,7 +258,7 @@ export default function CoreMembersManager({ members, roles, teams, onRefresh }:
 
       {/* Members Directory Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {members.map(m => (
+        {displayMembers.map(m => (
           <div key={m.id} className="bg-slate-900/40 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between hover:border-slate-700 transition duration-300 relative overflow-hidden group shadow-lg">
             <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-500/5 rounded-full blur-2xl group-hover:bg-indigo-500/10 transition-all" />
             
@@ -401,7 +439,7 @@ export default function CoreMembersManager({ members, roles, teams, onRefresh }:
                   className="w-full bg-slate-950 border border-slate-850 rounded-xl p-3 text-white text-sm focus:border-blue-500 focus:outline-none transition cursor-pointer"
                 >
                   <option value="" disabled>Select assigned role permission level...</option>
-                  {roles.map(r => (
+                  {displayRoles.map(r => (
                     <option key={r.id} value={r.id}>{r.name}</option>
                   ))}
                 </select>
@@ -438,10 +476,10 @@ export default function CoreMembersManager({ members, roles, teams, onRefresh }:
             </div>
 
             <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1 scrollbar-thin">
-              {teams.length === 0 ? (
+              {displayTeams.length === 0 ? (
                 <p className="text-xs text-slate-500 italic text-center py-6">No active student incubator teams listed.</p>
               ) : (
-                teams.map(t => (
+                displayTeams.map(t => (
                   <label key={t.id} className="flex items-start gap-3 p-3 bg-slate-950/40 border border-slate-850 hover:border-slate-800 rounded-xl cursor-pointer transition select-none">
                     <input
                       type="checkbox"

@@ -52,7 +52,7 @@ export function verifyToken(token: string): JWTPayload | null {
  * Authenticate incoming request. Checks cookies or Authorization header.
  */
 export async function verifyAuth(req: Request): Promise<JWTPayload | null> {
-  // 1. Check HttpOnly cookie first (preferred/more secure)
+  // 1. Check HttpOnly cookie via next/headers
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get(TOKEN_COOKIE_NAME)?.value;
@@ -61,10 +61,20 @@ export async function verifyAuth(req: Request): Promise<JWTPayload | null> {
       if (decoded) return decoded;
     }
   } catch (e) {
-    // cookies() might throw if called outside Request context or in certain environments
+    // cookies() might throw if called outside Request context
   }
 
-  // 2. Check Authorization Header as fallback
+  // 2. Check Cookie header directly from req
+  const rawCookies = req.headers.get('cookie');
+  if (rawCookies) {
+    const match = rawCookies.match(new RegExp(`(?:^|; )\\s*${TOKEN_COOKIE_NAME}\\s*=\\s*([^;]+)`));
+    if (match && match[1]) {
+      const decoded = verifyToken(decodeURIComponent(match[1]));
+      if (decoded) return decoded;
+    }
+  }
+
+  // 3. Check Authorization Header as fallback
   const authHeader = req.headers.get('authorization');
   if (authHeader && authHeader.startsWith('Bearer ')) {
     const token = authHeader.substring(7);

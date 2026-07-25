@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface Role {
   id?: number;
@@ -25,12 +25,41 @@ const MODULES = [
 ];
 
 export default function RolesManager({ roles, onRefresh }: RolesManagerProps) {
-  const [selectedRole, setSelectedRole] = useState<Role | null>(null);
-  const [isEditing, setIsEditing] = useState(false);
-  const [roleForm, setRoleForm] = useState<Role>({ name: '', description: '', permissions: {} });
+  const [localRoles, setLocalRoles] = useState<Role[]>(roles || []);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
+
+  const fetchRoles = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch('/api/admin/roles');
+      const data = await res.json();
+      if (data.success && Array.isArray(data.roles)) {
+        setLocalRoles(data.roles);
+      }
+    } catch (err) {
+      console.error('[RolesManager] fetch error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchRoles();
+  }, []);
+
+  useEffect(() => {
+    if (roles && roles.length > 0) {
+      setLocalRoles(roles);
+    }
+  }, [roles]);
+
+  const displayRoles = localRoles.length > 0 ? localRoles : roles;
+
+  const [selectedRole, setSelectedRole] = useState<Role | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [roleForm, setRoleForm] = useState<Role>({ name: '', description: '', permissions: {} });
 
   const startCreate = () => {
     setRoleForm({ name: '', description: '', permissions: {} });
@@ -249,7 +278,7 @@ export default function RolesManager({ roles, onRefresh }: RolesManagerProps) {
         </form>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {roles.length === 0 ? (
+          {displayRoles.length === 0 ? (
             <div className="col-span-full bg-slate-900/30 border border-slate-850 p-10 rounded-2xl text-center space-y-3">
               <span className="text-3xl block">🛡️</span>
               <h3 className="font-extrabold text-white text-base">No Custom Roles Configured</h3>
@@ -262,7 +291,7 @@ export default function RolesManager({ roles, onRefresh }: RolesManagerProps) {
               </button>
             </div>
           ) : (
-            roles.map(r => {
+            displayRoles.map(r => {
               const activeCount = Object.values(r.permissions || {}).flat().length;
               return (
                 <div key={r.id} className="bg-slate-900/40 border border-slate-800 rounded-2xl p-5 hover:border-slate-700 transition duration-300 flex flex-col justify-between group relative overflow-hidden shadow-lg">

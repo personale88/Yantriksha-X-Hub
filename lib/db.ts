@@ -226,33 +226,88 @@ async function ensureEmailSystemTables(p: mysql.Pool) {
         ) ENGINE=InnoDB;
       `);
 
-      // Seed default 20 core team roles if missing
+      // Seed official Yantriksha X Hub roles & responsibilities
       const defaultRoles = [
-        { name: 'Software Team', desc: 'Manage software projects, code reviews, and technical milestones.', perms: { projects: ['view', 'edit', 'assign'], software: ['view', 'edit', 'approve', 'reject', 'manage'], documentation: ['view', 'edit'] } },
-        { name: 'Hardware Team', desc: 'Oversee hardware prototypes, lab equipment, and component assembly.', perms: { projects: ['view', 'edit', 'assign'], software: ['view'], documentation: ['view'] } },
-        { name: 'IoT Team', desc: 'Sensor networks, embedded systems, and firmware evaluations.', perms: { projects: ['view', 'edit', 'assign'], software: ['view', 'edit'], documentation: ['view'] } },
-        { name: 'Robotics Team', desc: 'Mechatronic systems, automation, and robotic prototype testing.', perms: { projects: ['view', 'edit', 'assign'], software: ['view', 'edit'], documentation: ['view'] } },
-        { name: 'AI & ML Team', desc: 'Machine learning models, dataset verifications, and algorithm reviews.', perms: { projects: ['view', 'edit', 'assign'], software: ['view', 'edit', 'approve'], documentation: ['view'] } },
-        { name: 'Documentation Team', desc: 'Review project reports, PDFs, and documentation compliance.', perms: { projects: ['view'], documentation: ['view', 'edit', 'approve', 'reject', 'download'] } },
-        { name: 'Finance Team', desc: 'Seed funding requests, budget approvals, and expense tracking.', perms: { projects: ['view'], finance: ['view', 'create', 'approve', 'reject', 'export'] } },
-        { name: 'Sponsorship Team', desc: 'External corporate sponsorships, grants, and funding partners.', perms: { projects: ['view'], finance: ['view', 'create', 'export'] } },
-        { name: 'Patent & IPR Team', desc: 'Patent pipeline, prior art verification, and legal IP filings.', perms: { projects: ['view'], patent: ['view', 'create', 'edit', 'approve', 'manage'], documentation: ['view', 'download'] } },
-        { name: 'Event Management Team', desc: 'Organize workshops, hackathons, and incubation events.', perms: { events: ['view', 'create', 'edit', 'delete', 'manage'], users: ['view'] } },
-        { name: 'Branding Team', desc: 'Design guidelines, visual media assets, and hub marketing.', perms: { events: ['view', 'edit'], projects: ['view'] } },
-        { name: 'Social Media Team', desc: 'Public announcements, social promotion, and online engagement.', perms: { events: ['view', 'edit'] } },
-        { name: 'Innovation Team', desc: 'Ideation pipeline, problem statement validation, and cohort growth.', perms: { projects: ['view', 'create', 'edit', 'assign'], documentation: ['view', 'approve'] } },
-        { name: 'Research Team', desc: 'Academic literature, research papers, and technical feasibility.', perms: { projects: ['view', 'edit'], documentation: ['view', 'edit', 'download'] } },
-        { name: 'Technical Team', desc: 'General engineering support, lab safety, and technical audits.', perms: { projects: ['view', 'edit', 'assign'], software: ['view', 'edit'] } },
-        { name: 'Industry Relations Team', desc: 'Corporate partnerships, industrial visits, and internships.', perms: { projects: ['view'], events: ['view', 'create'] } },
-        { name: 'Alumni Relations Team', desc: 'Alumni mentorship networks, guest lectures, and alumni support.', perms: { projects: ['view'], events: ['view', 'create'] } },
-        { name: 'Startup & Incubation Team', desc: 'Incubation stage progression, startup acceleration, and pitch reviews.', perms: { projects: ['view', 'create', 'edit', 'delete', 'assign'], finance: ['view', 'approve'], patent: ['view'] } },
-        { name: 'Publication Team', desc: 'Conference paper submissions, journals, and technical publications.', perms: { documentation: ['view', 'edit', 'approve', 'download'], patent: ['view'] } },
-        { name: 'Mentor Coordination Team', desc: 'Assign mentors to teams, schedule review sessions, and track feedback.', perms: { projects: ['view', 'assign'], users: ['view', 'edit'] } }
+        { 
+          name: 'President & Executive Leadership', 
+          desc: 'Leads overall vision, strategic direction, approves major initiatives, and represents Yantriksha X Hub in partnerships.', 
+          perms: { projects: ['view', 'create', 'edit', 'delete', 'assign'], software: ['view', 'edit', 'approve', 'reject', 'manage'], documentation: ['view', 'edit', 'approve', 'reject', 'download'], finance: ['view', 'create', 'approve', 'reject', 'export'], patent: ['view', 'create', 'edit', 'approve', 'manage'], events: ['view', 'create', 'edit', 'delete', 'manage'], users: ['view', 'create', 'edit', 'delete', 'manage'] } 
+        },
+        { 
+          name: 'Secretary', 
+          desc: 'Maintains official records, reports, prepares agendas, records minutes, and tracks action items & timelines.', 
+          perms: { documentation: ['view', 'edit', 'approve', 'reject', 'download'], projects: ['view'], events: ['view'], users: ['view'] } 
+        },
+        { 
+          name: 'Deputy Secretary & Student Administration Head', 
+          desc: 'Manages student registrations, central database, member onboarding, and workshop/event registrations.', 
+          perms: { users: ['view', 'create', 'edit', 'manage'], events: ['view', 'edit'], documentation: ['view'] } 
+        },
+        { 
+          name: 'Head of Products and Innovations (SOC, SOEC, SOMC, SOM, SOL)', 
+          desc: 'Evaluates project ideas across schools, guides technical research, prototype design, and implementation.', 
+          perms: { projects: ['view', 'create', 'edit', 'assign'], software: ['view', 'edit', 'approve', 'manage'], documentation: ['view', 'approve'] } 
+        },
+        { 
+          name: 'Head of Quality', 
+          desc: 'Establishes quality standards, evaluates project deliverables/prototypes, and conducts quality audits.', 
+          perms: { projects: ['view'], documentation: ['view', 'edit', 'approve', 'reject', 'download'], software: ['view', 'approve'] } 
+        },
+        { 
+          name: 'Deputy of Products and Innovations (SOC, SOEC, SOMC, SOM, SOL)', 
+          desc: 'Assists in reviewing and tracking student projects, documentation support, and progress update records.', 
+          perms: { projects: ['view', 'edit'], software: ['view'], documentation: ['view', 'edit'] } 
+        },
+        { 
+          name: 'Deputy of Quality', 
+          desc: 'Assists in verifying documentation and report submissions for completeness and quality recommendations.', 
+          perms: { projects: ['view'], documentation: ['view', 'edit'], software: ['view'] } 
+        },
+        { 
+          name: 'Head of Industry, Alumni and Partnerships', 
+          desc: 'Establishes collaborations with industries, alumni, and research organizations; connects students with mentors.', 
+          perms: { projects: ['view'], events: ['view', 'create', 'edit'], users: ['view'] } 
+        },
+        { 
+          name: 'Deputy of Industry, Alumni and Partnerships', 
+          desc: 'Assists in maintaining industry and alumni relationships, partnership records, and meeting follow-ups.', 
+          perms: { projects: ['view'], events: ['view'], users: ['view'] } 
+        },
+        { 
+          name: 'Head of Marketing and Branding', 
+          desc: 'Develops branding strategies, manages social media campaigns, promotional materials, and event publicity.', 
+          perms: { events: ['view', 'edit'], projects: ['view'], documentation: ['view'] } 
+        },
+        { 
+          name: 'Deputy of Marketing and Branding', 
+          desc: 'Assists in creating promotional content, social media publicity campaigns, and student outreach.', 
+          perms: { events: ['view', 'edit'], projects: ['view'] } 
+        },
+        { 
+          name: 'Head of Event Management', 
+          desc: 'Plans and manages workshops (IIC), hackathons, seminars, schedules, logistics, and volunteer teams.', 
+          perms: { events: ['view', 'create', 'edit', 'delete', 'manage'], users: ['view'] } 
+        },
+        { 
+          name: 'Deputy of Event Management', 
+          desc: 'Assists in event logistics, registrations, volunteer management, and post-event reporting.', 
+          perms: { events: ['view', 'create', 'edit'], users: ['view'] } 
+        },
+        { 
+          name: 'Head of Startup Incubation and Intellectual Property (IP)', 
+          desc: 'Guides startup teams through incubation, patent identification/filing, R&D/TBI coordination, and investor pitches.', 
+          perms: { projects: ['view', 'create', 'edit', 'assign'], patent: ['view', 'create', 'edit', 'approve', 'manage'], finance: ['view', 'approve'] } 
+        },
+        { 
+          name: 'Deputy of Startup Incubation and Intellectual Property (IP)', 
+          desc: 'Assists startup teams during incubation, R&D/TBI coordination, patent documentation, and progress tracking.', 
+          perms: { projects: ['view', 'edit'], patent: ['view', 'create', 'edit'], finance: ['view'] } 
+        }
       ];
 
       for (const r of defaultRoles) {
         await connection.query(
-          `INSERT IGNORE INTO core_roles (name, description, permissions) VALUES (?, ?, ?)`,
+          `INSERT INTO core_roles (name, description, permissions) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE description=VALUES(description), permissions=VALUES(permissions)`,
           [r.name, r.desc, JSON.stringify(r.perms)]
         );
       }
