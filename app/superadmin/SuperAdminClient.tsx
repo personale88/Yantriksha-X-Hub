@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import RolesManager from '@/components/admin/RolesManager';
+import CoreMembersManager from '@/components/admin/CoreMembersManager';
 
 interface SaUser {
   name: string;
@@ -79,7 +81,7 @@ interface Announcement {
 export default function SuperAdminClient({ currentAdmin }: { currentAdmin: SaUser }) {
   const router = useRouter();
   const [activeMenu, setActiveMenu] = useState<
-    'dashboard' | 'students' | 'clubs' | 'events' | 'activities' | 'audits' | 'announcements' | 'notifications' | 'reports' | 'settings'
+    'dashboard' | 'students' | 'clubs' | 'events' | 'activities' | 'audits' | 'announcements' | 'notifications' | 'reports' | 'settings' | 'roles' | 'coreMembers'
   >('dashboard');
 
   // Backend state
@@ -92,6 +94,9 @@ export default function SuperAdminClient({ currentAdmin }: { currentAdmin: SaUse
   const [reportsSentLogs, setReportsSentLogs] = useState<any[]>([]);
   const [selectedReportTimeframe, setSelectedReportTimeframe] = useState('daily');
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+  const [roles, setRoles] = useState<any[]>([]);
+  const [coreMembers, setCoreMembers] = useState<any[]>([]);
+  const [allTeams, setAllTeams] = useState<any[]>([]);
 
   // Search & Filters
   const [globalSearch, setGlobalSearch] = useState('');
@@ -174,6 +179,19 @@ export default function SuperAdminClient({ currentAdmin }: { currentAdmin: SaUse
       const annRes = await fetch('/api/admin/announcements');
       const annData = await annRes.json();
       if (annData.success) setAnnouncements(annData.announcements);
+
+      // 7. Fetch RBAC Roles
+      const rolesRes = await fetch('/api/admin/roles');
+      const rolesData = await rolesRes.json();
+      if (rolesData.success) setRoles(rolesData.roles);
+
+      // 8. Fetch Core Members
+      const membersRes = await fetch('/api/admin/core-members');
+      const membersData = await membersRes.json();
+      if (membersData.success) {
+        setCoreMembers(membersData.members);
+        if (membersData.allTeams) setAllTeams(membersData.allTeams);
+      }
 
     } catch (err) {
       console.error(err);
@@ -591,6 +609,8 @@ export default function SuperAdminClient({ currentAdmin }: { currentAdmin: SaUse
           {[
             { id: 'dashboard', label: 'Dashboard Overview', icon: '📊' },
             { id: 'students', label: 'Student Management', icon: '👥' },
+            { id: 'roles', label: 'RBAC Roles Config', icon: '🛡️' },
+            { id: 'coreMembers', label: 'Core Team Manager', icon: '👔' },
             { id: 'clubs', label: 'Club inc. Manager', icon: '⛺' },
             { id: 'events', label: 'Event Operations', icon: '📅' },
             { id: 'activities', label: 'Activity Logs', icon: '🖥️' },
@@ -1793,6 +1813,24 @@ export default function SuperAdminClient({ currentAdmin }: { currentAdmin: SaUse
                 </button>
               </form>
             </div>
+          </div>
+        )}
+
+        {/* ═══════════════════════════════════════════════
+            MENU: RBAC ROLES CONFIG
+        ═══════════════════════════════════════════════ */}
+        {activeMenu === 'roles' && (
+          <div className="animate-fadeIn">
+            <RolesManager roles={roles} onRefresh={loadAllData} />
+          </div>
+        )}
+
+        {/* ═══════════════════════════════════════════════
+            MENU: CORE TEAM MANAGER
+        ═══════════════════════════════════════════════ */}
+        {activeMenu === 'coreMembers' && (
+          <div className="animate-fadeIn">
+            <CoreMembersManager members={coreMembers} roles={roles} teams={allTeams} onRefresh={loadAllData} />
           </div>
         )}
 

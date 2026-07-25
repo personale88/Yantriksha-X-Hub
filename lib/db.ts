@@ -215,7 +215,93 @@ async function ensureEmailSystemTables(p: mysql.Pool) {
         ) ENGINE=InnoDB;
       `);
 
-      // 4. Alter users table for reset token
+      // 3k. Create core_roles table
+      await connection.query(`
+        CREATE TABLE IF NOT EXISTS core_roles (
+          id INT AUTO_INCREMENT PRIMARY KEY,
+          name VARCHAR(100) UNIQUE NOT NULL,
+          description TEXT NULL,
+          permissions JSON NOT NULL,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB;
+      `);
+
+      // Seed default 20 core team roles if missing
+      const defaultRoles = [
+        { name: 'Software Team', desc: 'Manage software projects, code reviews, and technical milestones.', perms: { projects: ['view', 'edit', 'assign'], software: ['view', 'edit', 'approve', 'reject', 'manage'], documentation: ['view', 'edit'] } },
+        { name: 'Hardware Team', desc: 'Oversee hardware prototypes, lab equipment, and component assembly.', perms: { projects: ['view', 'edit', 'assign'], software: ['view'], documentation: ['view'] } },
+        { name: 'IoT Team', desc: 'Sensor networks, embedded systems, and firmware evaluations.', perms: { projects: ['view', 'edit', 'assign'], software: ['view', 'edit'], documentation: ['view'] } },
+        { name: 'Robotics Team', desc: 'Mechatronic systems, automation, and robotic prototype testing.', perms: { projects: ['view', 'edit', 'assign'], software: ['view', 'edit'], documentation: ['view'] } },
+        { name: 'AI & ML Team', desc: 'Machine learning models, dataset verifications, and algorithm reviews.', perms: { projects: ['view', 'edit', 'assign'], software: ['view', 'edit', 'approve'], documentation: ['view'] } },
+        { name: 'Documentation Team', desc: 'Review project reports, PDFs, and documentation compliance.', perms: { projects: ['view'], documentation: ['view', 'edit', 'approve', 'reject', 'download'] } },
+        { name: 'Finance Team', desc: 'Seed funding requests, budget approvals, and expense tracking.', perms: { projects: ['view'], finance: ['view', 'create', 'approve', 'reject', 'export'] } },
+        { name: 'Sponsorship Team', desc: 'External corporate sponsorships, grants, and funding partners.', perms: { projects: ['view'], finance: ['view', 'create', 'export'] } },
+        { name: 'Patent & IPR Team', desc: 'Patent pipeline, prior art verification, and legal IP filings.', perms: { projects: ['view'], patent: ['view', 'create', 'edit', 'approve', 'manage'], documentation: ['view', 'download'] } },
+        { name: 'Event Management Team', desc: 'Organize workshops, hackathons, and incubation events.', perms: { events: ['view', 'create', 'edit', 'delete', 'manage'], users: ['view'] } },
+        { name: 'Branding Team', desc: 'Design guidelines, visual media assets, and hub marketing.', perms: { events: ['view', 'edit'], projects: ['view'] } },
+        { name: 'Social Media Team', desc: 'Public announcements, social promotion, and online engagement.', perms: { events: ['view', 'edit'] } },
+        { name: 'Innovation Team', desc: 'Ideation pipeline, problem statement validation, and cohort growth.', perms: { projects: ['view', 'create', 'edit', 'assign'], documentation: ['view', 'approve'] } },
+        { name: 'Research Team', desc: 'Academic literature, research papers, and technical feasibility.', perms: { projects: ['view', 'edit'], documentation: ['view', 'edit', 'download'] } },
+        { name: 'Technical Team', desc: 'General engineering support, lab safety, and technical audits.', perms: { projects: ['view', 'edit', 'assign'], software: ['view', 'edit'] } },
+        { name: 'Industry Relations Team', desc: 'Corporate partnerships, industrial visits, and internships.', perms: { projects: ['view'], events: ['view', 'create'] } },
+        { name: 'Alumni Relations Team', desc: 'Alumni mentorship networks, guest lectures, and alumni support.', perms: { projects: ['view'], events: ['view', 'create'] } },
+        { name: 'Startup & Incubation Team', desc: 'Incubation stage progression, startup acceleration, and pitch reviews.', perms: { projects: ['view', 'create', 'edit', 'delete', 'assign'], finance: ['view', 'approve'], patent: ['view'] } },
+        { name: 'Publication Team', desc: 'Conference paper submissions, journals, and technical publications.', perms: { documentation: ['view', 'edit', 'approve', 'download'], patent: ['view'] } },
+        { name: 'Mentor Coordination Team', desc: 'Assign mentors to teams, schedule review sessions, and track feedback.', perms: { projects: ['view', 'assign'], users: ['view', 'edit'] } }
+      ];
+
+      for (const r of defaultRoles) {
+        await connection.query(
+          `INSERT IGNORE INTO core_roles (name, description, permissions) VALUES (?, ?, ?)`,
+          [r.name, r.desc, JSON.stringify(r.perms)]
+        );
+      }
+
+      // 3l. Create core_team_assignments table
+      await connection.query(`
+        CREATE TABLE IF NOT EXISTS core_team_assignments (
+          id INT AUTO_INCREMENT PRIMARY KEY,
+          user_id INT NOT NULL,
+          team_id INT NOT NULL,
+          assigned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          UNIQUE KEY unique_user_team (user_id, team_id),
+          FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+          FOREIGN KEY (team_id) REFERENCES teams(id) ON DELETE CASCADE
+        ) ENGINE=InnoDB;
+      `);
+
+      // 3m. Create user_sessions table
+      await connection.query(`
+        CREATE TABLE IF NOT EXISTS user_sessions (
+          id INT AUTO_INCREMENT PRIMARY KEY,
+          user_id INT NOT NULL,
+          token TEXT NOT NULL,
+          device_info VARCHAR(255) NULL,
+          ip_address VARCHAR(45) NULL,
+          last_active TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        ) ENGINE=InnoDB;
+      `);
+      try {
+        await connection.query("ALTER TABLE user_sessions MODIFY COLUMN token TEXT NOT NULL;");
+      } catch (_) {}
+
+      // 3n. Create login_history table
+      await connection.query(`
+        CREATE TABLE IF NOT EXISTS login_history (
+          id INT AUTO_INCREMENT PRIMARY KEY,
+          user_id INT NULL,
+          email_attempted VARCHAR(100) NOT NULL,
+          status ENUM('success', 'failed') NOT NULL,
+          ip_address VARCHAR(45) NULL,
+          device_info VARCHAR(255) NULL,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        ) ENGINE=InnoDB;
+      `);
+
+      // 4. Alter users table for reset token and core team details
       const [columns]: any = await connection.query("SHOW COLUMNS FROM users;");
       const columnNames = columns.map((c: any) => c.Field);
       
@@ -231,6 +317,52 @@ async function ensureEmailSystemTables(p: mysql.Pool) {
         console.log("[DB] Adding school to users table...");
         await connection.query("ALTER TABLE users ADD COLUMN school VARCHAR(100) NULL;");
       }
+      if (!columnNames.includes('personal_email')) {
+        console.log("[DB] Adding personal_email to users table...");
+        await connection.query("ALTER TABLE users ADD COLUMN personal_email VARCHAR(100) NULL;");
+        await connection.query("ALTER TABLE users ADD UNIQUE INDEX unique_personal_email (personal_email);");
+      }
+      if (!columnNames.includes('is_core_team')) {
+        console.log("[DB] Adding is_core_team to users table...");
+        await connection.query("ALTER TABLE users ADD COLUMN is_core_team BOOLEAN DEFAULT FALSE;");
+      }
+      if (!columnNames.includes('role_id')) {
+        console.log("[DB] Adding role_id to users table...");
+        await connection.query("ALTER TABLE users ADD COLUMN role_id INT NULL;");
+      }
+      if (!columnNames.includes('two_factor_secret')) {
+        console.log("[DB] Adding two_factor_secret to users table...");
+        await connection.query("ALTER TABLE users ADD COLUMN two_factor_secret VARCHAR(100) NULL;");
+      }
+      if (!columnNames.includes('two_factor_enabled')) {
+        console.log("[DB] Adding two_factor_enabled to users table...");
+        await connection.query("ALTER TABLE users ADD COLUMN two_factor_enabled BOOLEAN DEFAULT FALSE;");
+      }
+      if (!columnNames.includes('failed_login_attempts')) {
+        console.log("[DB] Adding failed_login_attempts to users table...");
+        await connection.query("ALTER TABLE users ADD COLUMN failed_login_attempts INT DEFAULT 0;");
+      }
+      if (!columnNames.includes('lockout_until')) {
+        console.log("[DB] Adding lockout_until to users table...");
+        await connection.query("ALTER TABLE users ADD COLUMN lockout_until TIMESTAMP NULL;");
+      }
+      if (!columnNames.includes('designation')) {
+        console.log("[DB] Adding designation to users table...");
+        await connection.query("ALTER TABLE users ADD COLUMN designation VARCHAR(100) NULL;");
+      }
+      if (!columnNames.includes('department')) {
+        console.log("[DB] Adding department to users table...");
+        await connection.query("ALTER TABLE users ADD COLUMN department VARCHAR(100) NULL;");
+      }
+      if (!columnNames.includes('invitation_token')) {
+        console.log("[DB] Adding invitation_token to users table...");
+        await connection.query("ALTER TABLE users ADD COLUMN invitation_token VARCHAR(64) NULL;");
+        await connection.query("ALTER TABLE users ADD UNIQUE INDEX unique_invitation_token (invitation_token);");
+      }
+      if (!columnNames.includes('invitation_expires')) {
+        console.log("[DB] Adding invitation_expires to users table...");
+        await connection.query("ALTER TABLE users ADD COLUMN invitation_expires TIMESTAMP NULL;");
+      }
 
       // Alter team_members table for project_role (e.g. Frontend, Database, Automation)
       const [tmColumns]: any = await connection.query("SHOW COLUMNS FROM team_members;");
@@ -240,7 +372,7 @@ async function ensureEmailSystemTables(p: mysql.Pool) {
         await connection.query("ALTER TABLE team_members ADD COLUMN project_role VARCHAR(100) NULL;");
       }
 
-      console.log("[DB] Email & innovation system tables verified.");
+      console.log("[DB] Email, innovation, & core RBAC system tables verified.");
     } finally {
       connection.release();
     }

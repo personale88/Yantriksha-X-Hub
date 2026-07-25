@@ -4,6 +4,7 @@ import { verifyToken } from '@/lib/auth';
 import { query } from '@/lib/db';
 import { getTeamCompliance } from '@/lib/teams';
 import DashboardClient from './DashboardClient';
+import CoreDashboardClient from './core-dashboard/CoreDashboardClient';
 
 export default async function DashboardPage() {
   const cookieStore = await cookies();
@@ -20,7 +21,7 @@ export default async function DashboardPage() {
 
   // 1. Fetch user profile from database with all fields needed for settings
   const users = await query(
-    'SELECT id, veltech_id, name, email, role, discipline, phone_number, year_of_studying, branch FROM users WHERE id = ?',
+    'SELECT id, veltech_id, name, email, role, discipline, phone_number, year_of_studying, branch, is_core_team FROM users WHERE id = ?',
     [decoded.userId]
   );
   
@@ -28,6 +29,11 @@ export default async function DashboardPage() {
     redirect('/login');
   }
   const user = users[0];
+
+  // If user is a Core Team member, render their personalized workspace
+  if (user.is_core_team) {
+    return <CoreDashboardClient />;
+  }
 
   // 1.5. Separate dashboards based on user roles
   if (user.role === 'admin') {
