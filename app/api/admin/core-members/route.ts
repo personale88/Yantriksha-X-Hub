@@ -48,7 +48,7 @@ export async function GET(req: Request) {
     }
 
     // Fetch all active teams for assignment select lists
-    const allTeams = await query(`SELECT id, team_name, project_title FROM teams ORDER BY team_name ASC`);
+    const allTeams = await query(`SELECT id, team_name FROM teams ORDER BY team_name ASC`);
 
     return NextResponse.json({ success: true, members: formattedMembers, allTeams });
   } catch (err: any) {
