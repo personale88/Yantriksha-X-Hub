@@ -56,6 +56,12 @@ export default function DashboardShell({
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [profileOpen, setProfileOpen] = useState(false);
+  const [notifOpen, setNotifOpen] = useState(false);
+  const [notifications, setNotifications] = useState<any[]>([
+    { id: 1, title: 'National Startup Sandbox Pitch 2026', content: 'Registrations are now open for all student innovation teams.', time: '10m ago', unread: true },
+    { id: 2, title: 'IP & Patent Filing Workshop', content: 'Scheduled for Aug 12th, 2026 at Main Auditorium.', time: '2h ago', unread: true },
+    { id: 3, title: 'Milestone Verification Update', content: 'Your prototype progress report is currently under review by core team.', time: '1d ago', unread: false }
+  ]);
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -271,12 +277,63 @@ export default function DashboardShell({
             {headerRight}
 
             {/* Notification bell */}
-            <button
-              className="relative flex items-center justify-center w-9 h-9 rounded-xl transition-all"
-              style={{ background: 'var(--dash-surface-3)', border: '1px solid var(--dash-border)' }}
-            >
-              <span style={{ fontSize: 16 }}>🔔</span>
-            </button>
+            <div className="relative">
+              <button
+                onClick={() => { setNotifOpen(o => !o); setProfileOpen(false); }}
+                className="relative flex items-center justify-center w-9 h-9 rounded-xl transition-all hover:bg-slate-800"
+                style={{ background: 'var(--dash-surface-3)', border: '1px solid var(--dash-border)' }}
+                title="Notifications"
+              >
+                <span style={{ fontSize: 16 }}>🔔</span>
+                {notifications.some(n => n.unread) && (
+                  <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-rose-500 border-2 border-slate-950 animate-pulse" />
+                )}
+              </button>
+
+              {notifOpen && (
+                <>
+                  <div
+                    className="fixed inset-0 z-50"
+                    onClick={() => setNotifOpen(false)}
+                  />
+                  <div
+                    className="absolute right-0 top-12 w-80 sm:w-96 rounded-2xl p-4 z-50 animate-scale-in bg-slate-900 border border-slate-800 shadow-2xl space-y-3"
+                  >
+                    <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-extrabold text-white">Notifications</span>
+                        <span className="text-[10px] font-bold text-indigo-400 bg-indigo-950 border border-indigo-800/60 px-2 py-0.5 rounded-full">
+                          {notifications.filter(n => n.unread).length} New
+                        </span>
+                      </div>
+                      <button
+                        onClick={() => setNotifications(notifications.map(n => ({ ...n, unread: false })))}
+                        className="text-[11px] text-slate-400 hover:text-slate-200 transition-colors font-semibold"
+                      >
+                        Mark all as read
+                      </button>
+                    </div>
+
+                    <div className="space-y-2.5 max-h-80 overflow-y-auto pr-1 font-sans">
+                      {notifications.map((n) => (
+                        <div
+                          key={n.id}
+                          className={`p-3 rounded-xl border transition-all ${
+                            n.unread ? 'bg-slate-950/80 border-indigo-800/50' : 'bg-slate-950/30 border-slate-800/60'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="text-xs font-bold text-slate-100">{n.title}</span>
+                            <span className="text-[10px] text-slate-500 font-mono">{n.time}</span>
+                          </div>
+                          <p className="text-[11px] text-slate-400 leading-snug">{n.content}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
 
             {/* Profile */}
             <div className="relative">
