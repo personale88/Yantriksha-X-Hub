@@ -671,78 +671,77 @@ export default function SuperAdminClient({ currentAdmin }: { currentAdmin: SaUse
       )}
       {activeMenu === 'dashboard' && stats && (
         <div className="space-y-6 animate-fade-up">
-          {/* Stat cards with combined Registered / Active ratio */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-            {[
-              {
-                label: 'Registered / Active Students',
-                customValue: (
-                  <span>
-                    <span style={{ color: '#6366f1' }}>{stats.totalStudents}</span>
-                    <span style={{ color: 'rgba(148,163,184,0.4)', margin: '0 6px' }}>/</span>
-                    <span style={{ color: '#10b981' }}>{stats.activeStudents}</span>
-                  </span>
-                ),
-                icon: '👨‍🎓',
-                color: '#6366f1',
-                subLabel: `${stats.activeStudents} active active login access granted`,
-                pendingBadge: stats.pendingUsers > 0 ? (
-                  <button
-                    onClick={() => { setActiveMenu('students'); setStudentFilter('pending'); }}
-                    className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold text-amber-400 bg-amber-950/60 border border-amber-800/60 hover:bg-amber-900/80 transition-all cursor-pointer mt-2"
-                  >
-                    <span>🔔</span> {stats.pendingUsers} Pending Request{stats.pendingUsers > 1 ? 's' : ''} →
-                  </button>
-                ) : null
-              },
-              {
-                label: 'Access Revoked / Suspended',
-                customValue: (stats.totalStudents - stats.activeStudents - stats.pendingUsers) || 0,
-                icon: '🚫',
-                color: '#ef4444',
-                subLabel: 'Accounts disabled by admin'
-              },
-              {
-                label: 'Event Registrations',
-                customValue: stats.totalRegistrations,
-                icon: '📅',
-                color: '#f59e0b',
-                subLabel: 'Total participations logged'
-              },
-            ].map((s, i) => (
-              <div key={s.label} className={`dash-stat-card animate-fade-up delay-${i + 1}`}>
-                <div className="absolute top-0 right-0 w-20 h-20 rounded-full opacity-10 -mr-6 -mt-6 blur-2xl pointer-events-none" style={{ background: s.color }} />
-                <div className="dash-stat-icon" style={{ background: `${s.color}18`, border: `1px solid ${s.color}30` }}>
-                  <span style={{ fontSize: 18 }}>{s.icon}</span>
-                </div>
-                <div className="dash-stat-value">{s.customValue}</div>
-                <div className="dash-stat-label">{s.label}</div>
-                {'subLabel' in s && <div style={{ fontSize: 11, color: 'rgba(148,163,184,0.5)', marginTop: 4 }}>{s.subLabel}</div>}
-                {'pendingBadge' in s && s.pendingBadge}
+          {/* Unified High-Density SaaS Command Metrics Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="dash-stat-card bg-slate-900/90 border border-slate-800 rounded-xl p-4 flex flex-col justify-between">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Student Roster Strength</span>
+                <span className="w-7 h-7 rounded-lg bg-indigo-950/80 border border-indigo-800/50 flex items-center justify-center text-xs">👨‍🎓</span>
               </div>
-            ))}
-          </div>
+              <div className="my-2">
+                <div className="text-2xl font-black font-mono">
+                  <span className="text-indigo-400">{stats.totalStudents}</span>
+                  <span className="text-slate-600 mx-1.5">/</span>
+                  <span className="text-emerald-400">{stats.activeStudents}</span>
+                </div>
+                <div className="text-[11px] text-slate-400 font-semibold mt-1">Registered / Active Login Access</div>
+              </div>
+              {stats.pendingUsers > 0 ? (
+                <button
+                  onClick={() => { setActiveMenu('students'); setStudentFilter('pending'); }}
+                  className="flex items-center justify-between w-full px-2.5 py-1 rounded-lg text-[10px] font-bold text-amber-300 bg-amber-950/60 border border-amber-800/50 hover:bg-amber-900/80 transition-all cursor-pointer"
+                >
+                  <span>🔔 {stats.pendingUsers} Pending Registration</span>
+                  <span>→</span>
+                </button>
+              ) : (
+                <span className="text-[10px] text-emerald-400 font-bold bg-emerald-950/40 border border-emerald-800/40 px-2 py-0.5 rounded w-max">100% Verified</span>
+              )}
+            </div>
 
-          {/* Secondary stats row */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
-            {[
-              { label: 'Upcoming Events', value: stats.upcomingEvents ?? 0, icon: '🗓️', color: '#3b82f6' },
-              { label: 'Ongoing Events', value: stats.ongoingEvents ?? 0, icon: '⚡', color: '#f59e0b' },
-              { label: 'Completed Events', value: stats.completedEvents ?? 0, icon: '✓', color: '#10b981' },
-              { label: 'Pending Approvals', value: stats.pendingApprovals ?? 0, icon: '⏳', color: '#ef4444' },
-            ].map((s, i) => (
-              <div key={s.label} className={`dash-stat-card animate-fade-up delay-${i + 1}`} style={{ padding: 20 }}>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="dash-stat-label">{s.label}</div>
-                    <div style={{ fontSize: 26, fontWeight: 800, color: s.color, fontFamily: 'var(--font-display)', marginTop: 8 }}>{s.value}</div>
-                  </div>
-                  <div className="dash-stat-icon" style={{ background: `${s.color}15`, border: `1px solid ${s.color}25`, margin: 0 }}>
-                    <span style={{ fontSize: 16 }}>{s.icon}</span>
-                  </div>
+            <div className="dash-stat-card bg-slate-900/90 border border-slate-800 rounded-xl p-4 flex flex-col justify-between">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Access Revoked</span>
+                <span className="w-7 h-7 rounded-lg bg-rose-950/80 border border-rose-800/50 flex items-center justify-center text-xs">🚫</span>
+              </div>
+              <div className="my-2">
+                <div className="text-2xl font-black text-rose-400 font-mono">
+                  {(stats.totalStudents - stats.activeStudents - stats.pendingUsers) || 0}
+                </div>
+                <div className="text-[11px] text-slate-400 font-semibold mt-1">Suspended Accounts</div>
+              </div>
+              <span className="text-[10px] text-slate-500 font-mono">Managed by Admin</span>
+            </div>
+
+            <div className="dash-stat-card bg-slate-900/90 border border-slate-800 rounded-xl p-4 flex flex-col justify-between">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Event Participation</span>
+                <span className="w-7 h-7 rounded-lg bg-amber-950/80 border border-amber-800/50 flex items-center justify-center text-xs">📅</span>
+              </div>
+              <div className="my-2">
+                <div className="text-2xl font-black text-amber-400 font-mono">{stats.totalRegistrations}</div>
+                <div className="text-[11px] text-slate-400 font-semibold mt-1">Total Registrations Logged</div>
+              </div>
+              <span className="text-[10px] text-amber-400/80 font-mono">Active Student Signups</span>
+            </div>
+
+            <div className="dash-stat-card bg-slate-900/90 border border-slate-800 rounded-xl p-4 flex flex-col justify-between">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Program Events</span>
+                <span className="w-7 h-7 rounded-lg bg-purple-950/80 border border-purple-800/50 flex items-center justify-center text-xs">⚡</span>
+              </div>
+              <div className="my-2 flex items-center justify-between font-mono">
+                <div>
+                  <span className="text-xs text-sky-400 font-bold block">Upcoming: {stats.upcomingEvents ?? 0}</span>
+                  <span className="text-xs text-emerald-400 font-bold block">Done: {stats.completedEvents ?? 0}</span>
+                </div>
+                <div className="text-right">
+                  <span className="text-xs text-amber-400 font-bold block">Ongoing: {stats.ongoingEvents ?? 0}</span>
+                  <span className="text-xs text-rose-400 font-bold block">Queue: {stats.pendingApprovals ?? 0}</span>
                 </div>
               </div>
-            ))}
+              <span className="text-[10px] text-purple-400 font-mono">Hub Seminar Pipeline</span>
+            </div>
           </div>
 
           {/* Charts row */}
