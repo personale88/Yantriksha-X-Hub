@@ -13,7 +13,7 @@ export default function Hero() {
       <div className="absolute bottom-1/4 right-0 w-[400px] h-[400px] bg-amber-500/8 rounded-full blur-[160px] pointer-events-none" />
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-indigo-900/10 rounded-full blur-[200px] pointer-events-none" />
 
-      <div className="max-w-7xl mx-auto px-6 py-14 z-10 w-full">
+      <div className="max-w-7xl mx-auto px-6 py-14 z-10 w-full flex flex-col justify-center min-h-[calc(100vh-80px)]">
         <div className="grid lg:grid-cols-2 gap-20 items-center">
 
           {/* Left Content */}
