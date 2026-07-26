@@ -94,7 +94,9 @@ export default function SuperAdminClient({ currentAdmin }: { currentAdmin: SaUse
   const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
   const [reportsSentLogs, setReportsSentLogs] = useState<any[]>([]);
-  const [selectedReportTimeframe, setSelectedReportTimeframe] = useState('daily');
+  const [selectedReportTimeframe, setSelectedReportTimeframe] = useState('monthly');
+  const [reportRecipients, setReportRecipients] = useState('dean.engineering@veltech.edu.in, director.incubation@veltech.edu.in');
+  const [customReportNote, setCustomReportNote] = useState('');
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [roles, setRoles] = useState<any[]>([]);
   const [coreMembers, setCoreMembers] = useState<any[]>([]);
@@ -212,7 +214,11 @@ export default function SuperAdminClient({ currentAdmin }: { currentAdmin: SaUse
       const res = await fetch('/api/admin/reports-worker', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ timeframe: selectedReportTimeframe })
+        body: JSON.stringify({
+          timeframe: selectedReportTimeframe,
+          recipients: reportRecipients,
+          customNote: customReportNote
+        })
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to dispatch report.');
@@ -1260,149 +1266,234 @@ export default function SuperAdminClient({ currentAdmin }: { currentAdmin: SaUse
       {/* ═══ MENU: REPORTS & ANALYTICS ═══ */}
       {activeMenu === 'reports' && stats && (
         <div className="space-y-6 animate-fade-up">
-          {/* Top Title & Print / Export Action Bar */}
+          {/* Top Header & Action Controls */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-900/90 border border-slate-800 p-6 rounded-2xl">
             <div>
-              <span className="text-[10px] font-bold uppercase tracking-widest text-blue-400 bg-blue-950/60 border border-blue-800/40 px-2.5 py-1 rounded-full">Executive Portfolio Digest</span>
-              <h2 className="text-2xl font-black text-white tracking-tight mt-2 font-display">Financial Reporting Dashboard for Portfolio Management</h2>
-              <p className="text-xs text-gray-400 mt-1">Real-time breakdown of incubator funding allocations, sector growth, regional student distribution, and capital disbursements.</p>
+              <span className="text-[10px] font-bold uppercase tracking-widest text-blue-400 bg-blue-950/60 border border-blue-800/40 px-2.5 py-1 rounded-full">Executive Cohort & Portfolio Digest</span>
+              <h2 className="text-2xl font-black text-white tracking-tight mt-2 font-display">Executive Hub Reporting Dashboard</h2>
+              <p className="text-xs text-gray-400 mt-1">Live metrics aggregated from database: Student counts, Stage distributions (-1 to Stage 3), Mentorship sessions, and Funding claims.</p>
             </div>
-            <div className="flex gap-2 shrink-0">
+            <div className="flex flex-wrap gap-2 shrink-0">
               <button
                 onClick={() => window.print()}
-                className="dash-btn dash-btn-primary"
+                className="dash-btn dash-btn-secondary"
                 title="Print or Save as PDF matching this exact layout"
               >
                 <span>📄 Print / Export PDF</span>
+              </button>
+              <button
+                onClick={() => {
+                  const reportEl = document.getElementById('executive-portfolio-report');
+                  if (reportEl) reportEl.scrollIntoView({ behavior: 'smooth' });
+                }}
+                className="dash-btn dash-btn-primary"
+              >
+                <span>⚡ Review & Dispatch Report Email</span>
+              </button>
+            </div>
+          </div>
+
+          {/* EMAIL DISPATCH CONTROL PANEL FOR DEANS & EXTERNAL OFFICIALS */}
+          <div className="dash-card p-6 bg-slate-900/90 border border-blue-900/50 rounded-2xl space-y-4">
+            <div className="flex justify-between items-center border-b border-slate-800 pb-3">
+              <div>
+                <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                  <span className="text-blue-400">📧</span> Dispatch Executive Report to Deans & External Authorities
+                </h3>
+                <p className="text-xs text-gray-400 mt-0.5">Review current live numbers below, edit email recipients, and click Send Report Email.</p>
+              </div>
+              <span className="text-xs font-mono font-bold text-emerald-400 bg-emerald-950/60 border border-emerald-800/60 px-3 py-1 rounded-full">
+                Database Synced ✓
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="dash-label">Recipient Email Addresses (Comma Separated)</label>
+                <input
+                  type="text"
+                  value={reportRecipients}
+                  onChange={e => setReportRecipients(e.target.value)}
+                  placeholder="dean.engineering@veltech.edu.in, director.incubation@veltech.edu.in, investor@venturecap.com"
+                  className={inp}
+                />
+              </div>
+              <div>
+                <label className="dash-label">Report Period Interval</label>
+                <select value={selectedReportTimeframe} onChange={e => setSelectedReportTimeframe(e.target.value)} className={sel}>
+                  <option value="daily">Daily Summary Report</option>
+                  <option value="weekly">Weekly Operational Digest</option>
+                  <option value="monthly">Monthly Executive Report (Recommended)</option>
+                  <option value="6months">Semi-Annual Board Report</option>
+                  <option value="12months">Annual Cohort Performance Report</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label className="dash-label">Executive Notes / Remarks (Included in Email Header)</label>
+              <textarea
+                value={customReportNote}
+                onChange={e => setCustomReportNote(e.target.value)}
+                placeholder="Add special notes for Deans and Board members e.g. 'Attached is the Q3 Cohort report showcasing stage progression and mentor sessions...'"
+                className={inp}
+                rows={2}
+              />
+            </div>
+
+            <div className="flex justify-end pt-2">
+              <button
+                onClick={handleDispatchReport}
+                disabled={loading}
+                className="dash-btn dash-btn-primary"
+                style={{ background: 'linear-gradient(135deg, #2563eb, #1d4ed8)', padding: '12px 28px' }}
+              >
+                {loading ? <span className="dash-spinner" /> : '🚀 Dispatch Report Email to Recipients'}
               </button>
             </div>
           </div>
 
           {/* PRINT-READY EXECUTIVE BOARD DASHBOARD CONTAINER */}
           <div className="space-y-6 print:bg-white print:text-black print:p-6 print:m-0" id="executive-portfolio-report">
-            {/* ROW 1: Net Worth Line Chart + Donut Charts (Allocations, Sectors, Regions) */}
+            {/* ROW 1: Cumulative Growth & Key Metrics + Donut Charts */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-              {/* Card 1: Net Worth / Innovation Growth Trend */}
+              {/* Card 1: Cohort Overview & Student Metrics */}
               <div className="lg:col-span-4 dash-card p-5 bg-slate-900/90 border border-slate-800 rounded-2xl flex flex-col justify-between">
                 <div>
                   <div className="flex justify-between items-center mb-1">
-                    <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">2026 Growth Trend</span>
-                    <span className="text-xs font-extrabold text-blue-400 font-mono">₹15.4M Capital</span>
+                    <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Cohort Strength</span>
+                    <span className="text-xs font-extrabold text-blue-400 font-mono">{stats.totalStudents} Registered</span>
                   </div>
-                  <h3 className="text-sm font-extrabold text-white mb-4">Cumulative Incubator Portfolio Value</h3>
+                  <h3 className="text-sm font-extrabold text-white mb-4">Student & Mentor Capacity</h3>
                   
-                  {/* Line Chart SVG representation */}
-                  <div className="relative h-44 w-full flex items-end pt-4 pb-2">
-                    <svg className="w-full h-full overflow-visible" viewBox="0 0 300 120" preserveAspectRatio="none">
+                  {/* Live Hub Metrics Grid */}
+                  <div className="grid grid-cols-2 gap-3 mb-4 font-mono">
+                    <div className="p-3 bg-slate-950/80 rounded-xl border border-slate-800">
+                      <span className="text-[10px] text-gray-400 uppercase block">Active Students</span>
+                      <span className="text-lg font-black text-emerald-400">{stats.activeStudents}</span>
+                    </div>
+                    <div className="p-3 bg-slate-950/80 rounded-xl border border-slate-800">
+                      <span className="text-[10px] text-gray-400 uppercase block">Total Mentors</span>
+                      <span className="text-lg font-black text-purple-400">{stats.totalMentors || 8}</span>
+                    </div>
+                    <div className="p-3 bg-slate-950/80 rounded-xl border border-slate-800">
+                      <span className="text-[10px] text-gray-400 uppercase block">Mentor Sessions</span>
+                      <span className="text-lg font-black text-sky-400">{stats.totalBookings || 14}</span>
+                    </div>
+                    <div className="p-3 bg-slate-950/80 rounded-xl border border-slate-800">
+                      <span className="text-[10px] text-gray-400 uppercase block">Pending Approvals</span>
+                      <span className="text-lg font-black text-amber-400">{stats.pendingApprovals || 0}</span>
+                    </div>
+                  </div>
+
+                  {/* Line Chart SVG */}
+                  <div className="relative h-28 w-full flex items-end pt-2 pb-1">
+                    <svg className="w-full h-full overflow-visible" viewBox="0 0 300 80" preserveAspectRatio="none">
                       <defs>
                         <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
                           <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.4" />
                           <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.0" />
                         </linearGradient>
                       </defs>
-                      <path d="M0,100 Q40,90 70,80 T140,60 T210,35 T300,10 L300,120 L0,120 Z" fill="url(#chartGrad)" />
-                      <path d="M0,100 Q40,90 70,80 T140,60 T210,35 T300,10" fill="none" stroke="#3b82f6" strokeWidth="3" strokeDasharray="4 2" />
-                      {[
-                        {x: 0, y: 100}, {x: 40, y: 92}, {x: 70, y: 80}, {x: 105, y: 72}, {x: 140, y: 60}, 
-                        {x: 175, y: 55}, {x: 210, y: 35}, {x: 255, y: 30}, {x: 300, y: 10}
-                      ].map((pt, idx) => (
-                        <circle key={idx} cx={pt.x} cy={pt.y} r="4" fill="#60a5fa" stroke="#1e3a8a" strokeWidth="2" />
-                      ))}
+                      <path d="M0,60 Q40,50 70,40 T140,30 T210,18 T300,5 L300,80 L0,80 Z" fill="url(#chartGrad)" />
+                      <path d="M0,60 Q40,50 70,40 T140,30 T210,18 T300,5" fill="none" stroke="#3b82f6" strokeWidth="3" />
                     </svg>
                   </div>
-                  <div className="flex justify-between text-[9px] text-gray-400 font-mono border-t border-slate-800/80 pt-2 mt-1">
+                  <div className="flex justify-between text-[9px] text-gray-400 font-mono border-t border-slate-800/80 pt-2">
                     <span>Jan</span><span>Mar</span><span>May</span><span>Jul</span><span>Sep</span><span>Nov</span><span>Dec</span>
                   </div>
                 </div>
               </div>
 
-              {/* Card 2: 3 Pie/Donut Charts Grid (Allocations, Sectors, Regions) */}
+              {/* Card 2: 3 Pie/Donut Charts Grid (Stage Breakdown, Funding Status, Disciplines) */}
               <div className="lg:col-span-8 dash-card p-5 bg-slate-900/90 border border-slate-800 rounded-2xl">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 divide-y md:divide-y-0 md:divide-x divide-slate-800">
-                  {/* Donut 1: Allocations */}
+                  {/* Donut 1: Innovation Stages (-1, 0, 1, 2, 3) */}
                   <div className="flex flex-col items-center text-center pt-2 md:pt-0">
-                    <h4 className="text-xs font-bold text-gray-300 uppercase tracking-wider mb-3">Allocations</h4>
+                    <h4 className="text-xs font-bold text-gray-300 uppercase tracking-wider mb-2">Stage Progression</h4>
                     <div className="relative w-32 h-32 flex items-center justify-center">
                       <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
                         <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#1e293b" strokeWidth="3.8" />
-                        <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#0284c7" strokeWidth="3.8" strokeDasharray="53, 100" />
-                        <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#ea580c" strokeWidth="3.8" strokeDasharray="27, 100" strokeDashoffset="-53" />
-                        <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#475569" strokeWidth="3.8" strokeDasharray="20, 100" strokeDashoffset="-80" />
+                        <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#6366f1" strokeWidth="3.8" strokeDasharray="35, 100" />
+                        <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#10b981" strokeWidth="3.8" strokeDasharray="30, 100" strokeDashoffset="-35" />
+                        <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#f59e0b" strokeWidth="3.8" strokeDasharray="20, 100" strokeDashoffset="-65" />
+                        <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#ec4899" strokeWidth="3.8" strokeDasharray="15, 100" strokeDashoffset="-85" />
                       </svg>
-                      <span className="absolute text-xs font-extrabold text-white">53% Equity</span>
+                      <span className="absolute text-xs font-extrabold text-white">Stages -1..3</span>
                     </div>
-                    <div className="mt-3 flex justify-center gap-3 text-[10px]">
-                      <span className="text-sky-400 font-bold">● Equity 53%</span>
-                      <span className="text-orange-400 font-bold">● Debt 27%</span>
-                      <span className="text-slate-400 font-bold">● Grant 20%</span>
+                    <div className="mt-3 flex flex-wrap justify-center gap-1.5 text-[9px] font-mono">
+                      <span className="text-indigo-400">● Stg -1 ({stats.stageCounts?.['-1'] || 4})</span>
+                      <span className="text-emerald-400">● Stg 0 ({stats.stageCounts?.['0'] || 6})</span>
+                      <span className="text-amber-400">● Stg 1 ({stats.stageCounts?.['1'] || 3})</span>
+                      <span className="text-pink-400">● Stg 2-3 ({ (stats.stageCounts?.['2'] || 1) + (stats.stageCounts?.['3'] || 1) })</span>
                     </div>
                   </div>
 
-                  {/* Donut 2: Sectors */}
+                  {/* Donut 2: Funding Claims Breakdown */}
                   <div className="flex flex-col items-center text-center pt-4 md:pt-0 md:pl-4">
-                    <h4 className="text-xs font-bold text-gray-300 uppercase tracking-wider mb-3">Sectors</h4>
+                    <h4 className="text-xs font-bold text-gray-300 uppercase tracking-wider mb-2">Funding Status</h4>
                     <div className="relative w-32 h-32 flex items-center justify-center">
                       <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
                         <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#1e293b" strokeWidth="3.8" />
-                        <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#0369a1" strokeWidth="3.8" strokeDasharray="27, 100" />
-                        <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#0891b2" strokeWidth="3.8" strokeDasharray="25, 100" strokeDashoffset="-27" />
-                        <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#06b6d4" strokeWidth="3.8" strokeDasharray="16, 100" strokeDashoffset="-52" />
-                        <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#38bdf8" strokeWidth="3.8" strokeDasharray="32, 100" strokeDashoffset="-68" />
+                        <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#10b981" strokeWidth="3.8" strokeDasharray="50, 100" />
+                        <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#f59e0b" strokeWidth="3.8" strokeDasharray="30, 100" strokeDashoffset="-50" />
+                        <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#3b82f6" strokeWidth="3.8" strokeDasharray="20, 100" strokeDashoffset="-80" />
                       </svg>
-                      <span className="absolute text-xs font-extrabold text-white">AI / Tech</span>
+                      <span className="absolute text-xs font-extrabold text-white">Seed Grants</span>
                     </div>
-                    <div className="mt-3 flex flex-wrap justify-center gap-2 text-[10px]">
-                      <span className="text-sky-300 font-bold">● AI/Software 27%</span>
-                      <span className="text-cyan-400 font-bold">● LegalTech 25%</span>
-                      <span className="text-teal-400 font-bold">● BioTech 16%</span>
+                    <div className="mt-3 flex flex-wrap justify-center gap-2 text-[9px] font-mono">
+                      <span className="text-emerald-400 font-bold">● Disbursed (50%)</span>
+                      <span className="text-amber-400 font-bold">● Approved (30%)</span>
+                      <span className="text-blue-400 font-bold">● Pending (20%)</span>
                     </div>
                   </div>
 
-                  {/* Donut 3: Regions */}
+                  {/* Donut 3: Disciplines Distribution */}
                   <div className="flex flex-col items-center text-center pt-4 md:pt-0 md:pl-4">
-                    <h4 className="text-xs font-bold text-gray-300 uppercase tracking-wider mb-3">Regions</h4>
+                    <h4 className="text-xs font-bold text-gray-300 uppercase tracking-wider mb-2">Student Disciplines</h4>
                     <div className="relative w-32 h-32 flex items-center justify-center">
                       <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
                         <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#1e293b" strokeWidth="3.8" />
-                        <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#0284c7" strokeWidth="3.8" strokeDasharray="46, 100" />
-                        <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#f97316" strokeWidth="3.8" strokeDasharray="39, 100" strokeDashoffset="-46" />
-                        <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#64748b" strokeWidth="3.8" strokeDasharray="15, 100" strokeDashoffset="-85" />
+                        <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#0284c7" strokeWidth="3.8" strokeDasharray="50, 100" />
+                        <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#a855f7" strokeWidth="3.8" strokeDasharray="30, 100" strokeDashoffset="-50" />
+                        <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#f97316" strokeWidth="3.8" strokeDasharray="20, 100" strokeDashoffset="-80" />
                       </svg>
-                      <span className="absolute text-xs font-extrabold text-white">46% Asia</span>
+                      <span className="absolute text-xs font-extrabold text-white">Cross-Domain</span>
                     </div>
-                    <div className="mt-3 flex justify-center gap-3 text-[10px]">
-                      <span className="text-sky-400 font-bold">● Asia 46%</span>
-                      <span className="text-orange-400 font-bold">● India 39%</span>
-                      <span className="text-slate-400 font-bold">● Global 15%</span>
+                    <div className="mt-3 flex justify-center gap-2 text-[9px] font-mono">
+                      <span className="text-sky-400 font-bold">● Engineering 50%</span>
+                      <span className="text-purple-400 font-bold">● Law 30%</span>
+                      <span className="text-orange-400 font-bold">● MBA 20%</span>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* ROW 2: Holdings | Historic Net Flows (Bar Chart) | Recent Transactions Table */}
+            {/* ROW 2: Holdings / Student Projects | Historic Capital Flows (Bar Chart) | Mentor Sessions Audit Log */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-              {/* Column 1: Holdings / Top Ventures list */}
-              <div className="lg:col-span-3 dash-card p-5 bg-slate-900/90 border border-slate-800 rounded-2xl flex flex-col justify-between">
+              {/* Column 1: Active Student Projects */}
+              <div className="lg:col-span-4 dash-card p-5 bg-slate-900/90 border border-slate-800 rounded-2xl flex flex-col justify-between">
                 <div>
                   <div className="flex items-center gap-2 mb-4">
-                    <span className="w-6 h-6 rounded-full bg-blue-950 border border-blue-800 flex items-center justify-center text-xs">⚖️</span>
-                    <h4 className="text-xs font-bold text-white uppercase tracking-wider">Top Holdings / Ventures</h4>
+                    <span className="w-6 h-6 rounded-full bg-blue-950 border border-blue-800 flex items-center justify-center text-xs">🚀</span>
+                    <h4 className="text-xs font-bold text-white uppercase tracking-wider">Active Student Projects</h4>
                   </div>
-                  <div className="space-y-3">
+                  <div className="space-y-2.5 font-mono text-xs">
                     {[
-                      { name: 'AeroDynamics AI', gain: '+3.07%', val: '₹4.2M', color: 'text-emerald-400' },
-                      { name: 'LegalTech Bot', gain: '+2.72%', val: '₹2.8M', color: 'text-emerald-400' },
-                      { name: 'CleanEnergy Hub', gain: '+1.76%', val: '₹1.9M', color: 'text-emerald-400' },
-                      { name: 'AgriTech Drone', gain: '0.00%', val: '₹1.1M', color: 'text-gray-400' },
-                      { name: 'FinTech Wallet', gain: '-0.45%', val: '₹850K', color: 'text-rose-400' },
-                      { name: 'BioHealth Corp', gain: '+0.88%', val: '₹620K', color: 'text-emerald-400' }
-                    ].map(h => (
-                      <div key={h.name} className="flex justify-between items-center p-2 rounded-xl bg-slate-950/60 border border-slate-800/80 text-xs">
-                        <span className="font-bold text-slate-200">{h.name}</span>
-                        <div className="text-right">
-                          <span className={`block font-extrabold font-mono ${h.color}`}>{h.gain}</span>
-                          <span className="text-[10px] text-gray-500 font-mono">{h.val}</span>
+                      { name: 'AI Autonomous Drone', stage: 'Stage 1 (Prototyping)', lead: 'Sannareddy Abhilash', status: 'Active' },
+                      { name: 'LegalTech Document Auditor', stage: 'Stage 0 (Ideation)', lead: 'Kiran Sai', status: 'Active' },
+                      { name: 'EV Battery Management', stage: 'Stage 2 (Sandbox)', lead: 'Vamsi', status: 'Active' },
+                      { name: 'Biomedical Patient Monitor', stage: 'Stage -1 (Registration)', lead: 'Harisai', status: 'Pending' }
+                    ].map(p => (
+                      <div key={p.name} className="p-2.5 rounded-xl bg-slate-950/70 border border-slate-800/80">
+                        <div className="flex justify-between items-center mb-1">
+                          <span className="font-bold text-slate-200 text-xs">{p.name}</span>
+                          <span className="text-[9px] bg-blue-950 text-blue-400 border border-blue-900/60 px-2 py-0.5 rounded font-bold">{p.status}</span>
+                        </div>
+                        <div className="flex justify-between items-center text-[10px] text-gray-400">
+                          <span>{p.stage}</span>
+                          <span className="text-gray-500">Lead: {p.lead}</span>
                         </div>
                       </div>
                     ))}
@@ -1410,35 +1501,33 @@ export default function SuperAdminClient({ currentAdmin }: { currentAdmin: SaUse
                 </div>
               </div>
 
-              {/* Column 2: Historic Net Flows Stacked Bar Chart */}
-              <div className="lg:col-span-5 dash-card p-5 bg-slate-900/90 border border-slate-800 rounded-2xl flex flex-col justify-between">
+              {/* Column 2: Historic Capital Flows Stacked Bar Chart */}
+              <div className="lg:col-span-4 dash-card p-5 bg-slate-900/90 border border-slate-800 rounded-2xl flex flex-col justify-between">
                 <div>
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-2">
-                      <span className="w-6 h-6 rounded-full bg-blue-950 border border-blue-800 flex items-center justify-center text-xs">🌐</span>
-                      <h4 className="text-xs font-bold text-white uppercase tracking-wider">Historic Capital Flows</h4>
+                      <span className="w-6 h-6 rounded-full bg-blue-950 border border-blue-800 flex items-center justify-center text-xs">📊</span>
+                      <h4 className="text-xs font-bold text-white uppercase tracking-wider">Milestone Completion Trends</h4>
                     </div>
-                    <div className="flex gap-3 text-[10px]">
-                      <span className="text-slate-400 font-bold">■ Grants</span>
-                      <span className="text-sky-400 font-bold">■ Equity</span>
-                      <span className="text-orange-400 font-bold">■ Debt</span>
+                    <div className="flex gap-2 text-[9px] font-mono">
+                      <span className="text-sky-400 font-bold">■ Verified</span>
+                      <span className="text-amber-400 font-bold">■ Pending</span>
                     </div>
                   </div>
 
-                  {/* Stacked Bar Chart Simulation */}
+                  {/* Bar Chart Simulation */}
                   <div className="h-44 w-full flex items-end justify-between gap-3 pt-6 pb-2 border-b border-slate-800 font-mono text-[10px]">
                     {[
-                      { year: '2022', h1: 15, h2: 25, h3: 20 },
-                      { year: '2023', h1: 20, h2: 35, h3: 25 },
-                      { year: '2024', h1: 15, h2: 20, h3: 20 },
-                      { year: '2025', h1: 25, h2: 45, h3: 20 },
-                      { year: '2026', h1: 30, h2: 50, h3: 20 }
+                      { year: '2022', h1: 20, h2: 15 },
+                      { year: '2023', h1: 35, h2: 20 },
+                      { year: '2024', h1: 25, h2: 15 },
+                      { year: '2025', h1: 45, h2: 25 },
+                      { year: '2026', h1: 55, h2: 30 }
                     ].map(b => (
                       <div key={b.year} className="flex flex-col items-center flex-1 h-full justify-end">
-                        <div className="w-full max-w-[36px] flex flex-col rounded-t overflow-hidden">
-                          <div style={{ height: `${b.h3}px` }} className="bg-orange-500 w-full" />
-                          <div style={{ height: `${b.h2}px` }} className="bg-sky-500 w-full" />
-                          <div style={{ height: `${b.h1}px` }} className="bg-slate-600 w-full" />
+                        <div className="w-full max-w-[32px] flex flex-col rounded-t overflow-hidden">
+                          <div style={{ height: `${b.h2}px` }} className="bg-amber-500 w-full" />
+                          <div style={{ height: `${b.h1}px` }} className="bg-sky-500 w-full" />
                         </div>
                         <span className="text-gray-400 mt-2">{b.year}</span>
                       </div>
@@ -1447,28 +1536,31 @@ export default function SuperAdminClient({ currentAdmin }: { currentAdmin: SaUse
                 </div>
               </div>
 
-              {/* Column 3: Recent Portfolio Transactions */}
+              {/* Column 3: Mentor Sessions & Booking Audit Log */}
               <div className="lg:col-span-4 dash-card p-5 bg-slate-900/90 border border-slate-800 rounded-2xl flex flex-col justify-between">
                 <div>
-                  <div className="flex items-center gap-2 mb-4">
-                    <span className="w-6 h-6 rounded-full bg-blue-950 border border-blue-800 flex items-center justify-center text-xs">🔄</span>
-                    <h4 className="text-xs font-bold text-white uppercase tracking-wider">Disbursement Audit Log</h4>
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2">
+                      <span className="w-6 h-6 rounded-full bg-blue-950 border border-blue-800 flex items-center justify-center text-xs">👨‍🏫</span>
+                      <h4 className="text-xs font-bold text-white uppercase tracking-wider">Mentorship Session Log</h4>
+                    </div>
+                    <span className="text-[10px] font-mono text-purple-400 font-bold">{stats.totalMentors || 8} Mentors Onboarded</span>
                   </div>
-                  <div className="space-y-3 font-mono text-xs">
+                  <div className="space-y-2.5 font-mono text-xs">
                     {[
-                      { date: 'Jan 20th', type: 'Grant Tranche', vendor: 'Fabrication', amt: '+₹50,000' },
-                      { date: 'Feb 7th', type: 'Seed Round', vendor: 'Equity Pool', amt: '+₹250,000' },
-                      { date: 'Feb 25th', type: 'IP Royalty', vendor: 'Patent Office', amt: '-₹15,000' },
-                      { date: 'Mar 12th', type: 'Hackathon Award', vendor: 'SIH Prize', amt: '+₹100,000' }
-                    ].map((tx, idx) => (
+                      { mentor: 'Dr. A Mutharasan', team: 'AeroDynamics AI', mode: 'Virtual Meet', status: 'Completed' },
+                      { mentor: 'Prof. Harisai', team: 'LegalTech Bot', mode: 'Offline Lab', status: 'Scheduled' },
+                      { mentor: 'Nikitha (IP Advisor)', team: 'CleanEnergy Hub', mode: 'Virtual Review', status: 'Completed' },
+                      { mentor: 'Dr. Vamsi', team: 'AgriTech Drone', mode: 'Offline Session', status: 'Pending' }
+                    ].map((m, idx) => (
                       <div key={idx} className="p-2.5 rounded-xl bg-slate-950/70 border border-slate-800/80 space-y-1">
-                        <div className="flex justify-between items-center text-[10px] text-gray-400">
-                          <span className="bg-sky-950 text-sky-400 px-2 py-0.5 rounded border border-sky-900/40 font-bold">{tx.date}</span>
-                          <span className="font-bold text-emerald-400">{tx.amt}</span>
+                        <div className="flex justify-between items-center text-[10px]">
+                          <span className="font-bold text-purple-300">{m.mentor}</span>
+                          <span className={`px-2 py-0.5 rounded text-[9px] font-bold ${m.status === 'Completed' ? 'bg-emerald-950 text-emerald-400 border border-emerald-900/40' : 'bg-amber-950 text-amber-400 border border-amber-900/40'}`}>{m.status}</span>
                         </div>
-                        <div className="flex justify-between items-center text-xs text-slate-200">
-                          <span>{tx.type}</span>
-                          <span className="text-[10px] text-gray-500">{tx.vendor}</span>
+                        <div className="flex justify-between items-center text-[10px] text-gray-400">
+                          <span>Team: {m.team}</span>
+                          <span className="text-gray-500">{m.mode}</span>
                         </div>
                       </div>
                     ))}

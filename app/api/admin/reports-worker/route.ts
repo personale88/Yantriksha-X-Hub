@@ -80,38 +80,50 @@ async function getCohortStats(sinceDate: Date) {
 }
 
 // Function to build and queue the report email
-async function dispatchReport(timeframe: string, baseUrl = 'https://excited-salk.vercel.app') {
-  let intervalMs = 24 * 60 * 60 * 1000; // default Daily
-  if (timeframe === 'weekly') intervalMs = 7 * 24 * 60 * 60 * 1000;
-  else if (timeframe === 'monthly') intervalMs = 30 * 24 * 60 * 60 * 1000;
-  else if (timeframe === '6months') intervalMs = 180 * 24 * 60 * 60 * 1000;
-  else if (timeframe === '12months') intervalMs = 365 * 24 * 60 * 60 * 1000;
+async function dispatchReport(timeframe: string, baseUrl: string, customRecipients?: string, customNote?: string) {
+  const intervals: Record<string, number> = {
+    daily: 24 * 60 * 60 * 1000,
+    weekly: 7 * 24 * 60 * 60 * 1000,
+    monthly: 30 * 24 * 60 * 60 * 1000,
+    '6months': 180 * 24 * 60 * 60 * 1000,
+    '12months': 365 * 24 * 60 * 60 * 1000
+  };
 
+  const intervalMs = intervals[timeframe] || intervals.monthly;
   const startDate = new Date(Date.now() - intervalMs);
   const endDate = new Date();
 
   // Fetch the statistics
   const stats = await getCohortStats(startDate);
 
-  // Fetch all admin and superadmin emails
-  const adminRows = await query(
-    `SELECT email, name FROM users WHERE role IN ('admin', 'superadmin')`
-  );
-  const adminEmails = adminRows && adminRows.length > 0
-    ? adminRows.map((r: any) => r.email)
-    : ['yantrikshaxhub@gmail.com']; // fallback
+  // Parse recipients
+  let adminEmails: string[] = [];
+  if (customRecipients && customRecipients.trim()) {
+    adminEmails = customRecipients.split(',').map(e => e.trim()).filter(e => e.length > 3);
+  }
+
+  if (adminEmails.length === 0) {
+    const adminRows = await query(
+      `SELECT email, name FROM users WHERE role IN ('admin', 'superadmin')`
+    );
+    adminEmails = adminRows && adminRows.length > 0
+      ? adminRows.map((r: any) => r.email)
+      : ['yantrikshaxhub@gmail.com'];
+  }
 
   const sentToEmails = adminEmails.join(', ');
 
   // Format HTML email report
   const content = `
-    <p>Dear Administrator,</p>
-    <p>Here is the compiled operational and innovation cohort report for the period <strong>${timeframe.toUpperCase()}</strong>:</p>
+    <p style="font-size: 14px; font-weight: bold; color: #1e293b;">Dear Deans & Executive Board Members,</p>
+    <p style="font-size: 13px; color: #334155;">Here is the compiled Executive Innovation & Portfolio Report for period: <strong>${timeframe.toUpperCase()}</strong>.</p>
+
+    ${customNote ? `<div style="background-color: #eff6ff; border-left: 4px solid #2563eb; padding: 12px 16px; margin: 15px 0; font-size: 13px; color: #1e40af; font-style: italic;"><strong>Executive Remarks:</strong> ${customNote}</div>` : ''}
     
     <table style="width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 13px; color: #334155; border: 1px solid #e2e8f0; font-family: sans-serif;">
       <tr style="background-color: #f8fafc; border-bottom: 2px solid #e2e8f0;">
-        <th style="padding: 12px 10px; text-align: left; font-weight: bold; border: 1px solid #e2e8f0;">Cohort Metric Parameter</th>
-        <th style="padding: 12px 10px; text-align: right; font-weight: bold; border: 1px solid #e2e8f0; width: 140px;">Value / Count</th>
+        <th style="padding: 12px 10px; text-align: left; font-weight: bold; border: 1px solid #e2e8f0;">Executive Metric Parameter</th>
+        <th style="padding: 12px 10px; text-align: right; font-weight: bold; border: 1px solid #e2e8f0; width: 140px;">Live Value</th>
       </tr>
       <tr>
         <td style="padding: 10px; border: 1px solid #e2e8f0;">New Student Registrations</td>
@@ -153,23 +165,23 @@ async function dispatchReport(timeframe: string, baseUrl = 'https://excited-salk
     
     <p style="font-size: 11px; color: #64748b; margin-top: 25px; line-height: 1.5; border-top: 1px dashed #cbd5e1; padding-top: 15px;">
       Report Generation Period: <strong>${startDate.toLocaleDateString()}</strong> to <strong>${endDate.toLocaleDateString()}</strong>.<br />
-      This report summary was generated and dispatched automatically to all authorized administrators.
+      This report was generated and dispatched via the Yantriksha Super Admin Console.
     </p>
   `;
 
   const reportHtml = generateEmailTemplate({
-    title: `${timeframe.charAt(0).toUpperCase() + timeframe.slice(1)} Innovation Report`,
+    title: `${timeframe.charAt(0).toUpperCase() + timeframe.slice(1)} Executive Cohort Report`,
     content: content,
-    buttonText: 'Open Admin Console',
+    buttonText: 'Open Executive Console',
     buttonUrl: `${baseUrl}/admin`,
-    preheader: `Yantriksha periodic report: ${timeframe.toUpperCase()}`
+    preheader: `Yantriksha Executive Report: ${timeframe.toUpperCase()}`
   });
 
-  // Queue emails for each admin recipient
+  // Queue emails for each recipient
   for (const email of adminEmails) {
     await queueEmail({
       to: email,
-      subject: `📊 [Yantriksha X Hub] Periodic Cohort Report: ${timeframe.toUpperCase()}`,
+      subject: `📊 [Yantriksha Hub] Executive Report: ${timeframe.toUpperCase()}`,
       html: reportHtml
     });
   }
@@ -243,7 +255,7 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { timeframe } = body; // 'daily', 'weekly', 'monthly', '6months', '12months'
+    const { timeframe, recipients, customNote } = body;
 
     const validTimeframes = ['daily', 'weekly', 'monthly', '6months', '12months'];
     if (!timeframe || !validTimeframes.includes(timeframe)) {
@@ -255,11 +267,11 @@ export async function POST(req: Request) {
     const baseUrl = `${protocol}://${host}`;
 
     console.log(`[REPORTS WORKER] Manual dispatch requested for timeframe: ${timeframe}`);
-    const result = await dispatchReport(timeframe, baseUrl);
+    const result = await dispatchReport(timeframe, baseUrl, recipients, customNote);
 
     return NextResponse.json({
       success: true,
-      message: `Operational report for period "${timeframe.toUpperCase()}" generated and emailed to administrators successfully!`,
+      message: `Executive Report for period "${timeframe.toUpperCase()}" generated and emailed to [${result.adminEmails.join(', ')}] successfully!`,
       recipients: result.adminEmails,
       stats: result.stats
     });

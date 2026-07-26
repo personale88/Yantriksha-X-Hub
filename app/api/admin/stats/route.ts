@@ -79,6 +79,54 @@ export async function GET(req: Request) {
       { name: 'Business Hackathons', value: 25 }
     ];
 
+    // 11. Innovation Stages Distribution (-1, 0, 1, 2, 3) & Sub-stages
+    const stagesRes = await query(`
+      SELECT current_stage, COUNT(*) as count 
+      FROM teams 
+      GROUP BY current_stage
+    `);
+    const stageCounts: Record<string, number> = { '-1': 0, '0': 0, '1': 0, '2': 0, '3': 0 };
+    if (Array.isArray(stagesRes)) {
+      stagesRes.forEach((row: any) => {
+        const stageKey = String(row.current_stage);
+        if (stageCounts.hasOwnProperty(stageKey)) {
+          stageCounts[stageKey] = row.count;
+        }
+      });
+    }
+
+    // 12. Mentors & Session Bookings Count
+    const mentorsRes = await query("SELECT COUNT(*) as count FROM users WHERE role = 'mentor'");
+    const totalMentors = mentorsRes[0]?.count || 0;
+
+    const bookingsRes = await query("SELECT status, COUNT(*) as count FROM mentor_bookings GROUP BY status");
+    let totalBookings = 0;
+    let completedBookings = 0;
+    let pendingBookings = 0;
+    if (Array.isArray(bookingsRes)) {
+      bookingsRes.forEach((b: any) => {
+        totalBookings += b.count;
+        if (b.status === 'completed') completedBookings += b.count;
+        if (b.status === 'pending' || b.status === 'scheduled') pendingBookings += b.count;
+      });
+    }
+
+    // 13. Funding Summary Breakdown (Requested, Approved, Disbursed)
+    const fundingSummaryRes = await query(`
+      SELECT 
+        SUM(CASE WHEN status = 'approved' THEN requested_amount ELSE 0 END) as approved_amount,
+        SUM(CASE WHEN status LIKE 'pending%' THEN requested_amount ELSE 0 END) as pending_amount,
+        SUM(CASE WHEN status = 'disbursed' THEN requested_amount ELSE 0 END) as disbursed_amount,
+        COUNT(*) as total_claims
+      FROM funding_requests
+    `);
+    const fundingSummary = {
+      approved: parseFloat(fundingSummaryRes[0]?.approved_amount || 0),
+      pending: parseFloat(fundingSummaryRes[0]?.pending_amount || 0),
+      disbursed: parseFloat(fundingSummaryRes[0]?.disbursed_amount || 0),
+      totalClaims: fundingSummaryRes[0]?.total_claims || 0
+    };
+
     return NextResponse.json({
       success: true,
       stats: {
@@ -96,7 +144,13 @@ export async function GET(req: Request) {
         recentActivities,
         latestAnnouncements,
         monthlyRegistrations,
-        categoryStats
+        categoryStats,
+        stageCounts,
+        totalMentors,
+        totalBookings,
+        completedBookings,
+        pendingBookings,
+        fundingSummary
       }
     });
   } catch (err: any) {
