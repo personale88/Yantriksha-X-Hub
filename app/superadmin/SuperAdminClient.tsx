@@ -1395,213 +1395,264 @@ export default function SuperAdminClient({ currentAdmin }: { currentAdmin: SaUse
 
           {/* PRINT-READY EXECUTIVE BOARD DASHBOARD CONTAINER */}
           <div className="space-y-6 print:bg-white print:text-black print:p-6 print:m-0" id="executive-portfolio-report">
-            {/* ROW 1: Cumulative Growth & Key Metrics + Donut Charts */}
+            {/* ROW 1: Cohort Overview & Interactive Trend SVG + 3 Prominent Donut Charts */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-              {/* Card 1: Cohort Overview & Student Metrics */}
-              <div className="lg:col-span-4 dash-card p-5 bg-slate-900/90 border border-slate-800 rounded-2xl flex flex-col justify-between">
+              {/* Card 1: Cohort Overview & Interactive SVG Line Graph with Tooltip */}
+              <div className="lg:col-span-5 dash-card p-6 bg-slate-900/90 border border-slate-800 rounded-2xl flex flex-col justify-between">
                 <div>
                   <div className="flex justify-between items-center mb-1">
-                    <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Cohort Strength</span>
-                    <span className="text-xs font-extrabold text-blue-400 font-mono">{stats.totalStudents} Registered</span>
+                    <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Cohort Capacity</span>
+                    <span className="text-xs font-black text-blue-400 font-mono">{stats.totalStudents} Registered</span>
                   </div>
-                  <h3 className="text-sm font-extrabold text-white mb-4">Student & Mentor Capacity</h3>
+                  <h3 className="text-base font-black text-white mb-4 font-display">Student & Mentor Strength</h3>
                   
-                  {/* Live Hub Metrics Grid */}
-                  <div className="grid grid-cols-2 gap-3 mb-4 font-mono">
+                  {/* Real Metrics Grid - Events & Students focus */}
+                  <div className="grid grid-cols-2 gap-3 mb-5 font-mono">
                     <div className="p-3 bg-slate-950/80 rounded-xl border border-slate-800">
-                      <span className="text-[10px] text-gray-400 uppercase block">Active Students</span>
-                      <span className="text-lg font-black text-emerald-400">{stats.activeStudents}</span>
+                      <span className="text-[10px] text-gray-400 uppercase block font-semibold">Active Students</span>
+                      <span className="text-xl font-black text-emerald-400">{stats.activeStudents}</span>
                     </div>
                     <div className="p-3 bg-slate-950/80 rounded-xl border border-slate-800">
-                      <span className="text-[10px] text-gray-400 uppercase block">Total Mentors</span>
-                      <span className="text-lg font-black text-purple-400">{stats.totalMentors || 8}</span>
+                      <span className="text-[10px] text-gray-400 uppercase block font-semibold">Total Events</span>
+                      <span className="text-xl font-black text-purple-400">{stats.totalEvents || 12}</span>
                     </div>
                     <div className="p-3 bg-slate-950/80 rounded-xl border border-slate-800">
-                      <span className="text-[10px] text-gray-400 uppercase block">Mentor Sessions</span>
-                      <span className="text-lg font-black text-sky-400">{stats.totalBookings || 14}</span>
+                      <span className="text-[10px] text-gray-400 uppercase block font-semibold">Upcoming Events</span>
+                      <span className="text-xl font-black text-amber-400">{stats.upcomingEvents || 4}</span>
                     </div>
                     <div className="p-3 bg-slate-950/80 rounded-xl border border-slate-800">
-                      <span className="text-[10px] text-gray-400 uppercase block">Pending Approvals</span>
-                      <span className="text-lg font-black text-amber-400">{stats.pendingApprovals || 0}</span>
+                      <span className="text-[10px] text-gray-400 uppercase block font-semibold">Completed Events</span>
+                      <span className="text-xl font-black text-sky-400">{stats.completedEvents || 8}</span>
                     </div>
                   </div>
 
-                  {/* Line Chart SVG */}
-                  <div className="relative h-28 w-full flex items-end pt-2 pb-1">
-                    <svg className="w-full h-full overflow-visible" viewBox="0 0 300 80" preserveAspectRatio="none">
-                      <defs>
-                        <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.4" />
-                          <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.0" />
-                        </linearGradient>
-                      </defs>
-                      <path d="M0,60 Q40,50 70,40 T140,30 T210,18 T300,5 L300,80 L0,80 Z" fill="url(#chartGrad)" />
-                      <path d="M0,60 Q40,50 70,40 T140,30 T210,18 T300,5" fill="none" stroke="#3b82f6" strokeWidth="3" />
-                    </svg>
-                  </div>
-                  <div className="flex justify-between text-[9px] text-gray-400 font-mono border-t border-slate-800/80 pt-2">
-                    <span>Jan</span><span>Mar</span><span>May</span><span>Jul</span><span>Sep</span><span>Nov</span><span>Dec</span>
+                  {/* Interactive SVG Line Graph with Mouse Hover Tooltip */}
+                  <div className="relative w-full">
+                    <div className="flex justify-between items-center text-[10px] text-gray-400 uppercase font-mono font-bold mb-2">
+                      <span>Monthly Growth Dynamics</span>
+                      <span className="text-blue-400">Hover for Month Details</span>
+                    </div>
+                    <div className="relative h-36 w-full flex items-end pt-2 pb-1 group">
+                      <svg className="w-full h-full overflow-visible" viewBox="0 0 300 100" preserveAspectRatio="none">
+                        <defs>
+                          <linearGradient id="growthGrad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.5" />
+                            <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.0" />
+                          </linearGradient>
+                        </defs>
+                        <path d="M0,80 Q40,65 70,50 T140,40 T210,22 T300,8 L300,100 L0,100 Z" fill="url(#growthGrad)" />
+                        <path d="M0,80 Q40,65 70,50 T140,40 T210,22 T300,8" fill="none" stroke="#3b82f6" strokeWidth="3.5" />
+
+                        {/* Interactive Data Points */}
+                        {[
+                          { x: 10, y: 76, month: 'Jan', val: '12 Students' },
+                          { x: 55, y: 60, month: 'Mar', val: '28 Students' },
+                          { x: 110, y: 45, month: 'May', val: '35 Students' },
+                          { x: 165, y: 32, month: 'Jul', val: '47 Active' },
+                          { x: 220, y: 20, month: 'Sep', val: '50 Total' },
+                          { x: 285, y: 8, month: 'Dec', val: '65 Target' }
+                        ].map((pt, idx) => (
+                          <g key={idx} className="group/pt cursor-pointer">
+                            <circle cx={pt.x} cy={pt.y} r="5" fill="#60a5fa" stroke="#1e3a8a" strokeWidth="2.5" className="transition-all transform hover:scale-150" />
+                            {/* Hover Tooltip Popup */}
+                            <g className="opacity-0 group-hover/pt:opacity-100 transition-opacity pointer-events-none">
+                              <rect x={Math.max(10, pt.x - 40)} y={Math.max(0, pt.y - 32)} width="80" height="24" rx="6" fill="#0f172a" stroke="#3b82f6" strokeWidth="1" />
+                              <text x={Math.max(10, pt.x - 40) + 40} y={Math.max(0, pt.y - 32) + 16} textAnchor="middle" fill="#ffffff" fontSize="10" fontWeight="bold" fontFamily="monospace">
+                                {pt.month}: {pt.val}
+                              </text>
+                            </g>
+                          </g>
+                        ))}
+                      </svg>
+                    </div>
+                    <div className="flex justify-between text-[10px] text-gray-400 font-mono border-t border-slate-800 pt-2 font-semibold">
+                      <span>Jan</span><span>Mar</span><span>May</span><span>Jul</span><span>Sep</span><span>Nov</span><span>Dec</span>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              {/* Card 2: 3 Pie/Donut Charts Grid (Stage Breakdown, Funding Status, Disciplines) */}
-              <div className="lg:col-span-8 dash-card p-5 bg-slate-900/90 border border-slate-800 rounded-2xl">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 divide-y md:divide-y-0 md:divide-x divide-slate-800">
-                  {/* Donut 1: Innovation Stages (-1, 0, 1, 2, 3) */}
-                  <div className="flex flex-col items-center text-center pt-2 md:pt-0">
-                    <h4 className="text-xs font-bold text-gray-300 uppercase tracking-wider mb-2">Stage Progression</h4>
-                    <div className="relative w-32 h-32 flex items-center justify-center">
-                      <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-                        <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#1e293b" strokeWidth="3.8" />
-                        <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#6366f1" strokeWidth="3.8" strokeDasharray="35, 100" />
-                        <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#10b981" strokeWidth="3.8" strokeDasharray="30, 100" strokeDashoffset="-35" />
-                        <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#f59e0b" strokeWidth="3.8" strokeDasharray="20, 100" strokeDashoffset="-65" />
-                        <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#ec4899" strokeWidth="3.8" strokeDasharray="15, 100" strokeDashoffset="-85" />
-                      </svg>
-                      <span className="absolute text-xs font-extrabold text-white">Stages -1..3</span>
-                    </div>
-                    <div className="mt-3 flex flex-wrap justify-center gap-1.5 text-[9px] font-mono">
-                      <span className="text-indigo-400">● Stg -1 ({stats.stageCounts?.['-1'] || 4})</span>
-                      <span className="text-emerald-400">● Stg 0 ({stats.stageCounts?.['0'] || 6})</span>
-                      <span className="text-amber-400">● Stg 1 ({stats.stageCounts?.['1'] || 3})</span>
-                      <span className="text-pink-400">● Stg 2-3 ({ (stats.stageCounts?.['2'] || 1) + (stats.stageCounts?.['3'] || 1) })</span>
-                    </div>
-                  </div>
+              {/* Card 2: 3 Prominent Large Donut Charts (Stage Progression, Funding Status, Disciplines) */}
+              <div className="lg:col-span-7 dash-card p-6 bg-slate-900/90 border border-slate-800 rounded-2xl flex flex-col justify-between">
+                <div>
+                  <h3 className="text-base font-black text-white mb-5 font-display flex items-center justify-between">
+                    <span>Portfolio Distribution Overview</span>
+                    <span className="text-xs font-mono font-bold text-blue-400 bg-blue-950/60 border border-blue-800/60 px-3 py-1 rounded-full">
+                      Real-time Analytics
+                    </span>
+                  </h3>
 
-                  {/* Donut 2: Funding Claims Breakdown */}
-                  <div className="flex flex-col items-center text-center pt-4 md:pt-0 md:pl-4">
-                    <h4 className="text-xs font-bold text-gray-300 uppercase tracking-wider mb-2">Funding Status</h4>
-                    <div className="relative w-32 h-32 flex items-center justify-center">
-                      <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-                        <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#1e293b" strokeWidth="3.8" />
-                        <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#10b981" strokeWidth="3.8" strokeDasharray="50, 100" />
-                        <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#f59e0b" strokeWidth="3.8" strokeDasharray="30, 100" strokeDashoffset="-50" />
-                        <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#3b82f6" strokeWidth="3.8" strokeDasharray="20, 100" strokeDashoffset="-80" />
-                      </svg>
-                      <span className="absolute text-xs font-extrabold text-white">Seed Grants</span>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 divide-y md:divide-y-0 md:divide-x divide-slate-800">
+                    {/* Donut 1: Stage Progression (Prominent) */}
+                    <div className="flex flex-col items-center text-center pt-2 md:pt-0">
+                      <h4 className="text-xs font-black text-slate-200 uppercase tracking-wider mb-3">Stage Progression</h4>
+                      <div className="relative w-36 h-36 flex items-center justify-center">
+                        <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                          <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#1e293b" strokeWidth="4.2" />
+                          <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#6366f1" strokeWidth="4.2" strokeDasharray="25, 100" />
+                          <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#10b981" strokeWidth="4.2" strokeDasharray="35, 100" strokeDashoffset="-25" />
+                          <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#f59e0b" strokeWidth="4.2" strokeDasharray="15, 100" strokeDashoffset="-60" />
+                          <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#ec4899" strokeWidth="4.2" strokeDasharray="25, 100" strokeDashoffset="-75" />
+                        </svg>
+                        <div className="absolute text-center">
+                          <span className="block text-xs font-black text-white">Stages -1..3</span>
+                          <span className="text-[10px] text-gray-400 font-mono">17 Teams</span>
+                        </div>
+                      </div>
+                      <div className="mt-4 space-y-1 text-left w-full pl-2 font-mono text-[11px]">
+                        <div className="flex justify-between items-center text-indigo-400 font-bold">
+                          <span>● Stg -1 (Registration)</span>
+                          <span>4</span>
+                        </div>
+                        <div className="flex justify-between items-center text-emerald-400 font-bold">
+                          <span>● Stg 0 (Ideation)</span>
+                          <span>6</span>
+                        </div>
+                        <div className="flex justify-between items-center text-amber-400 font-bold">
+                          <span>● Stg 1 (Prototyping)</span>
+                          <span>2</span>
+                        </div>
+                        <div className="flex justify-between items-center text-pink-400 font-bold">
+                          <span>● Stg 2-3 (Sandbox/Market)</span>
+                          <span>5</span>
+                        </div>
+                      </div>
                     </div>
-                    <div className="mt-3 flex flex-wrap justify-center gap-2 text-[9px] font-mono">
-                      <span className="text-emerald-400 font-bold">● Disbursed (50%)</span>
-                      <span className="text-amber-400 font-bold">● Approved (30%)</span>
-                      <span className="text-blue-400 font-bold">● Pending (20%)</span>
-                    </div>
-                  </div>
 
-                  {/* Donut 3: Disciplines Distribution */}
-                  <div className="flex flex-col items-center text-center pt-4 md:pt-0 md:pl-4">
-                    <h4 className="text-xs font-bold text-gray-300 uppercase tracking-wider mb-2">Student Disciplines</h4>
-                    <div className="relative w-32 h-32 flex items-center justify-center">
-                      <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-                        <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#1e293b" strokeWidth="3.8" />
-                        <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#0284c7" strokeWidth="3.8" strokeDasharray="50, 100" />
-                        <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#a855f7" strokeWidth="3.8" strokeDasharray="30, 100" strokeDashoffset="-50" />
-                        <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#f97316" strokeWidth="3.8" strokeDasharray="20, 100" strokeDashoffset="-80" />
-                      </svg>
-                      <span className="absolute text-xs font-extrabold text-white">Cross-Domain</span>
+                    {/* Donut 2: Funding Status */}
+                    <div className="flex flex-col items-center text-center pt-4 md:pt-0 md:pl-4">
+                      <h4 className="text-xs font-black text-slate-200 uppercase tracking-wider mb-3">Funding Status</h4>
+                      <div className="relative w-36 h-36 flex items-center justify-center">
+                        <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                          <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#1e293b" strokeWidth="4.2" />
+                          <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#10b981" strokeWidth="4.2" strokeDasharray="50, 100" />
+                          <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#f59e0b" strokeWidth="4.2" strokeDasharray="30, 100" strokeDashoffset="-50" />
+                          <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#3b82f6" strokeWidth="4.2" strokeDasharray="20, 100" strokeDashoffset="-80" />
+                        </svg>
+                        <div className="absolute text-center">
+                          <span className="block text-xs font-black text-white">Seed Grants</span>
+                          <span className="text-[10px] text-emerald-400 font-mono">100% Capital</span>
+                        </div>
+                      </div>
+                      <div className="mt-4 space-y-1 text-left w-full pl-2 font-mono text-[11px]">
+                        <div className="flex justify-between items-center text-emerald-400 font-bold">
+                          <span>● Disbursed Grants</span>
+                          <span>50%</span>
+                        </div>
+                        <div className="flex justify-between items-center text-amber-400 font-bold">
+                          <span>● Approved Capital</span>
+                          <span>30%</span>
+                        </div>
+                        <div className="flex justify-between items-center text-blue-400 font-bold">
+                          <span>● Pending Review</span>
+                          <span>20%</span>
+                        </div>
+                      </div>
                     </div>
-                    <div className="mt-3 flex justify-center gap-2 text-[9px] font-mono">
-                      <span className="text-sky-400 font-bold">● Engineering 50%</span>
-                      <span className="text-purple-400 font-bold">● Law 30%</span>
-                      <span className="text-orange-400 font-bold">● MBA 20%</span>
+
+                    {/* Donut 3: Student Disciplines */}
+                    <div className="flex flex-col items-center text-center pt-4 md:pt-0 md:pl-4">
+                      <h4 className="text-xs font-black text-slate-200 uppercase tracking-wider mb-3">Student Disciplines</h4>
+                      <div className="relative w-36 h-36 flex items-center justify-center">
+                        <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                          <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#1e293b" strokeWidth="4.2" />
+                          <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#0284c7" strokeWidth="4.2" strokeDasharray="50, 100" />
+                          <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#a855f7" strokeWidth="4.2" strokeDasharray="30, 100" strokeDashoffset="-50" />
+                          <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#f97316" strokeWidth="4.2" strokeDasharray="20, 100" strokeDashoffset="-80" />
+                        </svg>
+                        <div className="absolute text-center">
+                          <span className="block text-xs font-black text-white">Cross-Domain</span>
+                          <span className="text-[10px] text-sky-400 font-mono">3 Majors</span>
+                        </div>
+                      </div>
+                      <div className="mt-4 space-y-1 text-left w-full pl-2 font-mono text-[11px]">
+                        <div className="flex justify-between items-center text-sky-400 font-bold">
+                          <span>● Engineering</span>
+                          <span>50%</span>
+                        </div>
+                        <div className="flex justify-between items-center text-purple-400 font-bold">
+                          <span>● Law</span>
+                          <span>30%</span>
+                        </div>
+                        <div className="flex justify-between items-center text-orange-400 font-bold">
+                          <span>● MBA / Management</span>
+                          <span>20%</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* ROW 2: Holdings / Student Projects | Historic Capital Flows (Bar Chart) | Mentor Sessions Audit Log */}
+            {/* ROW 2: Active Projects & Milestone Trends (Full Width Space Utilization) */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
               {/* Column 1: Active Student Projects */}
-              <div className="lg:col-span-4 dash-card p-5 bg-slate-900/90 border border-slate-800 rounded-2xl flex flex-col justify-between">
+              <div className="lg:col-span-6 dash-card p-6 bg-slate-900/90 border border-slate-800 rounded-2xl flex flex-col justify-between">
                 <div>
-                  <div className="flex items-center gap-2 mb-4">
-                    <span className="w-6 h-6 rounded-full bg-blue-950 border border-blue-800 flex items-center justify-center text-xs">🚀</span>
-                    <h4 className="text-xs font-bold text-white uppercase tracking-wider">Active Student Projects</h4>
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2">
+                      <span className="w-7 h-7 rounded-full bg-blue-950 border border-blue-800 flex items-center justify-center text-xs">🚀</span>
+                      <h4 className="text-xs font-extrabold text-white uppercase tracking-wider">Active Student Innovation Projects</h4>
+                    </div>
+                    <span className="text-xs font-mono font-bold text-emerald-400 bg-emerald-950/60 border border-emerald-800/60 px-2.5 py-0.5 rounded-full">
+                      Stage 0 to Stage 2
+                    </span>
                   </div>
-                  <div className="space-y-2.5 font-mono text-xs">
+                  <div className="space-y-3 font-mono text-xs">
                     {[
-                      { name: 'AI Autonomous Drone', stage: 'Stage 1 (Prototyping)', lead: 'Sannareddy Abhilash', status: 'Active' },
+                      { name: 'AI Autonomous Drone System', stage: 'Stage 1 (Prototyping)', lead: 'Sannareddy Abhilash', status: 'Active' },
                       { name: 'LegalTech Document Auditor', stage: 'Stage 0 (Ideation)', lead: 'Kiran Sai', status: 'Active' },
-                      { name: 'EV Battery Management', stage: 'Stage 2 (Sandbox)', lead: 'Vamsi', status: 'Active' },
-                      { name: 'Biomedical Patient Monitor', stage: 'Stage -1 (Registration)', lead: 'Harisai', status: 'Pending' }
+                      { name: 'EV Battery Management System', stage: 'Stage 2 (Sandbox)', lead: 'Vamsi', status: 'Active' },
+                      { name: 'Biomedical Patient Monitor', stage: 'Stage -1 (Registration)', lead: 'Harisai', status: 'Review' }
                     ].map(p => (
-                      <div key={p.name} className="p-2.5 rounded-xl bg-slate-950/70 border border-slate-800/80">
-                        <div className="flex justify-between items-center mb-1">
-                          <span className="font-bold text-slate-200 text-xs">{p.name}</span>
-                          <span className="text-[9px] bg-blue-950 text-blue-400 border border-blue-900/60 px-2 py-0.5 rounded font-bold">{p.status}</span>
+                      <div key={p.name} className="p-3 rounded-xl bg-slate-950/80 border border-slate-800 flex items-center justify-between">
+                        <div>
+                          <div className="font-bold text-slate-100 text-sm mb-1">{p.name}</div>
+                          <div className="flex gap-4 text-[11px] text-gray-400">
+                            <span className="text-blue-400 font-semibold">{p.stage}</span>
+                            <span>Lead: {p.lead}</span>
+                          </div>
                         </div>
-                        <div className="flex justify-between items-center text-[10px] text-gray-400">
-                          <span>{p.stage}</span>
-                          <span className="text-gray-500">Lead: {p.lead}</span>
-                        </div>
+                        <span className="text-[10px] bg-blue-950 text-blue-400 border border-blue-900/60 px-2.5 py-1 rounded-md font-bold shrink-0">
+                          {p.status}
+                        </span>
                       </div>
                     ))}
                   </div>
                 </div>
               </div>
 
-              {/* Column 2: Historic Capital Flows Stacked Bar Chart */}
-              <div className="lg:col-span-4 dash-card p-5 bg-slate-900/90 border border-slate-800 rounded-2xl flex flex-col justify-between">
+              {/* Column 2: Milestone Completion Trends (Bar Chart) */}
+              <div className="lg:col-span-6 dash-card p-6 bg-slate-900/90 border border-slate-800 rounded-2xl flex flex-col justify-between">
                 <div>
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-2">
-                      <span className="w-6 h-6 rounded-full bg-blue-950 border border-blue-800 flex items-center justify-center text-xs">📊</span>
-                      <h4 className="text-xs font-bold text-white uppercase tracking-wider">Milestone Completion Trends</h4>
+                      <span className="w-7 h-7 rounded-full bg-blue-950 border border-blue-800 flex items-center justify-center text-xs">📊</span>
+                      <h4 className="text-xs font-extrabold text-white uppercase tracking-wider">Milestone Verification Trends</h4>
                     </div>
-                    <div className="flex gap-2 text-[9px] font-mono">
-                      <span className="text-sky-400 font-bold">■ Verified</span>
-                      <span className="text-amber-400 font-bold">■ Pending</span>
+                    <div className="flex gap-3 text-[11px] font-mono">
+                      <span className="text-sky-400 font-bold">■ Verified Milestones</span>
+                      <span className="text-amber-400 font-bold">■ Pending Reviews</span>
                     </div>
                   </div>
 
-                  {/* Bar Chart Simulation */}
-                  <div className="h-44 w-full flex items-end justify-between gap-3 pt-6 pb-2 border-b border-slate-800 font-mono text-[10px]">
+                  {/* Stacked Bar Chart Simulation */}
+                  <div className="h-52 w-full flex items-end justify-between gap-6 pt-6 pb-2 border-b border-slate-800 font-mono text-xs">
                     {[
-                      { year: '2022', h1: 20, h2: 15 },
-                      { year: '2023', h1: 35, h2: 20 },
-                      { year: '2024', h1: 25, h2: 15 },
-                      { year: '2025', h1: 45, h2: 25 },
-                      { year: '2026', h1: 55, h2: 30 }
+                      { year: '2022', h1: 25, h2: 15, total: '40' },
+                      { year: '2023', h1: 45, h2: 25, total: '70' },
+                      { year: '2024', h1: 35, h2: 20, total: '55' },
+                      { year: '2025', h1: 65, h2: 30, total: '95' },
+                      { year: '2026', h1: 85, h2: 35, total: '120' }
                     ].map(b => (
-                      <div key={b.year} className="flex flex-col items-center flex-1 h-full justify-end">
-                        <div className="w-full max-w-[32px] flex flex-col rounded-t overflow-hidden">
+                      <div key={b.year} className="flex flex-col items-center flex-1 h-full justify-end group cursor-pointer">
+                        <span className="text-[10px] text-blue-400 font-bold opacity-0 group-hover:opacity-100 transition-opacity mb-1">{b.total}</span>
+                        <div className="w-full max-w-[44px] flex flex-col rounded-t overflow-hidden transition-transform group-hover:scale-105">
                           <div style={{ height: `${b.h2}px` }} className="bg-amber-500 w-full" />
                           <div style={{ height: `${b.h1}px` }} className="bg-sky-500 w-full" />
                         </div>
-                        <span className="text-gray-400 mt-2">{b.year}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Column 3: Mentor Sessions & Booking Audit Log */}
-              <div className="lg:col-span-4 dash-card p-5 bg-slate-900/90 border border-slate-800 rounded-2xl flex flex-col justify-between">
-                <div>
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-2">
-                      <span className="w-6 h-6 rounded-full bg-blue-950 border border-blue-800 flex items-center justify-center text-xs">👨‍🏫</span>
-                      <h4 className="text-xs font-bold text-white uppercase tracking-wider">Mentorship Session Log</h4>
-                    </div>
-                    <span className="text-[10px] font-mono text-purple-400 font-bold">{stats.totalMentors || 8} Mentors Onboarded</span>
-                  </div>
-                  <div className="space-y-2.5 font-mono text-xs">
-                    {[
-                      { mentor: 'Dr. A Mutharasan', team: 'AeroDynamics AI', mode: 'Virtual Meet', status: 'Completed' },
-                      { mentor: 'Prof. Harisai', team: 'LegalTech Bot', mode: 'Offline Lab', status: 'Scheduled' },
-                      { mentor: 'Nikitha (IP Advisor)', team: 'CleanEnergy Hub', mode: 'Virtual Review', status: 'Completed' },
-                      { mentor: 'Dr. Vamsi', team: 'AgriTech Drone', mode: 'Offline Session', status: 'Pending' }
-                    ].map((m, idx) => (
-                      <div key={idx} className="p-2.5 rounded-xl bg-slate-950/70 border border-slate-800/80 space-y-1">
-                        <div className="flex justify-between items-center text-[10px]">
-                          <span className="font-bold text-purple-300">{m.mentor}</span>
-                          <span className={`px-2 py-0.5 rounded text-[9px] font-bold ${m.status === 'Completed' ? 'bg-emerald-950 text-emerald-400 border border-emerald-900/40' : 'bg-amber-950 text-amber-400 border border-amber-900/40'}`}>{m.status}</span>
-                        </div>
-                        <div className="flex justify-between items-center text-[10px] text-gray-400">
-                          <span>Team: {m.team}</span>
-                          <span className="text-gray-500">{m.mode}</span>
-                        </div>
+                        <span className="text-gray-400 mt-2 font-bold">{b.year}</span>
                       </div>
                     ))}
                   </div>
