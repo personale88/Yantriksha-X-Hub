@@ -629,6 +629,18 @@ export default function SuperAdminClient({ currentAdmin }: { currentAdmin: SaUse
       )}
 
       {/* ═══ MENU: OVERVIEW ═══ */}
+      {activeMenu === 'dashboard' && !stats && (
+        <div className="space-y-6 animate-fade-up">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="dash-stat-card animate-pulse" style={{ height: 110 }}>
+                <div style={{ width: 60, height: 28, background: 'var(--dash-surface-4)', borderRadius: 6, marginBottom: 12 }} />
+                <div style={{ width: 140, height: 14, background: 'var(--dash-surface-4)', borderRadius: 4 }} />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
       {activeMenu === 'dashboard' && stats && (
         <div className="space-y-6 animate-fade-up">
           {/* Stat cards with combined Registered / Active ratio */}
