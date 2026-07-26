@@ -71,15 +71,15 @@ export async function POST(req: Request) {
       );
     }
 
-    // Check if account is suspended
+    // Check if account is suspended / access revoked
     if (user.status === 'suspended') {
       await query(
         'INSERT INTO login_history (user_id, email_attempted, status, ip_address, device_info) VALUES (?, ?, ?, ?, ?)',
         [user.id, emailNormalized, 'failed', ipAddress, userAgent]
       );
-      await logActivity(user.id, user.name, user.role, user.email, 'Attempted login to suspended account', 'Auth', 'Failed');
+      await logActivity(user.id, user.name, user.role, user.email, 'Attempted login to account without login access permission', 'Auth', 'Failed');
       return NextResponse.json(
-        { success: false, error: 'Account has been suspended. Please contact coordinator.' },
+        { success: false, error: 'Your dashboard login access has not been granted by the Admin. Please contact coordinator for approval.' },
         { status: 403 }
       );
     }

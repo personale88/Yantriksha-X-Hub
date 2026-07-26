@@ -35,7 +35,7 @@ export async function GET(req: Request) {
     const formattedMembers = [];
     for (const m of members) {
       const teams = await query(`
-        SELECT t.id, t.team_name, t.project_title 
+        SELECT t.id, t.team_name 
         FROM teams t 
         JOIN core_team_assignments cta ON t.id = cta.team_id 
         WHERE cta.user_id = ?

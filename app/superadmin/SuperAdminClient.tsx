@@ -6,6 +6,8 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import RolesManager from '@/components/admin/RolesManager';
 import CoreMembersManager from '@/components/admin/CoreMembersManager';
+import DashboardShell from '@/components/dashboard/DashboardShell';
+
 
 interface SaUser {
   name: string;
@@ -81,7 +83,7 @@ interface Announcement {
 export default function SuperAdminClient({ currentAdmin }: { currentAdmin: SaUser }) {
   const router = useRouter();
   const [activeMenu, setActiveMenu] = useState<
-    'dashboard' | 'students' | 'clubs' | 'events' | 'activities' | 'audits' | 'announcements' | 'notifications' | 'reports' | 'settings' | 'roles' | 'coreMembers'
+    'dashboard' | 'students' | 'events' | 'activities' | 'audits' | 'announcements' | 'notifications' | 'reports' | 'settings' | 'roles' | 'coreMembers'
   >('dashboard');
 
   // Backend state
@@ -245,7 +247,8 @@ export default function SuperAdminClient({ currentAdmin }: { currentAdmin: SaUse
           name: editStudent.name,
           email: editStudent.email,
           role: editStudent.role,
-          discipline: editStudent.discipline
+          discipline: editStudent.discipline,
+          status: editStudent.status
         })
       });
       const data = await res.json();
@@ -576,423 +579,357 @@ export default function SuperAdminClient({ currentAdmin }: { currentAdmin: SaUse
     }
   };
 
+  // ── Nav & helpers ──────────────────────────────────────────────
+  const navItems = [
+    { id: 'dashboard',     label: 'Overview',          icon: '⬡',  group: 'Main' },
+    { id: 'students',      label: 'Student Directory',  icon: '👨‍🎓', group: 'Management' },
+    { id: 'events',        label: 'Event Operations',  icon: '📅',  group: 'Management' },
+    { id: 'activities',    label: 'Activity Logs',     icon: '📟',  group: 'System' },
+    { id: 'audits',        label: 'Audit Trails',      icon: '🔒',  group: 'System' },
+    { id: 'announcements', label: 'Announcements',     icon: '📢',  group: 'Communications' },
+    { id: 'notifications', label: 'Broadcaster',       icon: '📡',  group: 'Communications' },
+    { id: 'reports',       label: 'Reports',           icon: '📊',  group: 'Analytics' },
+    { id: 'roles',         label: 'Roles Manager',     icon: '🛡️',  group: 'Config' },
+    { id: 'coreMembers',   label: 'Core Team',         icon: '⭐',  group: 'Config' },
+    { id: 'settings',      label: 'System Settings',   icon: '⚙',   group: 'Config' },
+  ];
+
+  const inp = 'dash-input';
+  const sel = 'dash-input';
+
   return (
-    <main className="min-h-screen bg-space-grid text-white flex flex-row relative overflow-hidden">
-      
-      {/* ── Sidebar Navigation (Slim w-16 on mobile, expanded w-72 on desktop) ── */}
-      <aside className="w-16 md:w-72 bg-slate-900/90 backdrop-blur-xl border-r border-slate-800/80 flex flex-col z-20 shrink-0 transition-all duration-300">
-        <div className="p-3.5 md:p-6 border-b border-slate-800/60 flex items-center justify-center md:justify-start">
-          <Link href="/" className="flex items-center gap-3 group">
-            <div className="relative h-9 w-9 rounded-lg overflow-hidden border border-slate-700/60 group-hover:border-blue-500/50 transition">
-              <Image src="/logo.png" alt="logo" fill className="object-contain" style={{ mixBlendMode: 'screen' }} />
-            </div>
-            <span className="hidden md:flex items-center text-base font-extrabold">
-              <span className="bg-gradient-to-r from-blue-400 to-blue-500 bg-clip-text text-transparent">Yantriksha</span>
-              <span className="inline-block relative h-6 w-8 mx-0.5 align-middle shrink-0">
-                <Image src="/logo.png" fill className="object-contain" style={{ mixBlendMode: 'screen' }} alt="X" />
-              </span>
-              <span className="bg-gradient-to-r from-indigo-300 to-amber-300 bg-clip-text text-transparent">Hub</span>
-            </span>
-          </Link>
+    <DashboardShell
+      user={{ name: currentAdmin.name, role: currentAdmin.role, email: currentAdmin.email }}
+      navItems={navItems}
+      activeMenu={activeMenu}
+      setActiveMenu={(id) => { setActiveMenu(id as any); setErrorMsg(''); setSuccessMsg(''); }}
+      onLogout={handleLogout}
+      breadcrumb={navItems.find(n => n.id === activeMenu)?.label}
+      roleLabel="Super Administrator"
+      roleColor="#f59e0b"
+    >
+      {/* Toast messages */}
+      {errorMsg && (
+        <div className="dash-toast-error mb-5">
+          <span>✕</span><span>{errorMsg}</span>
+          <button onClick={() => setErrorMsg('')} style={{ marginLeft: 'auto', opacity: 0.6 }}>✕</button>
         </div>
-
-        {/* Super Admin Tag */}
-        <div className="p-3 md:px-6 md:py-4 bg-slate-950/40 border-b border-slate-800/60 flex items-center justify-center md:justify-start gap-3">
-          <div className="h-2 w-2 rounded-full bg-red-500 animate-pulse shrink-0" />
-          <div className="hidden md:block text-left">
-            <p className="text-[10px] font-semibold text-gray-500 uppercase tracking-widest">Super Admin</p>
-            <p className="text-xs font-bold text-white leading-tight">{currentAdmin.name}</p>
-          </div>
+      )}
+      {successMsg && (
+        <div className="dash-toast-success mb-5">
+          <span>✓</span><span>{successMsg}</span>
+          <button onClick={() => setSuccessMsg('')} style={{ marginLeft: 'auto', opacity: 0.6 }}>✕</button>
         </div>
+      )}
 
-        <nav className="flex-1 p-2 md:p-5 space-y-1">
-          {[
-            { id: 'dashboard', label: 'Dashboard Overview', icon: '📊' },
-            { id: 'students', label: 'Student Management', icon: '👥' },
-            { id: 'roles', label: 'RBAC Roles Config', icon: '🛡️' },
-            { id: 'coreMembers', label: 'Core Team Manager', icon: '👔' },
-            { id: 'clubs', label: 'Club inc. Manager', icon: '⛺' },
-            { id: 'events', label: 'Event Operations', icon: '📅' },
-            { id: 'activities', label: 'Activity Logs', icon: '🖥️' },
-            { id: 'audits', label: 'Audit Logs', icon: '🔒' },
-            { id: 'announcements', label: 'Announcements', icon: '📢' },
-            { id: 'notifications', label: 'Broadcaster Alerts', icon: '🔔' },
-            { id: 'reports', label: 'Reports & Analytics', icon: '📂' },
-            { id: 'settings', label: 'System Settings', icon: '⚙️' }
-          ].map(menu => (
-            <button
-              key={menu.id}
-              onClick={() => { setActiveMenu(menu.id as any); setErrorMsg(''); setSuccessMsg(''); }}
-              className={`w-full flex items-center justify-center md:justify-start gap-3.5 p-3 md:px-4 md:py-3 rounded-xl text-sm font-semibold transition-all duration-200 ${
-                activeMenu === menu.id
-                  ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/30'
-                  : 'text-gray-400 hover:text-white hover:bg-slate-800/60'
-              }`}
-              title={menu.label}
-            >
-              <span className="text-lg shrink-0">{menu.icon}</span>
-              <span className="hidden md:inline">{menu.label}</span>
-            </button>
-          ))}
-        </nav>
-
-        <div className="p-2 md:p-5 border-t border-slate-800/60 space-y-2">
-          <Link href="/dashboard" className="w-full flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-750 text-gray-300 p-3 md:py-3 rounded-xl font-bold text-sm transition-all duration-200" title="Exit Portal">
-            <span>🏠</span><span className="hidden md:inline"> Exit Portal</span>
-          </Link>
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center justify-center gap-2 bg-red-950/40 hover:bg-red-900/60 border border-red-900/40 text-red-400 p-3 md:py-3 rounded-xl font-bold text-sm transition-all duration-200"
-            title="Logout"
-          >
-            <span>🚪</span><span className="hidden md:inline"> Logout</span>
-          </button>
-        </div>
-      </aside>
-
-      {/* ── Main Panel ── */}
-      <section className="flex-1 p-6 md:p-10 z-10 overflow-y-auto max-h-screen">
-        
-        {/* Global Notifications */}
-        {errorMsg && (
-          <div className="mb-6 p-4 bg-red-950/60 border border-red-800/60 text-red-400 rounded-2xl text-sm flex items-center gap-2.5 animate-fadeIn">
-            <span>❌</span> {errorMsg}
-          </div>
-        )}
-        {successMsg && (
-          <div className="mb-6 p-4 bg-emerald-950/60 border border-emerald-800/60 text-emerald-400 rounded-2xl text-sm flex items-center gap-2.5 animate-fadeIn">
-            <span>🎉</span> {successMsg}
-          </div>
-        )}
-
-        {/* ═══════════════════════════════════════════════
-            MENU: DASHBOARD OVERVIEW
-        ═══════════════════════════════════════════════ */}
-        {activeMenu === 'dashboard' && stats && (
-          <div className="space-y-8 animate-fadeIn">
-            <div>
-              <span className="section-pill">✦ Control Panel</span>
-              <h1 className="text-4xl font-extrabold text-white tracking-tight">Super Admin Dashboard</h1>
-              <p className="text-gray-400 mt-1.5 text-xs">Academic Incubation Year: <span className="text-blue-400">{sysSettings.academicYear}</span></p>
-            </div>
-
-            {/* Pending Approvals Alert Banner */}
-            {stats.pendingUsers > 0 && (
-              <div className="p-4 bg-amber-950/60 border border-amber-800/60 text-amber-300 rounded-2xl text-xs flex items-center justify-between gap-4 animate-pulse">
-                <div className="flex items-center gap-2.5">
-                  <span className="text-base">🔔</span>
-                  <div>
-                    <span className="font-bold">Pending Student Registrations:</span> You have{' '}
-                    <span className="font-extrabold text-white text-sm bg-amber-900/60 px-2 py-0.5 rounded border border-amber-700/50 font-mono">
-                      {stats.pendingUsers}
-                    </span>{' '}
-                    pending join requests waiting for your approval.
-                  </div>
-                </div>
-                <button
-                  onClick={() => {
-                    setActiveMenu('students');
-                    setStudentFilter('pending');
-                  }}
-                  className="bg-amber-600 hover:bg-amber-700 text-white font-bold text-[10px] uppercase tracking-wider px-3.5 py-1.5 rounded-xl transition"
-                >
-                  Review Requests →
-                </button>
-              </div>
-            )}
-
-            {/* Widget Stats */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-              {[
-                { title: 'Registered Students', val: stats.totalStudents, color: 'text-blue-400', desc: 'Total profiles' },
-                { title: 'Active Students', val: stats.activeStudents, color: 'text-green-400', desc: 'Non-suspended' },
-                { title: 'Total Incubator Clubs', val: stats.totalClubs, color: 'text-purple-400', desc: 'Academic centers' },
-                { title: 'Total Event Regs', val: stats.totalRegistrations, color: 'text-amber-400', desc: 'Participations' }
-              ].map(s => (
-                <div key={s.title} className="glass-card rounded-2xl p-6 border border-slate-800/60 relative overflow-hidden">
-                  <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-widest">{s.title}</h3>
-                  <p className={`mt-3 text-3xl font-extrabold ${s.color}`}>{s.val}</p>
-                  <p className="text-[10px] text-gray-500 mt-1">{s.desc}</p>
-                </div>
-              ))}
-            </div>
-
-            {/* Widget Second Row: Event states */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-              {[
-                { title: 'Upcoming Events', val: stats.upcomingEvents, color: 'text-blue-300' },
-                { title: 'Ongoing Events', val: stats.ongoingEvents, color: 'text-orange-400' },
-                { title: 'Completed Events', val: stats.completedEvents, color: 'text-emerald-400' }
-              ].map(s => (
-                <div key={s.title} className="glass-card rounded-xl p-5 border border-slate-800/50 flex justify-between items-center">
-                  <div>
-                    <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider">{s.title}</h4>
-                    <p className={`text-2xl font-black mt-2.5 ${s.color}`}>{s.val}</p>
-                  </div>
-                  <span className="text-2xl opacity-30">📅</span>
-                </div>
-              ))}
-            </div>
-
-            {/* Visual Graphs/Charts & Recent Widgets */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              
-              {/* Registration and activity graphs column */}
-              <div className="lg:col-span-2 space-y-6">
-                
-                {/* Registrations graph */}
-                <div className="glass-card rounded-3xl p-6 border border-slate-800/60">
-                  <h3 className="font-extrabold text-sm text-white uppercase tracking-wider mb-6 flex items-center justify-between">
-                    <span>📈 Student Registration Growth</span>
-                    <span className="text-[10px] text-gray-500">Monthly breakdown</span>
-                  </h3>
-                  
-                  <div className="flex items-end justify-between h-48 pt-4 px-2">
-                    {stats.monthlyRegistrations.map((m: any) => (
-                      <div key={m.name} className="flex flex-col items-center gap-2 w-1/8 group">
-                        <div className="w-8 bg-blue-600/80 group-hover:bg-blue-500 rounded-t transition-all duration-300 relative" style={{ height: `${(m.count / 90) * 100}%` }}>
-                          <span className="absolute -top-6 left-1/2 -translate-x-1/2 text-[9px] font-bold text-white bg-slate-900 border border-slate-800 px-1 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">
-                            {m.count}
-                          </span>
-                        </div>
-                        <span className="text-[10px] text-gray-500 font-bold">{m.name}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Event Category stats */}
-                <div className="glass-card rounded-3xl p-6 border border-slate-800/60">
-                  <h3 className="font-extrabold text-sm text-white uppercase tracking-wider mb-6">🎯 Event Participation Category Share</h3>
-                  <div className="space-y-4">
-                    {stats.categoryStats.map((c: any) => (
-                      <div key={c.name} className="space-y-1">
-                        <div className="flex justify-between text-[11px] font-bold">
-                          <span className="text-gray-400">{c.name}</span>
-                          <span className="text-blue-400">{c.value}%</span>
-                        </div>
-                        <div className="h-2 bg-slate-950 rounded-full overflow-hidden">
-                          <div className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full" style={{ width: `${c.value}%` }} />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-              </div>
-
-              {/* Sidebar stats column (Today's Events, Approvals, Recently Added) */}
-              <div className="space-y-6">
-                
-                {/* Pending approvals widget */}
-                <div className="glass-card rounded-3xl p-6 border border-slate-800/60 bg-gradient-to-br from-slate-900 to-amber-950/20">
-                  <div className="flex justify-between items-center mb-4">
-                    <h3 className="font-extrabold text-sm text-white uppercase tracking-wider">⚡ Pending Approvals</h3>
-                    <span className="text-xs bg-amber-900/40 text-amber-400 px-2 py-0.5 border border-amber-800/40 rounded font-black">{stats.pendingApprovals}</span>
-                  </div>
-                  <p className="text-xs text-gray-400 leading-relaxed">
-                    There are milestone progress reports and treasurer claims awaiting immediate administrative verification.
-                  </p>
-                  <button onClick={() => router.push('/admin')} className="mt-4 w-full bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold py-2.5 rounded-xl transition">
-                    Go to Evaluation Console
-                  </button>
-                </div>
-
-                {/* Recent registration items */}
-                <div className="glass-card rounded-3xl p-6 border border-slate-800/60">
-                  <h3 className="font-extrabold text-sm text-white uppercase tracking-wider mb-4">🆕 Recent Registrations</h3>
-                  <div className="space-y-3">
-                    {stats.recentRegistrations.map((r: any) => (
-                      <div key={r.id} className="flex justify-between items-center text-xs">
-                        <div>
-                          <p className="font-bold text-white">{r.name}</p>
-                          <p className="text-[10px] text-gray-500">{r.email}</p>
-                        </div>
-                        <span className="text-[9px] text-gray-500">{isMounted ? new Date(r.created_at).toLocaleDateString() : ''}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-              </div>
-
-            </div>
-          </div>
-        )}
-
-        {/* ═══════════════════════════════════════════════
-            MENU: STUDENT MANAGEMENT
-        ═══════════════════════════════════════════════ */}
-        {activeMenu === 'students' && (
-          <div className="space-y-8 animate-fadeIn">
-            
-            {/* Header section with CSV download */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div>
-                <span className="section-pill">✦ Operations</span>
-                <h1 className="text-4xl font-extrabold text-white tracking-tight">Student Directory</h1>
-              </div>
-              <div className="flex gap-3">
-                <button
-                  onClick={handleExportCSV}
-                  className="bg-slate-850 hover:bg-slate-800 text-xs text-gray-300 font-bold border border-slate-700 px-4 py-2.5 rounded-xl transition flex items-center gap-2"
-                >
-                  📥 Export CSV
-                </button>
-              </div>
-            </div>
-
-            {/* Filter and Search header */}
-            <div className="flex flex-wrap gap-4 items-center justify-between">
-              <div className="flex gap-2 bg-slate-900 p-1 rounded-xl border border-slate-800/80">
-                {(['all', 'active', 'suspended', 'pending', 'hold'] as const).map(f => (
+      {/* ═══ MENU: OVERVIEW ═══ */}
+      {activeMenu === 'dashboard' && stats && (
+        <div className="space-y-6 animate-fade-up">
+          {/* Stat cards with combined Registered / Active ratio */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+            {[
+              {
+                label: 'Registered / Active Students',
+                customValue: (
+                  <span>
+                    <span style={{ color: '#6366f1' }}>{stats.totalStudents}</span>
+                    <span style={{ color: 'rgba(148,163,184,0.4)', margin: '0 6px' }}>/</span>
+                    <span style={{ color: '#10b981' }}>{stats.activeStudents}</span>
+                  </span>
+                ),
+                icon: '👨‍🎓',
+                color: '#6366f1',
+                subLabel: `${stats.activeStudents} active active login access granted`,
+                pendingBadge: stats.pendingUsers > 0 ? (
                   <button
-                    key={f}
-                    onClick={() => setStudentFilter(f)}
-                    className={`px-4 py-1.5 rounded-lg text-xs font-bold uppercase transition ${
-                      studentFilter === f ? 'bg-blue-600 text-white' : 'text-gray-400 hover:text-white'
-                    }`}
+                    onClick={() => { setActiveMenu('students'); setStudentFilter('pending'); }}
+                    className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold text-amber-400 bg-amber-950/60 border border-amber-800/60 hover:bg-amber-900/80 transition-all cursor-pointer mt-2"
                   >
-                    {f}
+                    <span>🔔</span> {stats.pendingUsers} Pending Request{stats.pendingUsers > 1 ? 's' : ''} →
                   </button>
+                ) : null
+              },
+              {
+                label: 'Access Revoked / Suspended',
+                customValue: (stats.totalStudents - stats.activeStudents - stats.pendingUsers) || 0,
+                icon: '🚫',
+                color: '#ef4444',
+                subLabel: 'Accounts disabled by admin'
+              },
+              {
+                label: 'Event Registrations',
+                customValue: stats.totalRegistrations,
+                icon: '📅',
+                color: '#f59e0b',
+                subLabel: 'Total participations logged'
+              },
+            ].map((s, i) => (
+              <div key={s.label} className={`dash-stat-card animate-fade-up delay-${i + 1}`}>
+                <div className="absolute top-0 right-0 w-20 h-20 rounded-full opacity-10 -mr-6 -mt-6 blur-2xl pointer-events-none" style={{ background: s.color }} />
+                <div className="dash-stat-icon" style={{ background: `${s.color}18`, border: `1px solid ${s.color}30` }}>
+                  <span style={{ fontSize: 18 }}>{s.icon}</span>
+                </div>
+                <div className="dash-stat-value">{s.customValue}</div>
+                <div className="dash-stat-label">{s.label}</div>
+                {'subLabel' in s && <div style={{ fontSize: 11, color: 'rgba(148,163,184,0.5)', marginTop: 4 }}>{s.subLabel}</div>}
+                {'pendingBadge' in s && s.pendingBadge}
+              </div>
+            ))}
+          </div>
+
+          {/* Secondary stats row */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
+            {[
+              { label: 'Upcoming Events', value: stats.upcomingEvents ?? 0, icon: '🗓️', color: '#3b82f6' },
+              { label: 'Ongoing Events', value: stats.ongoingEvents ?? 0, icon: '⚡', color: '#f59e0b' },
+              { label: 'Completed Events', value: stats.completedEvents ?? 0, icon: '✓', color: '#10b981' },
+              { label: 'Pending Approvals', value: stats.pendingApprovals ?? 0, icon: '⏳', color: '#ef4444' },
+            ].map((s, i) => (
+              <div key={s.label} className={`dash-stat-card animate-fade-up delay-${i + 1}`} style={{ padding: 20 }}>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="dash-stat-label">{s.label}</div>
+                    <div style={{ fontSize: 26, fontWeight: 800, color: s.color, fontFamily: 'var(--font-display)', marginTop: 8 }}>{s.value}</div>
+                  </div>
+                  <div className="dash-stat-icon" style={{ background: `${s.color}15`, border: `1px solid ${s.color}25`, margin: 0 }}>
+                    <span style={{ fontSize: 16 }}>{s.icon}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Charts row */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Monthly registrations bar chart */}
+            <div className="dash-card" style={{ padding: 24 }}>
+              <div className="dash-section-header">
+                <div className="dash-section-title">📈 Monthly Registrations</div>
+              </div>
+              <div className="flex items-end justify-between gap-2" style={{ height: 160, paddingTop: 16 }}>
+                {stats.monthlyRegistrations.map((m: any) => {
+                  const max = Math.max(...stats.monthlyRegistrations.map((x: any) => x.count), 1);
+                  const pct = (m.count / max) * 100;
+                  return (
+                    <div key={m.name} className="flex flex-col items-center gap-2" style={{ flex: 1 }}>
+                      <div
+                        className="w-full rounded-t transition-all duration-500 relative group"
+                        style={{ height: `${pct}%`, minHeight: 4, background: 'linear-gradient(180deg, #6366f1, #4f46e5)', cursor: 'pointer' }}
+                      >
+                        <span className="absolute -top-7 left-1/2 -translate-x-1/2 text-xs font-bold text-white bg-slate-800 border border-slate-700 px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                          {m.count}
+                        </span>
+                      </div>
+                      <span style={{ fontSize: 10, color: 'rgba(148,163,184,0.6)', fontWeight: 700 }}>{m.name}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Category breakdown */}
+            <div className="dash-card" style={{ padding: 24 }}>
+              <div className="dash-section-header">
+                <div className="dash-section-title">🎯 Event Category Share</div>
+              </div>
+              <div className="space-y-4 mt-2">
+                {stats.categoryStats.map((c: any, i: number) => {
+                  const colors = ['#6366f1', '#10b981', '#f59e0b', '#a855f7', '#3b82f6'];
+                  return (
+                    <div key={c.name}>
+                      <div className="flex justify-between mb-1.5" style={{ fontSize: 12, fontWeight: 600 }}>
+                        <span style={{ color: '#94a3b8' }}>{c.name}</span>
+                        <span style={{ color: colors[i % colors.length], fontWeight: 700 }}>{c.value}%</span>
+                      </div>
+                      <div className="dash-progress-track" style={{ height: 6 }}>
+                        <div className="h-full rounded-full" style={{ width: `${c.value}%`, background: `linear-gradient(90deg, ${colors[i % colors.length]}, ${colors[i % colors.length]}99)`, transition: 'width 0.8s ease' }} />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          {/* Pending approvals + Recent registrations */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="dash-card" style={{ padding: 24, background: 'linear-gradient(135deg, var(--dash-surface-2), rgba(245,158,11,0.05))' }}>
+              <div className="dash-section-header">
+                <div className="dash-section-title">⚡ Pending Approvals</div>
+                <span style={{ fontSize: 13, fontWeight: 700, background: 'rgba(245,158,11,0.15)', color: '#fbbf24', border: '1px solid rgba(245,158,11,0.3)', padding: '2px 10px', borderRadius: 9999 }}>
+                  {stats.pendingApprovals}
+                </span>
+              </div>
+              <p style={{ fontSize: 13, color: 'rgba(148,163,184,0.7)', lineHeight: 1.6, marginBottom: 16 }}>
+                Milestone progress reports and treasurer claims awaiting administrative verification.
+              </p>
+              <button onClick={() => setActiveMenu('students')} className="dash-btn dash-btn-sm" style={{ background: '#d97706', color: 'white', border: 'none' }}>
+                Go to Student Directory
+              </button>
+            </div>
+
+            <div className="dash-card" style={{ padding: 24 }}>
+              <div className="dash-section-header">
+                <div className="dash-section-title">🆕 Recent Registrations</div>
+              </div>
+              <div className="space-y-3">
+                {stats.recentRegistrations.slice(0, 5).map((r: any) => (
+                  <div key={r.id} className="flex justify-between items-center">
+                    <div className="flex items-center gap-2">
+                      <div className="dash-avatar dash-avatar-sm">
+                        {r.name.split(' ').map((p: string) => p[0]).slice(0, 2).join('')}
+                      </div>
+                      <div>
+                        <p style={{ fontSize: 13, fontWeight: 600, color: '#e2e8f0' }}>{r.name}</p>
+                        <p style={{ fontSize: 11, color: 'rgba(148,163,184,0.5)' }}>{r.email}</p>
+                      </div>
+                    </div>
+                    <span style={{ fontSize: 11, color: 'rgba(148,163,184,0.4)' }}>
+                      {isMounted ? new Date(r.created_at).toLocaleDateString('en-IN') : ''}
+                    </span>
+                  </div>
                 ))}
               </div>
-              <input
-                type="text"
-                value={studentSearch}
-                onChange={e => setStudentSearch(e.target.value)}
-                placeholder="Search name, ID, or email..."
-                className="px-4 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-white text-xs outline-none focus:border-blue-500/80 w-full md:w-80"
-              />
             </div>
+          </div>
+        </div>
+      )}
 
-            {/* Students table */}
-            <div className="glass-card rounded-3xl border border-slate-800/60 overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-sm text-gray-400">
-                  <thead className="text-xs uppercase bg-slate-950/40 text-gray-500 border-b border-slate-800/60">
+      {/* ═══ MENU: STUDENTS ═══ */}
+      {activeMenu === 'students' && (
+        <div className="space-y-6 animate-fade-up">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h2 className="dash-page-title">Student Directory</h2>
+              <p className="dash-page-subtitle">Manage registrations, approvals, and student profiles</p>
+            </div>
+            <button onClick={handleExportCSV} className="dash-btn dash-btn-secondary">
+              ↓ Export CSV
+            </button>
+          </div>
+
+          {/* Filter tabs */}
+          <div className="flex flex-wrap gap-2 items-center justify-between">
+            <div className="flex gap-1 p-1 rounded-xl" style={{ background: 'var(--dash-surface-2)', border: '1px solid var(--dash-border)' }}>
+              {(['all', 'active', 'suspended', 'pending', 'hold'] as const).map(f => (
+                <button
+                  key={f}
+                  onClick={() => setStudentFilter(f)}
+                  className="dash-btn dash-btn-sm"
+                  style={{
+                    background: studentFilter === f ? 'rgba(99,102,241,0.2)' : 'transparent',
+                    color: studentFilter === f ? '#a5b4fc' : '#94a3b8',
+                    border: `1px solid ${studentFilter === f ? 'rgba(99,102,241,0.3)' : 'transparent'}`,
+                    textTransform: 'uppercase',
+                    fontSize: 11,
+                  }}
+                >
+                  {f}
+                </button>
+              ))}
+            </div>
+            <input
+              type="text"
+              value={studentSearch}
+              onChange={e => setStudentSearch(e.target.value)}
+              placeholder="Search name, ID, or email..."
+              className="dash-input"
+              style={{ maxWidth: 280 }}
+            />
+          </div>
+
+          {/* Students table */}
+          <div className="dash-table-wrap">
+            <div style={{ overflowX: 'auto' }}>
+              <table className="dash-table">
+                <thead>
+                  <tr>
+                    <th>Student</th>
+                    <th>ID / Roll No.</th>
+                    <th>Discipline</th>
+                    <th>Status</th>
+                    <th style={{ textAlign: 'right' }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredStudents.length === 0 ? (
                     <tr>
-                      <th className="py-4 px-6">Name</th>
-                      <th className="py-4 px-6">ID / Roll No.</th>
-                      <th className="py-4 px-6">Email Address</th>
-                      <th className="py-4 px-6">Discipline</th>
-                      <th className="py-4 px-6">Status</th>
-                      <th className="py-4 px-6 text-right">Actions</th>
+                      <td colSpan={5} style={{ textAlign: 'center', padding: 40, color: 'rgba(148,163,184,0.5)' }}>No matching student profiles found.</td>
                     </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-800/40">
-                    {filteredStudents.length === 0 ? (
-                      <tr>
-                        <td colSpan={6} className="py-8 text-center text-gray-500">No matching student profiles found.</td>
-                      </tr>
-                    ) : (
-                      filteredStudents.map(s => (
-                        <tr key={s.id} className="hover:bg-slate-900/30">
-                          <td className="py-4 px-6">
-                            <span onClick={() => setEditStudent(s)} className="font-bold text-white hover:underline cursor-pointer">
+                  ) : filteredStudents.map(s => (
+                    <tr key={s.id}>
+                      <td>
+                        <div className="flex items-center gap-2">
+                          <div className="dash-avatar dash-avatar-sm">
+                            {s.name.split(' ').map((p: string) => p[0]).slice(0, 2).join('')}
+                          </div>
+                          <div>
+                            <button onClick={() => setEditStudent(s)} style={{ fontWeight: 600, color: '#f1f5f9', textAlign: 'left', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
                               {s.name}
-                            </span>
-                          </td>
-                          <td className="py-4 px-6 font-mono text-xs">{s.veltech_id || '—'}</td>
-                          <td className="py-4 px-6 text-xs">{s.email}</td>
-                          <td className="py-4 px-6 text-xs capitalize">{s.discipline}</td>
-                          <td className="py-4 px-6">
-                            <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase ${
-                              s.status === 'active' 
-                                ? 'bg-emerald-950 text-emerald-400 border border-emerald-900/30' 
-                                : s.status === 'pending'
-                                ? 'bg-amber-950 text-amber-400 border border-amber-900/30'
-                                : s.status === 'hold'
-                                ? 'bg-blue-950 text-blue-400 border border-blue-900/30'
-                                : 'bg-red-950 text-red-400 border border-red-900/30'
-                            }`}>
-                              {s.status}
-                            </span>
-                          </td>
-                          <td className="py-4 px-6 text-right space-x-2">
-                            {s.status === 'pending' || s.status === 'hold' ? (
-                              <>
-                                <button
-                                  onClick={() => handleApproveStudent(s.id)}
-                                  className="bg-emerald-950 hover:bg-emerald-900/50 border border-emerald-900/40 text-emerald-400 text-[10px] font-bold px-2.5 py-1 rounded-lg transition"
-                                >
-                                  Approve
-                                </button>
-                                {s.status === 'pending' && (
-                                  <button
-                                    onClick={() => handleHoldStudent(s.id)}
-                                    className="bg-blue-950 hover:bg-blue-900/50 border border-blue-900/40 text-blue-400 text-[10px] font-bold px-2.5 py-1 rounded-lg transition"
-                                  >
-                                    Hold
-                                  </button>
-                                )}
-                                <button
-                                  onClick={() => handleRejectStudent(s.id)}
-                                  className="bg-red-950 hover:bg-red-900/50 border border-red-900/40 text-red-400 text-[10px] font-bold px-2.5 py-1 rounded-lg transition"
-                                >
-                                  Reject
-                                </button>
-                              </>
-                            ) : (
-                              <>
-                                <button
-                                  onClick={() => handleToggleStudentStatus(s.id, s.status)}
-                                  className={`text-[10px] font-bold px-2.5 py-1 rounded-lg ${
-                                    s.status === 'active' ? 'bg-amber-950 text-amber-400 border border-amber-900/40 hover:bg-amber-900/60' : 'bg-emerald-950 text-emerald-400 border border-emerald-900/40 hover:bg-emerald-900/60'
-                                  }`}
-                                >
-                                  {s.status === 'active' ? 'Suspend' : 'Activate'}
-                                </button>
-                                <button
-                                  onClick={() => handleDeleteStudent(s.id)}
-                                  className="bg-red-950 hover:bg-red-900/40 border border-red-900/40 text-red-400 text-[10px] font-bold px-2.5 py-1 rounded-lg"
-                                >
-                                  Delete
-                                </button>
-                              </>
-                            )}
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
+                            </button>
+                            <p style={{ fontSize: 11, color: 'rgba(148,163,184,0.5)' }}>{s.email}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td style={{ fontFamily: 'monospace', fontSize: 12 }}>{s.veltech_id || '—'}</td>
+                      <td style={{ textTransform: 'capitalize', fontSize: 13 }}>{s.discipline}</td>
+                      <td>
+                        <span className={`status-chip ${s.status === 'active' ? 'chip-success' : s.status === 'pending' ? 'chip-warning' : s.status === 'hold' ? 'chip-info' : 'chip-error'}`}>
+                          {s.status === 'active' ? '🟢 Access Granted' : s.status === 'suspended' ? '🔴 Access Revoked' : s.status}
+                        </span>
+                      </td>
+                      <td style={{ textAlign: 'right' }}>
+                        <div className="flex items-center justify-end gap-1.5">
+                          {s.status === 'pending' || s.status === 'hold' ? (
+                            <>
+                              <button onClick={() => handleApproveStudent(s.id)} className="dash-btn dash-btn-success dash-btn-sm">Grant Access ✓</button>
+                              {s.status === 'pending' && (
+                                <button onClick={() => handleHoldStudent(s.id)} className="dash-btn dash-btn-sm" style={{ background: 'rgba(59,130,246,0.12)', color: '#60a5fa', border: '1px solid rgba(59,130,246,0.2)' }}>Hold</button>
+                              )}
+                              <button onClick={() => handleRejectStudent(s.id)} className="dash-btn dash-btn-danger dash-btn-sm">Reject</button>
+                            </>
+                          ) : (
+                            <>
+                              <button
+                                onClick={() => handleToggleStudentStatus(s.id, s.status)}
+                                className={`dash-btn dash-btn-sm ${s.status === 'active' ? 'dash-btn-danger' : 'dash-btn-success'}`}
+                                title={s.status === 'active' ? 'Revoke Login Access' : 'Grant Login Access'}
+                              >
+                                {s.status === 'active' ? '🚫 Revoke Access' : '🔑 Grant Access'}
+                              </button>
+                              <button onClick={() => handleDeleteStudent(s.id)} className="dash-btn dash-btn-secondary dash-btn-sm">Delete</button>
+                            </>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
+          </div>
 
-            {/* Edit details modal */}
-            {editStudent && (
-              <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-6 z-50 animate-fadeIn">
-                <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 max-w-md w-full relative">
-                  <h3 className="text-xl font-bold text-white mb-6">Modify Student Details</h3>
+          {/* Edit Student Modal */}
+          {editStudent && (
+            <div className="dash-modal-backdrop">
+              <div className="dash-modal">
+                <div className="dash-modal-header">
+                  <h3 className="dash-modal-title">Modify Student Details</h3>
+                  <button className="dash-modal-close" onClick={() => setEditStudent(null)}>✕</button>
+                </div>
+                <div className="dash-modal-body">
                   <form onSubmit={handleUpdateStudent} className="space-y-4">
                     <div>
-                      <label className="block text-xs text-gray-400 font-bold uppercase mb-1.5">Full Name</label>
-                      <input
-                        type="text"
-                        value={editStudent.name}
-                        onChange={e => setEditStudent({ ...editStudent, name: e.target.value })}
-                        className="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-white text-xs outline-none focus:border-blue-500"
-                        required
-                      />
+                      <label className="dash-label">Full Name</label>
+                      <input type="text" value={editStudent.name} onChange={e => setEditStudent({ ...editStudent, name: e.target.value })} className={inp} required />
                     </div>
                     <div>
-                      <label className="block text-xs text-gray-400 font-bold uppercase mb-1.5">Email Address</label>
-                      <input
-                        type="email"
-                        value={editStudent.email}
-                        onChange={e => setEditStudent({ ...editStudent, email: e.target.value })}
-                        className="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-white text-xs outline-none focus:border-blue-500"
-                        required
-                      />
+                      <label className="dash-label">Email Address</label>
+                      <input type="email" value={editStudent.email} onChange={e => setEditStudent({ ...editStudent, email: e.target.value })} className={inp} required />
                     </div>
                     <div>
-                      <label className="block text-xs text-gray-400 font-bold uppercase mb-1.5">Discipline</label>
-                      <select
-                        value={editStudent.discipline}
-                        onChange={e => setEditStudent({ ...editStudent, discipline: e.target.value })}
-                        className="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-white text-xs outline-none focus:border-blue-500"
-                      >
+                      <label className="dash-label">Discipline</label>
+                      <select value={editStudent.discipline} onChange={e => setEditStudent({ ...editStudent, discipline: e.target.value })} className={sel}>
                         <option value="engineering">Engineering</option>
                         <option value="law">Law</option>
                         <option value="business">Business</option>
@@ -1000,315 +937,119 @@ export default function SuperAdminClient({ currentAdmin }: { currentAdmin: SaUse
                       </select>
                     </div>
                     <div>
-                      <label className="block text-xs text-gray-400 font-bold uppercase mb-1.5">Platform Role</label>
-                      <select
-                        value={editStudent.role}
-                        onChange={e => setEditStudent({ ...editStudent, role: e.target.value })}
-                        className="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-white text-xs outline-none focus:border-blue-500"
-                      >
+                      <label className="dash-label">Dashboard Login Access Status</label>
+                      <select value={editStudent.status} onChange={e => setEditStudent({ ...editStudent, status: e.target.value as any })} className={sel}>
+                        <option value="active">Active (Access Granted)</option>
+                        <option value="suspended">Suspended (Access Revoked)</option>
+                        <option value="pending">Pending Approval</option>
+                        <option value="hold">On Hold</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="dash-label">Platform Role</label>
+                      <select value={editStudent.role} onChange={e => setEditStudent({ ...editStudent, role: e.target.value })} className={sel}>
                         <option value="student">Student</option>
                         <option value="mentor">Mentor</option>
                         <option value="faculty">Faculty</option>
                       </select>
                     </div>
-
-                    <div className="flex gap-3 mt-6">
-                      <button type="submit" className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs py-3 rounded-xl transition">
-                        Save Changes
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setEditStudent(null)}
-                        className="flex-1 bg-slate-850 hover:bg-slate-800 border border-slate-800 text-gray-400 hover:text-white font-bold text-xs py-3 rounded-xl transition"
-                      >
-                        Cancel
-                      </button>
+                    <div className="flex gap-3 pt-2">
+                      <button type="submit" className="dash-btn dash-btn-primary" style={{ flex: 1 }}>Save Changes</button>
+                      <button type="button" onClick={() => setEditStudent(null)} className="dash-btn dash-btn-secondary" style={{ flex: 1 }}>Cancel</button>
                     </div>
                   </form>
                 </div>
               </div>
-            )}
+            </div>
+          )}
+        </div>
+      )}
 
+      {/* ═══ MENU: EVENTS ═══ */}
+      {activeMenu === 'events' && (
+        <div className="space-y-6 animate-fade-up">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h2 className="dash-page-title">Event Operations</h2>
+              <p className="dash-page-subtitle">Schedule, manage, and monitor all hub events</p>
+            </div>
+            <button
+              onClick={() => { setEditEvent(null); setEventForm({ title: '', description: '', category: '', eventDate: '', status: 'upcoming' }); setShowEventModal(true); }}
+              className="dash-btn dash-btn-primary"
+            >
+              + Schedule Event
+            </button>
           </div>
-        )}
 
-        {/* ═══════════════════════════════════════════════
-            MENU: CLUBS INCUBATION MANAGER
-        ═══════════════════════════════════════════════ */}
-        {activeMenu === 'clubs' && (
-          <div className="space-y-8 animate-fadeIn">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div>
-                <span className="section-pill">✦ Incubation Labs</span>
-                <h1 className="text-4xl font-extrabold text-white tracking-tight">Incubator Clubs</h1>
-              </div>
-              <button
-                onClick={() => { setEditClub(null); setClubForm({ name: '', description: '', category: '', adminId: '' }); setShowClubModal(true); }}
-                className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition"
-              >
-                Create New Club +
-              </button>
-            </div>
+          <input type="text" value={eventSearch} onChange={e => setEventSearch(e.target.value)} placeholder="Search event name or category..." className="dash-input" style={{ maxWidth: 340 }} />
 
-            <input
-              type="text"
-              value={clubSearch}
-              onChange={e => setClubSearch(e.target.value)}
-              placeholder="Search club name or category..."
-              className="px-4 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-white text-xs outline-none focus:border-blue-500/80 w-full md:w-80"
-            />
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredClubs.length === 0 ? (
-                <p className="text-sm text-gray-500 col-span-full">No active club registries found.</p>
-              ) : (
-                filteredClubs.map(c => (
-                  <div key={c.id} className="glass-card rounded-2xl p-6 border border-slate-800/60 relative overflow-hidden flex flex-col justify-between">
-                    <div>
-                      <div className="flex justify-between items-start mb-4">
-                        <span className="text-[10px] bg-blue-950 text-blue-300 px-2 py-0.5 rounded font-black border border-blue-900/30 uppercase tracking-wider">{c.category}</span>
-                        <span className="text-xs text-gray-500 font-bold">{c.member_count || 0} Members</span>
-                      </div>
-                      <h3 className="font-extrabold text-white text-lg">{c.name}</h3>
-                      <p className="text-xs text-gray-400 mt-2 leading-relaxed font-light">{c.description || 'No description provided.'}</p>
-                      <p className="text-[11px] text-gray-500 mt-4">
-                        Admin: <span className="text-white font-bold">{c.admin_name || 'Unassigned'}</span>
-                      </p>
-                    </div>
-
-                    <div className="flex gap-2 mt-6 pt-4 border-t border-slate-800/40">
-                      <button
-                        onClick={() => {
-                          setEditClub(c);
-                          setClubForm({
-                            name: c.name,
-                            description: c.description || '',
-                            category: c.category,
-                            adminId: c.admin_id ? String(c.admin_id) : ''
-                          });
-                          setShowClubModal(true);
-                        }}
-                        className="flex-1 bg-slate-800 hover:bg-slate-750 text-gray-300 text-[10px] font-bold py-2 rounded-lg transition"
-                      >
-                        Edit Details
-                      </button>
-                      <button
-                        onClick={() => handleDeleteClub(c.id)}
-                        className="flex-1 bg-red-950/40 hover:bg-red-900/60 border border-red-900/40 text-red-400 text-[10px] font-bold py-2 rounded-lg transition"
-                      >
-                        Delete Club
-                      </button>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-
-            {/* Club Save Modal */}
-            {showClubModal && (
-              <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-6 z-50 animate-fadeIn">
-                <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 max-w-md w-full relative">
-                  <h3 className="text-xl font-bold text-white mb-6">{editClub ? 'Modify Club details' : 'Create New Club'}</h3>
-                  <form onSubmit={handleSaveClub} className="space-y-4">
-                    <div>
-                      <label className="block text-xs text-gray-400 font-bold uppercase mb-1.5">Club Name</label>
-                      <input
-                        type="text"
-                        value={clubForm.name}
-                        onChange={e => setClubForm({ ...clubForm, name: e.target.value })}
-                        className="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-white text-xs outline-none focus:border-blue-500"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs text-gray-400 font-bold uppercase mb-1.5">Category</label>
-                      <select
-                        value={clubForm.category}
-                        onChange={e => setClubForm({ ...clubForm, category: e.target.value })}
-                        className="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-white text-xs outline-none focus:border-blue-500"
-                        required
-                      >
-                        <option value="">Select Category</option>
-                        <option value="Incubation">Incubation</option>
-                        <option value="Tech">Tech</option>
-                        <option value="Innovation">Innovation</option>
-                        <option value="Intellectual Property">Intellectual Property</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-xs text-gray-400 font-bold uppercase mb-1.5">Assign Admin ID (Optional)</label>
-                      <input
-                        type="text"
-                        placeholder="Admin user ID, e.g. 1"
-                        value={clubForm.adminId}
-                        onChange={e => setClubForm({ ...clubForm, adminId: e.target.value })}
-                        className="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-white text-xs outline-none focus:border-blue-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs text-gray-400 font-bold uppercase mb-1.5">Description</label>
-                      <textarea
-                        value={clubForm.description}
-                        onChange={e => setClubForm({ ...clubForm, description: e.target.value })}
-                        className="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-white text-xs outline-none focus:border-blue-500"
-                        rows={4}
-                      />
-                    </div>
-
-                    <div className="flex gap-3 mt-6">
-                      <button type="submit" className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs py-3 rounded-xl transition">
-                        {editClub ? 'Save Changes' : 'Create Club'}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setShowClubModal(false)}
-                        className="flex-1 bg-slate-855 hover:bg-slate-800 border border-slate-800 text-gray-400 hover:text-white font-bold text-xs py-3 rounded-xl transition"
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  </form>
-                </div>
-              </div>
-            )}
-
-          </div>
-        )}
-
-        {/* ═══════════════════════════════════════════════
-            MENU: EVENT OPERATIONS
-        ═══════════════════════════════════════════════ */}
-        {activeMenu === 'events' && (
-          <div className="space-y-8 animate-fadeIn">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div>
-                <span className="section-pill">✦ Sandbox Schedule</span>
-                <h1 className="text-4xl font-extrabold text-white tracking-tight">Event Operations</h1>
-              </div>
-              <button
-                onClick={() => { setEditEvent(null); setEventForm({ title: '', description: '', category: '', eventDate: '', status: 'upcoming' }); setShowEventModal(true); }}
-                className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition"
-              >
-                Schedule New Event +
-              </button>
-            </div>
-
-            <input
-              type="text"
-              value={eventSearch}
-              onChange={e => setEventSearch(e.target.value)}
-              placeholder="Search event name or category..."
-              className="px-4 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-white text-xs outline-none focus:border-blue-500/80 w-full md:w-80"
-            />
-
-            <div className="glass-card rounded-3xl border border-slate-800/60 overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-sm text-gray-400">
-                  <thead className="text-xs uppercase bg-slate-950/40 text-gray-500 border-b border-slate-800/60">
-                    <tr>
-                      <th className="py-4 px-6">Event Title</th>
-                      <th className="py-4 px-6">Category</th>
-                      <th className="py-4 px-6">Date & Time</th>
-                      <th className="py-4 px-6">Status</th>
-                      <th className="py-4 px-6">Registrations</th>
-                      <th className="py-4 px-6 text-right">Actions</th>
+          <div className="dash-table-wrap">
+            <div style={{ overflowX: 'auto' }}>
+              <table className="dash-table">
+                <thead>
+                  <tr>
+                    <th>Event</th>
+                    <th>Category</th>
+                    <th>Date & Time</th>
+                    <th>Status</th>
+                    <th>Registrations</th>
+                    <th style={{ textAlign: 'right' }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredEvents.length === 0 ? (
+                    <tr><td colSpan={6} style={{ textAlign: 'center', padding: 40, color: 'rgba(148,163,184,0.5)' }}>No events scheduled.</td></tr>
+                  ) : filteredEvents.map(e => (
+                    <tr key={e.id}>
+                      <td style={{ fontWeight: 600, color: '#f1f5f9' }}>{e.title}</td>
+                      <td style={{ fontSize: 12 }}>{e.category}</td>
+                      <td style={{ fontSize: 12, fontFamily: 'monospace' }}>{isMounted ? new Date(e.event_date).toLocaleString('en-IN') : ''}</td>
+                      <td>
+                        <span className={`status-chip ${e.status === 'completed' ? 'chip-neutral' : e.status === 'ongoing' ? 'chip-purple' : e.status === 'cancelled' ? 'chip-error' : 'chip-info'}`}>
+                          {e.status}
+                        </span>
+                      </td>
+                      <td style={{ fontSize: 13, fontWeight: 600, color: '#60a5fa' }}>{e.registration_count || 0}</td>
+                      <td style={{ textAlign: 'right' }}>
+                        <div className="flex items-center justify-end gap-2">
+                          <button
+                            onClick={() => { setEditEvent(e); setEventForm({ title: e.title, description: e.description || '', category: e.category, eventDate: e.event_date.slice(0, 16), status: e.status }); setShowEventModal(true); }}
+                            className="dash-btn dash-btn-secondary dash-btn-sm"
+                          >Edit</button>
+                          <button onClick={() => handleDeleteEvent(e.id)} className="dash-btn dash-btn-danger dash-btn-sm">Cancel</button>
+                        </div>
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-800/40">
-                    {filteredEvents.length === 0 ? (
-                      <tr>
-                        <td colSpan={6} className="py-8 text-center text-gray-500">No events scheduled.</td>
-                      </tr>
-                    ) : (
-                      filteredEvents.map(e => (
-                        <tr key={e.id} className="hover:bg-slate-900/30">
-                          <td className="py-4 px-6 font-bold text-white">{e.title}</td>
-                          <td className="py-4 px-6 text-xs">{e.category}</td>
-                          <td className="py-4 px-6 text-xs font-mono">{isMounted ? new Date(e.event_date).toLocaleString() : ''}</td>
-                          <td className="py-4 px-6">
-                            <span className={`text-[9px] px-2 py-0.5 rounded font-bold uppercase ${
-                              e.status === 'completed' ? 'bg-slate-800 text-gray-400' :
-                              e.status === 'ongoing' ? 'bg-orange-950 text-orange-400' : 'bg-blue-950 text-blue-400'
-                            }`}>
-                              {e.status}
-                            </span>
-                          </td>
-                          <td className="py-4 px-6 text-xs text-glow-blue font-bold">{e.registration_count || 0} registered</td>
-                          <td className="py-4 px-6 text-right space-x-2">
-                            <button
-                              onClick={() => {
-                                setEditEvent(e);
-                                setEventForm({
-                                  title: e.title,
-                                  description: e.description || '',
-                                  category: e.category,
-                                  eventDate: e.event_date.slice(0, 16),
-                                  status: e.status
-                                });
-                                setShowEventModal(true);
-                              }}
-                              className="bg-slate-800 hover:bg-slate-750 text-gray-300 text-[10px] font-bold px-2 py-1 rounded-lg"
-                            >
-                              Edit
-                            </button>
-                            <button
-                              onClick={() => handleDeleteEvent(e.id)}
-                              className="bg-red-950 hover:bg-red-900/40 border border-red-900/40 text-red-400 text-[10px] font-bold px-2 py-1 rounded-lg"
-                            >
-                              Cancel
-                            </button>
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
+                  ))}
+                </tbody>
+              </table>
             </div>
+          </div>
 
-            {/* Event Save Modal */}
-            {showEventModal && (
-              <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-6 z-50 animate-fadeIn">
-                <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 max-w-md w-full relative">
-                  <h3 className="text-xl font-bold text-white mb-6">{editEvent ? 'Modify Event Operations' : 'Schedule Sandbox Event'}</h3>
+          {showEventModal && (
+            <div className="dash-modal-backdrop">
+              <div className="dash-modal">
+                <div className="dash-modal-header">
+                  <h3 className="dash-modal-title">{editEvent ? 'Modify Event' : 'Schedule New Event'}</h3>
+                  <button className="dash-modal-close" onClick={() => setShowEventModal(false)}>✕</button>
+                </div>
+                <div className="dash-modal-body">
                   <form onSubmit={handleSaveEvent} className="space-y-4">
                     <div>
-                      <label className="block text-xs text-gray-400 font-bold uppercase mb-1.5">Event Title</label>
-                      <input
-                        type="text"
-                        value={eventForm.title}
-                        onChange={e => setEventForm({ ...eventForm, title: e.target.value })}
-                        className="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-white text-xs outline-none focus:border-blue-500"
-                        required
-                      />
+                      <label className="dash-label">Event Title</label>
+                      <input type="text" value={eventForm.title} onChange={e => setEventForm({ ...eventForm, title: e.target.value })} className={inp} required />
                     </div>
                     <div>
-                      <label className="block text-xs text-gray-400 font-bold uppercase mb-1.5">Category</label>
-                      <input
-                        type="text"
-                        placeholder="e.g. Technical Workshop"
-                        value={eventForm.category}
-                        onChange={e => setEventForm({ ...eventForm, category: e.target.value })}
-                        className="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-white text-xs outline-none focus:border-blue-500"
-                      />
+                      <label className="dash-label">Category</label>
+                      <input type="text" placeholder="e.g. Technical Workshop" value={eventForm.category} onChange={e => setEventForm({ ...eventForm, category: e.target.value })} className={inp} />
                     </div>
                     <div>
-                      <label className="block text-xs text-gray-400 font-bold uppercase mb-1.5">Date & Time</label>
-                      <input
-                        type="datetime-local"
-                        value={eventForm.eventDate}
-                        onChange={e => setEventForm({ ...eventForm, eventDate: e.target.value })}
-                        className="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-white text-xs outline-none focus:border-blue-500"
-                        required
-                      />
+                      <label className="dash-label">Date & Time</label>
+                      <input type="datetime-local" value={eventForm.eventDate} onChange={e => setEventForm({ ...eventForm, eventDate: e.target.value })} className={inp} required />
                     </div>
                     <div>
-                      <label className="block text-xs text-gray-400 font-bold uppercase mb-1.5">Operation Status</label>
-                      <select
-                        value={eventForm.status}
-                        onChange={e => setEventForm({ ...eventForm, status: e.target.value })}
-                        className="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-white text-xs outline-none focus:border-blue-500"
-                      >
+                      <label className="dash-label">Status</label>
+                      <select value={eventForm.status} onChange={e => setEventForm({ ...eventForm, status: e.target.value })} className={sel}>
                         <option value="upcoming">Upcoming</option>
                         <option value="ongoing">Ongoing</option>
                         <option value="completed">Completed</option>
@@ -1316,526 +1057,342 @@ export default function SuperAdminClient({ currentAdmin }: { currentAdmin: SaUse
                       </select>
                     </div>
                     <div>
-                      <label className="block text-xs text-gray-400 font-bold uppercase mb-1.5">Description</label>
-                      <textarea
-                        value={eventForm.description}
-                        onChange={e => setEventForm({ ...eventForm, description: e.target.value })}
-                        className="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-white text-xs outline-none focus:border-blue-500"
-                        rows={3}
-                      />
+                      <label className="dash-label">Description</label>
+                      <textarea value={eventForm.description} onChange={e => setEventForm({ ...eventForm, description: e.target.value })} className={inp} rows={3} style={{ resize: 'vertical' }} />
                     </div>
-
-                    <div className="flex gap-3 mt-6">
-                      <button type="submit" className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs py-3 rounded-xl transition">
-                        {editEvent ? 'Save Changes' : 'Schedule Event'}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setShowEventModal(false)}
-                        className="flex-1 bg-slate-850 hover:bg-slate-800 border border-slate-800 text-gray-400 hover:text-white font-bold text-xs py-3 rounded-xl transition"
-                      >
-                        Cancel
-                      </button>
+                    <div className="flex gap-3 pt-2">
+                      <button type="submit" className="dash-btn dash-btn-primary" style={{ flex: 1 }}>{editEvent ? 'Save Changes' : 'Schedule Event'}</button>
+                      <button type="button" onClick={() => setShowEventModal(false)} className="dash-btn dash-btn-secondary" style={{ flex: 1 }}>Cancel</button>
                     </div>
                   </form>
                 </div>
               </div>
-            )}
-
-          </div>
-        )}
-
-        {/* ═══════════════════════════════════════════════
-            MENU: WEBSITE ACTIVITY MONITORING
-        ═══════════════════════════════════════════════ */}
-        {activeMenu === 'activities' && (
-          <div className="space-y-8 animate-fadeIn">
-            <div>
-              <span className="section-pill">✦ Security Registry</span>
-              <h1 className="text-4xl font-extrabold text-white tracking-tight">Website Activity Logs</h1>
-              <p className="text-gray-400 mt-2 text-sm">Real-time log capture of authentication, registry updates, and form submissions.</p>
             </div>
+          )}
+        </div>
+      )}
 
-            <div className="glass-card rounded-3xl border border-slate-800/60 overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs text-gray-400 font-mono">
-                  <thead className="text-[10px] uppercase bg-slate-950/40 text-gray-500 border-b border-slate-800/60">
-                    <tr>
-                      <th className="py-4 px-6">Timestamp</th>
-                      <th className="py-4 px-6">User (Role)</th>
-                      <th className="py-4 px-6">Email Address</th>
-                      <th className="py-4 px-6">Module</th>
-                      <th className="py-4 px-6">Action / Event</th>
-                      <th className="py-4 px-6">Status</th>
+      {/* ═══ MENU: ACTIVITY LOGS ═══ */}
+      {activeMenu === 'activities' && (
+        <div className="space-y-6 animate-fade-up">
+          <div>
+            <h2 className="dash-page-title">Website Activity Logs</h2>
+            <p className="dash-page-subtitle">Real-time log capture of authentication, registry updates, and form submissions</p>
+          </div>
+          <div className="dash-table-wrap">
+            <div style={{ overflowX: 'auto' }}>
+              <table className="dash-table" style={{ fontFamily: 'monospace' }}>
+                <thead>
+                  <tr>
+                    <th>Timestamp</th>
+                    <th>User (Role)</th>
+                    <th>Email</th>
+                    <th>Module</th>
+                    <th>Action</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {activityLogs.length === 0 ? (
+                    <tr><td colSpan={6} style={{ textAlign: 'center', padding: 40, color: 'rgba(148,163,184,0.5)' }}>No logs captured.</td></tr>
+                  ) : activityLogs.map(l => (
+                    <tr key={l.id}>
+                      <td style={{ fontSize: 11, color: 'rgba(148,163,184,0.5)' }}>{isMounted ? new Date(l.created_at).toLocaleString('en-IN') : ''}</td>
+                      <td style={{ fontWeight: 600, color: '#f1f5f9', fontSize: 12 }}>{l.user_name} <span style={{ color: '#94a3b8' }}>({l.user_role})</span></td>
+                      <td style={{ fontSize: 11 }}>{l.email}</td>
+                      <td style={{ color: '#60a5fa', fontSize: 12 }}>{l.module}</td>
+                      <td style={{ fontSize: 12, color: '#e2e8f0' }}>{l.action_performed}</td>
+                      <td>
+                        <span className={`status-chip ${l.status === 'Success' ? 'chip-success' : 'chip-error'}`}>{l.status}</span>
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-800/40">
-                    {activityLogs.length === 0 ? (
-                      <tr>
-                        <td colSpan={6} className="py-8 text-center text-gray-500">No logs captured.</td>
-                      </tr>
-                    ) : (
-                      activityLogs.map(l => (
-                        <tr key={l.id} className="hover:bg-slate-900/20">
-                          <td className="py-3 px-6 text-gray-500">{isMounted ? new Date(l.created_at).toLocaleString() : ''}</td>
-                          <td className="py-3 px-6 text-white font-bold">{l.user_name} ({l.user_role})</td>
-                          <td className="py-3 px-6 text-gray-400">{l.email}</td>
-                          <td className="py-3 px-6 text-blue-400">{l.module}</td>
-                          <td className="py-3 px-6 text-gray-300">{l.action_performed}</td>
-                          <td className="py-3 px-6">
-                            <span className={`px-2 py-0.5 rounded text-[9px] font-bold ${
-                              l.status === 'Success' ? 'bg-emerald-950 text-emerald-400 border border-emerald-900/30' : 'bg-red-950 text-red-400 border border-red-900/30'
-                            }`}>
-                              {l.status}
-                            </span>
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ═══════════════════════════════════════════════
-            MENU: AUDIT LOGS
-        ═══════════════════════════════════════════════ */}
-        {activeMenu === 'audits' && (
-          <div className="space-y-8 animate-fadeIn">
-            <div>
-              <span className="section-pill">✦ Operations Compliance</span>
-              <h1 className="text-4xl font-extrabold text-white tracking-tight">Super Admin Audit Trails</h1>
-              <p className="text-gray-400 mt-2 text-sm">Permanent, un-editable audit trails representing critical administrative actions.</p>
-            </div>
-
-            <div className="glass-card rounded-3xl p-8 border border-slate-800/60 space-y-6">
-              {auditLogs.length === 0 ? (
-                <p className="text-sm text-gray-500">No audits recorded.</p>
-              ) : (
-                <div className="space-y-4 font-mono text-xs">
-                  {auditLogs.map(a => (
-                    <div key={a.id} className="p-4 rounded-xl border border-slate-800 bg-slate-950 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-                      <div className="space-y-1">
-                        <p className="text-gray-500">{isMounted ? new Date(a.created_at).toUTCString() : ''}</p>
-                        <p className="font-extrabold text-white">{a.action_by}</p>
-                        <p className="text-gray-400 mt-1">{a.action_description}</p>
-                      </div>
-                      <div>
-                        <span className={`text-[10px] font-bold px-3 py-1 rounded-full uppercase border ${
-                          a.status === 'Success' ? 'bg-emerald-950 text-emerald-400 border-emerald-900/30' : 'bg-red-950 text-red-400 border-red-900/30'
-                        }`}>
-                          {a.status}
-                        </span>
-                      </div>
-                    </div>
                   ))}
-                </div>
-              )}
+                </tbody>
+              </table>
             </div>
           </div>
-        )}
+        </div>
+      )}
 
-        {/* ═══════════════════════════════════════════════
-            MENU: ANNOUNCEMENTS MANAGER
-        ═══════════════════════════════════════════════ */}
-        {activeMenu === 'announcements' && (
-          <div className="space-y-8 animate-fadeIn">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div>
-                <span className="section-pill">✦ inc. Broadcast</span>
-                <h1 className="text-4xl font-extrabold text-white tracking-tight">Club Announcements</h1>
-              </div>
-              <button
-                onClick={() => { setEditAnn(null); setAnnForm({ title: '', content: '', isPinned: false }); setShowAnnModal(true); }}
-                className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition"
-              >
-                Publish Announcement +
-              </button>
-            </div>
-
-            <div className="space-y-4">
-              {announcements.length === 0 ? (
-                <p className="text-sm text-gray-500">No announcements published.</p>
-              ) : (
-                announcements.map(a => (
-                  <div key={a.id} className="glass-card rounded-2xl p-6 border border-slate-800/60 relative overflow-hidden flex flex-col justify-between">
+      {/* ═══ MENU: AUDIT TRAILS ═══ */}
+      {activeMenu === 'audits' && (
+        <div className="space-y-6 animate-fade-up">
+          <div>
+            <h2 className="dash-page-title">Super Admin Audit Trails</h2>
+            <p className="dash-page-subtitle">Permanent, un-editable audit records of critical administrative actions</p>
+          </div>
+          <div className="dash-card" style={{ padding: 24 }}>
+            {auditLogs.length === 0 ? (
+              <div className="dash-empty"><div className="dash-empty-icon">🔒</div><p className="dash-empty-title">No audit records yet</p></div>
+            ) : (
+              <div className="space-y-3" style={{ fontFamily: 'monospace' }}>
+                {auditLogs.map(a => (
+                  <div key={a.id} className="dash-card" style={{ padding: '14px 18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16 }}>
                     <div>
-                      <div className="flex justify-between items-center mb-3">
-                        <span className="text-[10px] text-gray-500 font-bold">{isMounted ? new Date(a.created_at).toLocaleString() : ''}</span>
-                        {a.is_pinned === 1 && <span className="text-[9px] bg-red-950 text-red-400 border border-red-900/40 px-2 py-0.5 rounded font-bold uppercase">📌 Pinned</span>}
-                      </div>
-                      <h3 className="font-extrabold text-white text-base">{a.title}</h3>
-                      <p className="text-xs text-gray-400 leading-relaxed mt-2 whitespace-pre-line font-light">{a.content}</p>
+                      <p style={{ fontSize: 11, color: 'rgba(148,163,184,0.5)' }}>{isMounted ? new Date(a.created_at).toUTCString() : ''}</p>
+                      <p style={{ fontWeight: 700, color: '#f1f5f9', fontSize: 13, marginTop: 2 }}>{a.action_by}</p>
+                      <p style={{ fontSize: 12, color: '#94a3b8', marginTop: 3 }}>{a.action_description}</p>
                     </div>
-
-                    <div className="flex gap-2 mt-6 pt-4 border-t border-slate-800/40 justify-end">
-                      <button
-                        onClick={() => {
-                          setEditAnn(a);
-                          setAnnForm({
-                            title: a.title,
-                            content: a.content,
-                            isPinned: a.is_pinned === 1
-                          });
-                          setShowAnnModal(true);
-                        }}
-                        className="bg-slate-800 hover:bg-slate-750 text-gray-300 text-[10px] font-bold px-3 py-1.5 rounded-lg transition"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDeleteAnnouncement(a.id)}
-                        className="bg-red-950/40 hover:bg-red-900/60 border border-red-900/40 text-red-400 text-[10px] font-bold px-3 py-1.5 rounded-lg transition"
-                      >
-                        Delete
-                      </button>
-                    </div>
+                    <span className={`status-chip flex-shrink-0 ${a.status === 'Success' ? 'chip-success' : 'chip-error'}`}>{a.status}</span>
                   </div>
-                ))
-              )}
-            </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
-            {/* Announcement Save Modal */}
-            {showAnnModal && (
-              <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-6 z-50 animate-fadeIn">
-                <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 max-w-md w-full relative">
-                  <h3 className="text-xl font-bold text-white mb-6">{editAnn ? 'Modify Announcement' : 'Publish Announcement'}</h3>
+      {/* ═══ MENU: ANNOUNCEMENTS ═══ */}
+      {activeMenu === 'announcements' && (
+        <div className="space-y-6 animate-fade-up">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h2 className="dash-page-title">Club Announcements</h2>
+              <p className="dash-page-subtitle">Publish and manage hub announcements</p>
+            </div>
+            <button
+              onClick={() => { setEditAnn(null); setAnnForm({ title: '', content: '', isPinned: false }); setShowAnnModal(true); }}
+              className="dash-btn dash-btn-primary"
+            >
+              + Publish Announcement
+            </button>
+          </div>
+
+          <div className="space-y-4">
+            {announcements.length === 0 ? (
+              <div className="dash-empty"><div className="dash-empty-icon">📢</div><p className="dash-empty-title">No announcements published</p></div>
+            ) : announcements.map(a => (
+              <div key={a.id} className="dash-card dash-card-interactive" style={{ padding: 22 }}>
+                <div className="flex justify-between items-start mb-3">
+                  <div className="flex items-center gap-2">
+                    {a.is_pinned === 1 && <span className="status-chip chip-error">📌 Pinned</span>}
+                    <span style={{ fontSize: 12, color: 'rgba(148,163,184,0.5)' }}>{isMounted ? new Date(a.created_at).toLocaleString('en-IN') : ''}</span>
+                  </div>
+                  <div className="flex gap-2">
+                    <button onClick={() => { setEditAnn(a); setAnnForm({ title: a.title, content: a.content, isPinned: a.is_pinned === 1 }); setShowAnnModal(true); }}
+                      className="dash-btn dash-btn-secondary dash-btn-sm">Edit</button>
+                    <button onClick={() => handleDeleteAnnouncement(a.id)} className="dash-btn dash-btn-danger dash-btn-sm">Delete</button>
+                  </div>
+                </div>
+                <h3 style={{ fontSize: 15, fontWeight: 700, color: '#f1f5f9', marginBottom: 8 }}>{a.title}</h3>
+                <p style={{ fontSize: 13, color: 'rgba(148,163,184,0.7)', lineHeight: 1.7, whiteSpace: 'pre-line' }}>{a.content}</p>
+              </div>
+            ))}
+          </div>
+
+          {showAnnModal && (
+            <div className="dash-modal-backdrop">
+              <div className="dash-modal">
+                <div className="dash-modal-header">
+                  <h3 className="dash-modal-title">{editAnn ? 'Edit Announcement' : 'Publish Announcement'}</h3>
+                  <button className="dash-modal-close" onClick={() => setShowAnnModal(false)}>✕</button>
+                </div>
+                <div className="dash-modal-body">
                   <form onSubmit={handleSaveAnnouncement} className="space-y-4">
                     <div>
-                      <label className="block text-xs text-gray-400 font-bold uppercase mb-1.5">Announcement Title</label>
-                      <input
-                        type="text"
-                        value={annForm.title}
-                        onChange={e => setAnnForm({ ...annForm, title: e.target.value })}
-                        className="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-white text-xs outline-none focus:border-blue-500"
-                        required
-                      />
+                      <label className="dash-label">Title</label>
+                      <input type="text" value={annForm.title} onChange={e => setAnnForm({ ...annForm, title: e.target.value })} className={inp} required />
                     </div>
                     <div>
-                      <label className="block text-xs text-gray-400 font-bold uppercase mb-1.5">Content Details</label>
-                      <textarea
-                        value={annForm.content}
-                        onChange={e => setAnnForm({ ...annForm, content: e.target.value })}
-                        className="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-white text-xs outline-none focus:border-blue-500"
-                        rows={5}
-                        required
-                      />
+                      <label className="dash-label">Content</label>
+                      <textarea value={annForm.content} onChange={e => setAnnForm({ ...annForm, content: e.target.value })} className={inp} rows={5} required style={{ resize: 'vertical' }} />
                     </div>
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        id="isPinned"
-                        checked={annForm.isPinned}
-                        onChange={e => setAnnForm({ ...annForm, isPinned: e.target.checked })}
-                        className="rounded border-slate-800 bg-slate-950 text-blue-600 focus:ring-0"
-                      />
-                      <label htmlFor="isPinned" className="text-xs text-gray-400 font-bold uppercase">Pin to top of Dashboard</label>
-                    </div>
-
-                    <div className="flex gap-3 mt-6">
-                      <button type="submit" className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs py-3 rounded-xl transition">
-                        {editAnn ? 'Save Changes' : 'Publish Now'}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setShowAnnModal(false)}
-                        className="flex-1 bg-slate-850 hover:bg-slate-800 border border-slate-800 text-gray-400 hover:text-white font-bold text-xs py-3 rounded-xl transition"
-                      >
-                        Cancel
-                      </button>
+                    <label className="flex items-center gap-3 cursor-pointer" style={{ padding: '10px 14px', background: 'var(--dash-surface-3)', borderRadius: 10, border: '1px solid var(--dash-border)' }}>
+                      <input type="checkbox" id="isPinned" checked={annForm.isPinned} onChange={e => setAnnForm({ ...annForm, isPinned: e.target.checked })} style={{ accentColor: '#6366f1' }} />
+                      <span style={{ fontSize: 13, fontWeight: 600, color: '#e2e8f0' }}>Pin to top of Dashboard</span>
+                    </label>
+                    <div className="flex gap-3 pt-2">
+                      <button type="submit" className="dash-btn dash-btn-primary" style={{ flex: 1 }}>{editAnn ? 'Save Changes' : 'Publish Now'}</button>
+                      <button type="button" onClick={() => setShowAnnModal(false)} className="dash-btn dash-btn-secondary" style={{ flex: 1 }}>Cancel</button>
                     </div>
                   </form>
                 </div>
               </div>
-            )}
+            </div>
+          )}
+        </div>
+      )}
 
+      {/* ═══ MENU: BROADCASTER ═══ */}
+      {activeMenu === 'notifications' && (
+        <div className="space-y-6 animate-fade-up">
+          <div>
+            <h2 className="dash-page-title">Broadcaster Alerts</h2>
+            <p className="dash-page-subtitle">Send emergency notifications or announcements directly to students</p>
           </div>
-        )}
+          <div className="dash-card" style={{ padding: 28, maxWidth: 600 }}>
+            <form onSubmit={handleSendNotification} className="space-y-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div>
+                  <label className="dash-label">Transmission Method</label>
+                  <select value={notifForm.type} onChange={e => setNotifForm({ ...notifForm, type: e.target.value })} className={sel}>
+                    <option value="website">Website In-App Alert</option>
+                    <option value="email">Email Notification</option>
+                    <option value="emergency">Emergency Broadcast Popup</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="dash-label">Target Audience</label>
+                  <select value={notifForm.target} onChange={e => setNotifForm({ ...notifForm, target: e.target.value })} className={sel}>
+                    <option value="all">All Registered Students</option>
+                    <option value="engineering">Engineering Students only</option>
+                    <option value="law">Law Students only</option>
+                    <option value="business">Business Students only</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label className="dash-label">Subject Header</label>
+                <input type="text" value={notifForm.subject} onChange={e => setNotifForm({ ...notifForm, subject: e.target.value })} placeholder="e.g. SIH Hackathon Updates" className={inp} required />
+              </div>
+              <div>
+                <label className="dash-label">Message Body</label>
+                <textarea value={notifForm.content} onChange={e => setNotifForm({ ...notifForm, content: e.target.value })} placeholder="Type the message contents..." className={inp} rows={6} required style={{ resize: 'vertical' }} />
+              </div>
+              <button type="submit" disabled={loading} className="dash-btn dash-btn-primary" style={{ width: '100%' }}>
+                {loading ? <span className="dash-spinner" /> : '📡 Broadcast Alert Transmission'}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
 
-        {/* ═══════════════════════════════════════════════
-            MENU: BROADCASTER ALERTS
-        ═══════════════════════════════════════════════ */}
-        {activeMenu === 'notifications' && (
-          <div className="space-y-8 animate-fadeIn">
-            <div>
-              <span className="section-pill">✦ Transmissions</span>
-              <h1 className="text-4xl font-extrabold text-white tracking-tight">Broadcaster Alerts</h1>
-              <p className="text-gray-400 mt-2 text-sm">Send emergency notifications, reminders, or broadcast announcements directly to students.</p>
+      {/* ═══ MENU: REPORTS ═══ */}
+      {activeMenu === 'reports' && (
+        <div className="space-y-6 animate-fade-up">
+          <div>
+            <h2 className="dash-page-title">Reports & Analytics</h2>
+            <p className="dash-page-subtitle">Download printable summaries or dispatch automated reports</p>
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2 space-y-5">
+              <p className="dash-section-title">📥 System Static Reports</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                {[
+                  { title: 'Student Directory Registry', desc: 'Complete lists of registered, active, and suspended students.', file: 'students' },
+                  { title: 'Incubation Club Metrics', desc: 'Active clubs, administrators, and student compliance checks.', file: 'clubs' },
+                  { title: 'Event Participation Log', desc: 'Attendance stats, registration trends, and category breakdowns.', file: 'events' },
+                  { title: 'Platform Security Audits', desc: 'Admin audit records and system activity logs (non-editable).', file: 'logs' },
+                ].map(rep => (
+                  <div key={rep.title} className="dash-card dash-card-interactive" style={{ padding: 20, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                    <div>
+                      <h3 style={{ fontSize: 13, fontWeight: 700, color: '#f1f5f9', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8 }}>{rep.title}</h3>
+                      <p style={{ fontSize: 12, color: 'rgba(148,163,184,0.6)', lineHeight: 1.6 }}>{rep.desc}</p>
+                    </div>
+                    <div className="flex gap-2 mt-5 pt-4" style={{ borderTop: '1px solid var(--dash-border)' }}>
+                      <button onClick={() => alert(`Generating Excel for ${rep.title}... Done!`)} className="dash-btn dash-btn-secondary dash-btn-sm" style={{ flex: 1 }}>📥 Excel</button>
+                      <button onClick={() => alert(`Generating PDF for ${rep.title}... Done!`)} className="dash-btn dash-btn-sm dash-btn-sm" style={{ flex: 1, background: 'rgba(59,130,246,0.12)', color: '#60a5fa', border: '1px solid rgba(59,130,246,0.2)' }}>📄 PDF</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
 
-            <div className="glass-card rounded-3xl p-8 border border-slate-800/60 max-w-2xl">
-              <form onSubmit={handleSendNotification} className="space-y-6">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-xs text-gray-400 font-bold uppercase mb-2">Transmission Method</label>
-                    <select
-                      value={notifForm.type}
-                      onChange={e => setNotifForm({ ...notifForm, type: e.target.value })}
-                      className="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-white text-xs outline-none focus:border-blue-500"
-                    >
-                      <option value="website">Website In-App Alert</option>
-                      <option value="email">Email Notification</option>
-                      <option value="emergency">Emergency Broadcast Popup</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-xs text-gray-400 font-bold uppercase mb-2">Target Audience</label>
-                    <select
-                      value={notifForm.target}
-                      onChange={e => setNotifForm({ ...notifForm, target: e.target.value })}
-                      className="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-white text-xs outline-none focus:border-blue-500"
-                    >
-                      <option value="all">All Registered Students</option>
-                      <option value="engineering">Engineering Students only</option>
-                      <option value="law">Law Students only</option>
-                      <option value="business">Business Students only</option>
-                    </select>
-                  </div>
-                </div>
-
+            <div className="dash-card" style={{ padding: 24 }}>
+              <p className="dash-section-title" style={{ marginBottom: 6 }}>⚡ Periodic Dispatcher</p>
+              <p style={{ fontSize: 12, color: 'rgba(148,163,184,0.5)', marginBottom: 20 }}>Generate operational digests and email them to administrators.</p>
+              <div className="space-y-4">
                 <div>
-                  <label className="block text-xs text-gray-400 font-bold uppercase mb-2">Subject Header</label>
-                  <input
-                    type="text"
-                    value={notifForm.subject}
-                    onChange={e => setNotifForm({ ...notifForm, subject: e.target.value })}
-                    placeholder="e.g. Incubation Lab SIH Hackathon Updates"
-                    className="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-white text-xs outline-none focus:border-blue-500"
-                    required
-                  />
+                  <label className="dash-label">Interval Timeframe</label>
+                  <select value={selectedReportTimeframe} onChange={e => setSelectedReportTimeframe(e.target.value)} className={sel}>
+                    <option value="daily">Daily (Past 24 Hours)</option>
+                    <option value="weekly">Weekly (Past 7 Days)</option>
+                    <option value="monthly">Monthly (Past 30 Days)</option>
+                    <option value="6months">Semi-Annual (Past 6 Months)</option>
+                    <option value="12months">Annual (Past 12 Months)</option>
+                  </select>
                 </div>
-
-                <div>
-                  <label className="block text-xs text-gray-400 font-bold uppercase mb-2">Detailed Message Body</label>
-                  <textarea
-                    value={notifForm.content}
-                    onChange={e => setNotifForm({ ...notifForm, content: e.target.value })}
-                    placeholder="Type the message contents..."
-                    className="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-white text-xs outline-none focus:border-blue-500"
-                    rows={6}
-                    required
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs py-3 rounded-xl transition"
-                >
-                  Broadcast Alerts Transmission
+                <button onClick={handleDispatchReport} disabled={loading} className="dash-btn dash-btn-primary" style={{ width: '100%' }}>
+                  {loading ? <span className="dash-spinner" /> : '⚡ Dispatch Email Report'}
                 </button>
-              </form>
-            </div>
-          </div>
-        )}
+              </div>
 
-        {/* ═══════════════════════════════════════════════
-            MENU: REPORTS & ANALYTICS
-        ═══════════════════════════════════════════════ */}
-        {activeMenu === 'reports' && (
-          <div className="space-y-8 animate-fadeIn">
-            <div>
-              <span className="section-pill">✦ Operational Digest</span>
-              <h1 className="text-4xl font-extrabold text-white tracking-tight">Reports & Analytics</h1>
-              <p className="text-gray-400 mt-2 text-sm">Download printable cohort summaries or dispatch automated email reports to admin inboxes.</p>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              {/* Downloadable Reports Grid */}
-              <div className="lg:col-span-2 space-y-6">
-                <h3 className="text-lg font-bold text-white mb-2">System Static Reports</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  {[
-                    { title: 'Student Directory Registry', desc: 'Complete lists of registered, active, and suspended students with demographic information.', file: 'students' },
-                    { title: 'Incubation Club Metrics', desc: 'List of active innovation clubs, designated administrators, and current student compliance check reports.', file: 'clubs' },
-                    { title: 'Event Participation log', desc: 'Attendance stats, registration trends, and category breakdown reports.', file: 'events' },
-                    { title: 'Platform Security Audits', desc: 'Consolidated admin audit records and system activities logs (non-editable).', file: 'logs' }
-                  ].map(rep => (
-                    <div key={rep.title} className="glass-card rounded-2xl p-6 border border-slate-800/60 flex flex-col justify-between">
-                      <div>
-                        <h3 className="font-extrabold text-white text-xs uppercase tracking-wider">{rep.title}</h3>
-                        <p className="text-[11px] text-gray-400 mt-2 leading-relaxed font-light">{rep.desc}</p>
+              <div style={{ marginTop: 20, paddingTop: 16, borderTop: '1px solid var(--dash-border)' }}>
+                <p className="dash-label" style={{ marginBottom: 10 }}>📧 Sent Reports Log</p>
+                <div style={{ maxHeight: 200, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  {reportsSentLogs.length === 0 ? (
+                    <p style={{ fontSize: 11, color: 'rgba(148,163,184,0.4)', textAlign: 'center', padding: '16px 0' }}>No automated reports sent yet.</p>
+                  ) : reportsSentLogs.map(log => (
+                    <div key={log.id} className="dash-card" style={{ padding: '10px 12px' }}>
+                      <div className="flex justify-between items-center">
+                        <span style={{ fontSize: 10, fontWeight: 700, color: '#60a5fa', textTransform: 'uppercase' }}>{log.report_type} REPORT</span>
+                        <span style={{ fontSize: 10, color: 'rgba(148,163,184,0.5)' }}>{isMounted ? new Date(log.created_at).toLocaleDateString('en-IN') : ''}</span>
                       </div>
-
-                      <div className="flex gap-2 mt-6 pt-4 border-t border-slate-800/40">
-                        <button
-                          onClick={() => alert(`Generating Excel report for ${rep.title}... Done!`)}
-                          className="flex-1 bg-slate-800 hover:bg-slate-750 text-gray-300 text-[10px] font-bold py-2 rounded-lg transition"
-                        >
-                          📥 Excel Format
-                        </button>
-                        <button
-                          onClick={() => alert(`Generating PDF report for ${rep.title}... Done!`)}
-                          className="flex-1 bg-blue-950/40 hover:bg-blue-900/60 border border-blue-900/40 text-blue-400 text-[10px] font-bold py-2 rounded-lg transition"
-                        >
-                          📄 PDF Format
-                        </button>
-                      </div>
+                      <p style={{ fontSize: 11, color: 'rgba(148,163,184,0.5)', marginTop: 3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        <span style={{ fontWeight: 600, color: 'rgba(148,163,184,0.4)' }}>Sent to:</span> {log.sent_to}
+                      </p>
                     </div>
                   ))}
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
 
-              {/* Automated Periodic Report Center */}
-              <div className="glass-card rounded-3xl p-6 border border-slate-800/60 space-y-6">
+      {/* ═══ MENU: SYSTEM SETTINGS ═══ */}
+      {activeMenu === 'settings' && (
+        <div className="space-y-6 animate-fade-up">
+          <div>
+            <h2 className="dash-page-title">System Settings</h2>
+            <p className="dash-page-subtitle">Configure parameters, metadata, and platform category lists</p>
+          </div>
+          <div className="dash-card" style={{ padding: 32, maxWidth: 640 }}>
+            <form onSubmit={(e) => { e.preventDefault(); setSuccessMsg('System configuration saved successfully!'); }} className="space-y-5">
+              <div>
+                <label className="dash-label">Website Name</label>
+                <input type="text" value={sysSettings.siteName} onChange={e => setSysSettings({ ...sysSettings, siteName: e.target.value })} className={inp} required />
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div>
-                  <h3 className="text-lg font-bold text-white">Periodic Report Dispatcher</h3>
-                  <p className="text-[10px] text-gray-500 mt-1">Generate operational digests and email them to administrators.</p>
+                  <label className="dash-label">Academic Year</label>
+                  <input type="text" value={sysSettings.academicYear} onChange={e => setSysSettings({ ...sysSettings, academicYear: e.target.value })} className={inp} required />
                 </div>
-
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Interval Timeframe</label>
-                    <select
-                      value={selectedReportTimeframe}
-                      onChange={e => setSelectedReportTimeframe(e.target.value)}
-                      className="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-white text-xs outline-none focus:border-blue-500/80"
-                    >
-                      <option value="daily">Daily Report (Past 24 Hours)</option>
-                      <option value="weekly">Weekly Report (Past 7 Days)</option>
-                      <option value="monthly">Monthly Report (Past 30 Days)</option>
-                      <option value="6months">Semi-Annual Report (Past 6 Months)</option>
-                      <option value="12months">Annual Report (Past 12 Months)</option>
-                    </select>
-                  </div>
-
-                  <button
-                    onClick={handleDispatchReport}
-                    disabled={loading}
-                    className="w-full bg-blue-650 hover:bg-blue-700 text-white font-bold text-xs py-3 rounded-xl transition shadow-lg shadow-blue-950/30"
-                  >
-                    {loading ? 'Generating...' : '⚡ Dispatch Email Report'}
-                  </button>
-                </div>
-
-                {/* Sent Reports Logs list */}
-                <div className="pt-6 border-t border-slate-800/60">
-                  <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">📧 Sent Reports History Log</h4>
-                  <div className="space-y-3 max-h-[220px] overflow-y-auto pr-1">
-                    {reportsSentLogs.length === 0 ? (
-                      <p className="text-[10px] text-gray-600 text-center py-4">No automated reports sent yet.</p>
-                    ) : (
-                      reportsSentLogs.map(log => (
-                        <div key={log.id} className="p-3 bg-slate-950/40 border border-slate-900 rounded-2xl text-[10px] space-y-1">
-                          <div className="flex justify-between items-center">
-                            <span className="font-extrabold text-blue-400 uppercase">{log.report_type} REPORT</span>
-                            <span className="text-gray-500">{isMounted ? new Date(log.created_at).toLocaleDateString() : ''}</span>
-                          </div>
-                          <p className="text-gray-400 truncate"><span className="font-bold text-gray-500">Sent to:</span> {log.sent_to}</p>
-                        </div>
-                      ))
-                    )}
-                  </div>
+                <div>
+                  <label className="dash-label">UI Theme</label>
+                  <select value={sysSettings.theme} onChange={e => setSysSettings({ ...sysSettings, theme: e.target.value })} className={sel}>
+                    <option value="Dark Orbit Space">Dark Orbit Space</option>
+                    <option value="Titanium Gray">Titanium Gray</option>
+                    <option value="Emerald Aurora">Emerald Aurora</option>
+                  </select>
                 </div>
               </div>
-            </div>
+              <div>
+                <label className="dash-label">Event Categories (Comma Separated)</label>
+                <input type="text" value={sysSettings.eventCategories} onChange={e => setSysSettings({ ...sysSettings, eventCategories: e.target.value })} className={inp} required />
+              </div>
+              <div>
+                <label className="dash-label">Club Categories (Comma Separated)</label>
+                <input type="text" value={sysSettings.clubCategories} onChange={e => setSysSettings({ ...sysSettings, clubCategories: e.target.value })} className={inp} required />
+              </div>
+              <button type="submit" className="dash-btn dash-btn-primary" style={{ width: '100%' }}>Save Configuration</button>
+            </form>
           </div>
-        )}
+        </div>
+      )}
 
-        {/* ═══════════════════════════════════════════════
-            MENU: SYSTEM SETTINGS
-        ═══════════════════════════════════════════════ */}
-        {activeMenu === 'settings' && (
-          <div className="space-y-8 animate-fadeIn">
-            <div>
-              <span className="section-pill">✦ Configurator</span>
-              <h1 className="text-4xl font-extrabold text-white tracking-tight">System Settings</h1>
-              <p className="text-gray-400 mt-2 text-sm">Configure parameters, metadata, and platform category lists.</p>
-            </div>
-
-            <div className="glass-card rounded-3xl p-8 border border-slate-800/60 max-w-2xl">
-              <form onSubmit={(e) => { e.preventDefault(); setSuccessMsg('System configuration settings saved successfully!'); }} className="space-y-5">
-                <div>
-                  <label className="block text-xs text-gray-400 font-bold uppercase mb-1.5">Website Name</label>
-                  <input
-                    type="text"
-                    value={sysSettings.siteName}
-                    onChange={e => setSysSettings({ ...sysSettings, siteName: e.target.value })}
-                    className="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-white text-xs outline-none focus:border-blue-500"
-                    required
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs text-gray-400 font-bold uppercase mb-1.5">Incubation Academic Year</label>
-                    <input
-                      type="text"
-                      value={sysSettings.academicYear}
-                      onChange={e => setSysSettings({ ...sysSettings, academicYear: e.target.value })}
-                      className="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-white text-xs outline-none focus:border-blue-500"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs text-gray-400 font-bold uppercase mb-1.5">UI Design Theme</label>
-                    <select
-                      value={sysSettings.theme}
-                      onChange={e => setSysSettings({ ...sysSettings, theme: e.target.value })}
-                      className="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-white text-xs outline-none focus:border-blue-500"
-                    >
-                      <option value="Dark Orbit Space">Dark Orbit Space (Cyan-Blue Glow)</option>
-                      <option value="Titanium Gray">Titanium Gray (Matte Slate)</option>
-                      <option value="Emerald Aurora">Aurora Borealis (Emerald Green)</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs text-gray-400 font-bold uppercase mb-1.5">Event Categories List (Comma Separated)</label>
-                  <input
-                    type="text"
-                    value={sysSettings.eventCategories}
-                    onChange={e => setSysSettings({ ...sysSettings, eventCategories: e.target.value })}
-                    className="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-white text-xs outline-none focus:border-blue-500"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs text-gray-400 font-bold uppercase mb-1.5">Club Categories List (Comma Separated)</label>
-                  <input
-                    type="text"
-                    value={sysSettings.clubCategories}
-                    onChange={e => setSysSettings({ ...sysSettings, clubCategories: e.target.value })}
-                    className="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-white text-xs outline-none focus:border-blue-500"
-                    required
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs py-3 rounded-xl transition"
-                >
-                  Save Configuration settings
-                </button>
-              </form>
-            </div>
+      {/* ═══ MENU: ROLES MANAGER ═══ */}
+      {activeMenu === 'roles' && (
+        <div className="animate-fade-up">
+          <div className="mb-6">
+            <h2 className="dash-page-title">RBAC Roles Manager</h2>
+            <p className="dash-page-subtitle">Configure platform roles and access permissions</p>
           </div>
-        )}
+          <RolesManager roles={roles} onRefresh={loadAllData} />
+        </div>
+      )}
 
-        {/* ═══════════════════════════════════════════════
-            MENU: RBAC ROLES CONFIG
-        ═══════════════════════════════════════════════ */}
-        {activeMenu === 'roles' && (
-          <div className="animate-fadeIn">
-            <RolesManager roles={roles} onRefresh={loadAllData} />
+      {/* ═══ MENU: CORE TEAM ═══ */}
+      {activeMenu === 'coreMembers' && (
+        <div className="animate-fade-up">
+          <div className="mb-6">
+            <h2 className="dash-page-title">Core Team Manager</h2>
+            <p className="dash-page-subtitle">Manage Yantriksha X Hub core team members and their roles</p>
           </div>
-        )}
+          <CoreMembersManager members={coreMembers} roles={roles} teams={allTeams} onRefresh={loadAllData} />
+        </div>
+      )}
 
-        {/* ═══════════════════════════════════════════════
-            MENU: CORE TEAM MANAGER
-        ═══════════════════════════════════════════════ */}
-        {activeMenu === 'coreMembers' && (
-          <div className="animate-fadeIn">
-            <CoreMembersManager members={coreMembers} roles={roles} teams={allTeams} onRefresh={loadAllData} />
-          </div>
-        )}
-
-      </section>
-
-    </main>
+    </DashboardShell>
   );
 }

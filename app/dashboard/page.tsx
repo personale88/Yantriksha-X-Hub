@@ -21,7 +21,7 @@ export default async function DashboardPage() {
 
   // 1. Fetch user profile from database with all fields needed for settings
   const users = await query(
-    'SELECT id, veltech_id, name, email, role, discipline, phone_number, year_of_studying, branch, is_core_team FROM users WHERE id = ?',
+    'SELECT id, veltech_id, name, email, role, discipline, status, phone_number, year_of_studying, branch, is_core_team FROM users WHERE id = ?',
     [decoded.userId]
   );
   
@@ -29,6 +29,11 @@ export default async function DashboardPage() {
     redirect('/login');
   }
   const user = users[0];
+
+  // Restrict access if login access has not been granted by Admin
+  if (user.role === 'student' && user.status !== 'active') {
+    redirect('/login?error=access_denied');
+  }
 
   // If user is a Core Team member, render their personalized workspace
   if (user.is_core_team) {

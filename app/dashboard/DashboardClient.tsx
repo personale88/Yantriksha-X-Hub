@@ -1,10 +1,12 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import DashboardJourney from '@/components/roadmap/DashboardJourney';
+import DashboardShell from '@/components/dashboard/DashboardShell';
+
 
 const inp = [
   'w-full px-4 py-3.5 rounded-xl text-white text-sm outline-none border transition-all duration-200',
@@ -162,7 +164,7 @@ const ROADMAP_STEPS = [
   { step: 4, title: 'Prototype Design', desc: 'Draft complete engineering blueprints, sensor integration, and component requirements.', deliverable: 'System design schematics & component bill of materials.' },
   { step: 5, title: 'Feasibility Evaluation', desc: 'Evaluate project across technical, financial, and legal pillars.', deliverable: 'Feasibility report.' },
   { step: 6, title: 'Resource Request', desc: 'Submit procurement requirements for hardware components and software.', deliverable: 'Procurement list & vendor quotes.' },
-  { step: 7, title: 'Seed Funding', desc: 'Submit funding request (up to ₹50,000) for prototype fabrication reimbursement.', deliverable: 'Reimbursement forms & receipts.' },
+  { step: 7, title: 'Seed Funding', desc: 'Submit funding request (up to â‚¹50,000) for prototype fabrication reimbursement.', deliverable: 'Reimbursement forms & receipts.' },
   { step: 8, title: 'Mentorship Connect', desc: 'Schedule review sessions with assigned expert startup mentors.', deliverable: 'Mentor review logs.' },
   { step: 9, title: 'Progress Reporting', desc: 'Submit bi-weekly milestone reports detailing prototype fabrication status.', deliverable: 'Prototype progress report & live video link.' },
   { step: 10, title: 'Hackathon Challenges', desc: 'Participate in collegiate hackathons and innovation challenges (e.g. SIH).', deliverable: 'Hackathon certificate or proof of entry.' },
@@ -629,1023 +631,949 @@ export default function DashboardClient({
     }
   };
 
-  const getComplianceIcon = (val: boolean) => val ? '✅' : '❌';
+  const getComplianceIcon = (val: boolean) => val ? 'âœ…' : 'âŒ';
+
+  // â”€â”€ Premium Dashboard Render â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  const navItems = [
+    { id: 'dashboard', label: 'Dashboard', icon: 'â¬¡', group: 'Main' },
+    { id: 'journey',   label: 'My Journey', icon: 'ðŸš€', group: 'Main' },
+    { id: 'team',      label: 'My Team',    icon: 'ðŸ‘¥', group: 'Main' },
+    { id: 'project',   label: 'My Project', icon: 'ðŸ“', group: 'Work' },
+    { id: 'funding',   label: 'Funding',    icon: 'ðŸ’Ž', group: 'Work' },
+    { id: 'mentors',   label: 'Mentors',    icon: 'ðŸŽ“', group: 'Work' },
+    { id: 'events',    label: 'Events',     icon: 'ðŸ“…', group: 'Work' },
+    { id: 'settings',  label: 'Settings',   icon: 'âš™',  group: 'Account' },
+  ];
+
+  const roleLabels: Record<string, string> = {
+    student: 'Student Innovator',
+    faculty: 'Faculty Advisor',
+    mentor: 'Expert Mentor',
+    admin: 'Administrator',
+  };
+
+  const dashInp = 'dash-input';
+  const dashSel = 'dash-input';
+
+  const stagePct = team ? Math.min(Math.round((team.currentStage / 14) * 100), 100) : 0;
 
   return (
-    <main className="min-h-screen bg-space-grid text-white flex flex-row relative overflow-hidden">
-      
-      {/* ── Sidebar (Slim w-16 on mobile, expanded w-72 on desktop) ── */}
-      <aside className="w-16 md:w-72 bg-slate-900/90 backdrop-blur-xl border-r border-slate-800/80 flex flex-col z-20 shrink-0 transition-all duration-300">
-        
-        {/* Brand Logo */}
-        <div className="p-3.5 md:p-6 border-b border-slate-800/60 flex items-center justify-center md:justify-start">
-          <Link href="/" className="flex items-center gap-3 group">
-            <div className="relative h-9 w-9 rounded-lg overflow-hidden border border-slate-700/60 group-hover:border-blue-500/50 transition">
-              <Image src="/logo.png" alt="logo" fill className="object-contain" style={{ mixBlendMode: 'screen' }} />
-            </div>
-            <span className="hidden md:flex items-center text-base font-extrabold">
-              <span className="bg-gradient-to-r from-blue-400 to-blue-500 bg-clip-text text-transparent">Yantriksha</span>
-              <span className="inline-block relative h-6 w-8 mx-0.5 align-middle shrink-0">
-                <Image src="/logo.png" fill className="object-contain" style={{ mixBlendMode: 'screen' }} alt="X" />
-              </span>
-              <span className="bg-gradient-to-r from-indigo-300 to-amber-300 bg-clip-text text-transparent">Hub</span>
-            </span>
-          </Link>
+    <DashboardShell
+      user={{ name: user.name, role: user.role, email: user.email }}
+      navItems={navItems}
+      activeMenu={activeTab}
+      setActiveMenu={(id) => { setActiveTab(id as any); setErrorMsg(''); setSuccessMsg(''); }}
+      onLogout={handleLogout}
+      breadcrumb={navItems.find(n => n.id === activeTab)?.label}
+      roleLabel={roleLabels[user.role]}
+      roleColor="#6366f1"
+    >
+      {/* Toast Messages */}
+      {errorMsg && (
+        <div className="dash-toast-error mb-6">
+          <span>âœ•</span>
+          <span>{errorMsg}</span>
+          <button onClick={() => setErrorMsg('')} style={{ marginLeft: 'auto', opacity: 0.6 }}>âœ•</button>
         </div>
-
-        {/* Menu items */}
-        <nav className="flex-1 p-2 md:p-5 space-y-1">
-          {[
-            { id: 'dashboard', label: 'Dashboard', icon: '🏠' },
-            { id: 'journey', label: 'My Journey', icon: '🚀' },
-            { id: 'team', label: 'My Team', icon: '👥' },
-            { id: 'project', label: 'My Project', icon: '📂' },
-            { id: 'funding', label: 'Funding', icon: '💰' },
-            { id: 'mentors', label: 'Mentors', icon: '👨‍🏫' },
-            { id: 'events', label: 'Events', icon: '📅' },
-            { id: 'settings', label: 'Settings', icon: '⚙️' },
-          ].map(t => (
-            <button
-              key={t.id}
-              onClick={() => { setActiveTab(t.id as any); setErrorMsg(''); setSuccessMsg(''); }}
-              className={`w-full flex items-center justify-center md:justify-start gap-3.5 p-3 md:px-4 md:py-3 rounded-xl text-sm font-semibold transition-all duration-200 ${
-                activeTab === t.id
-                  ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/30'
-                  : 'text-gray-400 hover:text-white hover:bg-slate-800/60'
-              }`}
-              title={t.label}
-            >
-              <span className="text-lg shrink-0">{t.icon}</span>
-              <span className="hidden md:inline">{t.label}</span>
-            </button>
-          ))}
-        </nav>
-
-        {/* Logout */}
-        <div className="p-2 md:p-5 border-t border-slate-800/60">
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center justify-center gap-2 bg-red-950/40 hover:bg-red-900/60 border border-red-900/40 text-red-400 p-3 md:py-3 rounded-xl font-bold text-sm transition-all duration-200"
-            title="Logout"
-          >
-            <span>🚪</span><span className="hidden md:inline"> Logout</span>
-          </button>
+      )}
+      {successMsg && (
+        <div className="dash-toast-success mb-6">
+          <span>âœ“</span>
+          <span>{successMsg}</span>
+          <button onClick={() => setSuccessMsg('')} style={{ marginLeft: 'auto', opacity: 0.6 }}>âœ•</button>
         </div>
-      </aside>
+      )}
 
-      {/* ── Main content view area ── */}
-      <section className="flex-1 p-6 md:p-10 z-10 overflow-y-auto max-h-screen">
+      {/* â•â•â• TAB: DASHBOARD â•â•â• */}
+      {activeTab === 'dashboard' && (
+        <div className="space-y-8 animate-fade-up">
 
-        {/* Global Notification Messages */}
-        {errorMsg && (
-          <div className="mb-6 p-4 bg-red-950/60 border border-red-800/60 text-red-400 rounded-2xl text-sm flex items-center gap-2.5 animate-fadeIn">
-            <span>❌</span> {errorMsg}
-          </div>
-        )}
-        {successMsg && (
-          <div className="mb-6 p-4 bg-emerald-950/60 border border-emerald-800/60 text-emerald-400 rounded-2xl text-sm flex items-center gap-2.5 animate-fadeIn">
-            <span>🎉</span> {successMsg}
-          </div>
-        )}
-
-        {/* ═══════════════════════════════════════════════
-            TAB: DASHBOARD
-        ═══════════════════════════════════════════════ */}
-        {activeTab === 'dashboard' && (
-          <div className="space-y-8 animate-fadeIn">
-            <div>
-              <span className="section-pill">✦ Control Panel</span>
-              <h1 className="text-4xl font-extrabold text-white tracking-tight">Welcome, {user.name} 👋</h1>
-              <p className="text-gray-400 mt-2 text-xs uppercase tracking-widest font-semibold">
-                Role: <span className="text-blue-400">{user.role}</span> | Discipline: <span className="text-amber-400">{user.discipline}</span>
+          {/* Stat Cards */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
+            <div className="dash-stat-card animate-fade-up delay-1">
+              <div className="absolute top-0 right-0 w-20 h-20 rounded-full opacity-10 -mr-6 -mt-6 blur-2xl pointer-events-none" style={{ background: '#6366f1' }} />
+              <div className="dash-stat-icon" style={{ background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.25)' }}>
+                <span style={{ fontSize: 18 }}>ðŸš€</span>
+              </div>
+              <div className="dash-stat-value" style={{ color: '#a5b4fc' }}>
+                {team ? ROADMAP_STEPS[team.currentStage - 1]?.title?.split(' ')[0] || `Stage ${team.currentStage}` : 'None'}
+              </div>
+              <div className="dash-stat-label">Current Stage</div>
+              <p style={{ fontSize: 11, color: 'rgba(148,163,184,0.5)', marginTop: 6 }}>
+                {team ? `Step ${team.currentStage} of 14` : 'Create a team to begin'}
               </p>
             </div>
 
-            {/* Quick Stats Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              
-              {/* Current Stage card */}
-              <div className="glass-card rounded-2xl p-6 border border-slate-800/60 relative overflow-hidden">
-                <div className="absolute top-4 right-4 text-3xl opacity-20">🚀</div>
-                <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-widest">Current Stage</h3>
-                <p className="text-blue-400 mt-3 text-xl font-bold">
-                  {team ? ROADMAP_STEPS[team.currentStage - 1]?.title || `Milestone ${team.currentStage}` : 'No Active Team'}
-                </p>
-                <p className="text-[11px] text-gray-500 mt-2">
-                  {team ? `Stage ${team.currentStage <= 2 ? '-1: Confusion' : team.currentStage <= 5 ? '0: Idea' : '1: Product'}` : 'Create a team to begin'}
-                </p>
+            <div className="dash-stat-card animate-fade-up delay-2">
+              <div className="absolute top-0 right-0 w-20 h-20 rounded-full opacity-10 -mr-6 -mt-6 blur-2xl pointer-events-none" style={{ background: '#10b981' }} />
+              <div className="dash-stat-icon" style={{ background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.2)' }}>
+                <span style={{ fontSize: 18 }}>ðŸ“ˆ</span>
               </div>
+              <div className="dash-stat-value" style={{ color: '#34d399' }}>{stagePct}%</div>
+              <div className="dash-stat-label">Roadmap Progress</div>
+              <div className="dash-progress-track" style={{ height: 4, marginTop: 10 }}>
+                <div className="dash-progress-fill green" style={{ width: `${stagePct}%` }} />
+              </div>
+            </div>
 
-              {/* Progress card with rising SVG graph visualization */}
-              <div className="glass-card rounded-2xl p-6 border border-slate-800/60 relative overflow-hidden flex flex-col justify-between min-h-[160px]">
+            <div className="dash-stat-card animate-fade-up delay-3">
+              <div className="absolute top-0 right-0 w-20 h-20 rounded-full opacity-10 -mr-6 -mt-6 blur-2xl pointer-events-none" style={{ background: '#f59e0b' }} />
+              <div className="dash-stat-icon" style={{ background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.2)' }}>
+                <span style={{ fontSize: 18 }}>ðŸ‘¥</span>
+              </div>
+              <div className="dash-stat-value" style={{ color: '#fbbf24' }}>
+                {team ? `${team.memberCount}/10` : '0/10'}
+              </div>
+              <div className="dash-stat-label">Team Members</div>
+              <div className="flex gap-1 mt-2">
+                {['ENG', 'LAW', 'MBA', 'ADV'].map((label, i) => {
+                  const checks = [team?.hasEngineering, team?.hasLaw, team?.hasBusiness, team?.hasFacultyAdvisor];
+                  return (
+                    <span key={label} style={{
+                      fontSize: 9, fontWeight: 700, padding: '2px 5px', borderRadius: 4,
+                      background: checks[i] ? 'rgba(99,102,241,0.2)' : 'rgba(30,41,59,0.8)',
+                      color: checks[i] ? '#a5b4fc' : 'rgba(100,116,139,0.5)',
+                      border: `1px solid ${checks[i] ? 'rgba(99,102,241,0.3)' : 'transparent'}`,
+                    }}>{label}</span>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="dash-stat-card animate-fade-up delay-4">
+              <div className="absolute top-0 right-0 w-20 h-20 rounded-full opacity-10 -mr-6 -mt-6 blur-2xl pointer-events-none" style={{ background: '#a855f7' }} />
+              <div className="dash-stat-icon" style={{ background: 'rgba(168,85,247,0.12)', border: '1px solid rgba(168,85,247,0.2)' }}>
+                <span style={{ fontSize: 18 }}>ðŸ’°</span>
+              </div>
+              <div className="dash-stat-value" style={{ color: '#c084fc' }}>
+                {fundingClaims.length > 0 ? `â‚¹${fundingClaims[0].requested_amount.toLocaleString()}` : 'â€”'}
+              </div>
+              <div className="dash-stat-label">Seed Funding</div>
+              {fundingClaims.length > 0 && (
+                <span className={`status-chip mt-2 inline-flex ${
+                  fundingClaims[0].status === 'approved' ? 'chip-success' : 
+                  fundingClaims[0].status === 'rejected' ? 'chip-error' : 'chip-warning'
+                }`}>
+                  {fundingClaims[0].status}
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* Team Hero / Get Started */}
+          {team ? (
+            <div className="dash-card dash-card-interactive" style={{ padding: 28 }}>
+              <div className="flex flex-col sm:flex-row justify-between gap-6 items-start">
                 <div>
-                  <div className="flex justify-between items-center">
-                    <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-widest">Roadmap Progress</h3>
-                    <span className="text-[10px] font-bold text-green-400 px-2 py-0.5 rounded bg-emerald-950/40 border border-emerald-900/30">Stage {team ? team.currentStage : 0} / 14</span>
+                  <div className="flex items-center gap-2 mb-3">
+                    <span style={{ fontSize: 10, fontWeight: 700, background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.3)', color: '#a5b4fc', padding: '3px 10px', borderRadius: 9999, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                      Active Project
+                    </span>
                   </div>
-                  <p className="text-green-400 mt-2 text-3xl font-extrabold">
-                    {team ? Math.min(Math.round((team.currentStage / 14) * 100), 100) : 0}%
+                  <h2 style={{ fontSize: 22, fontWeight: 800, color: '#f1f5f9', letterSpacing: '-0.02em', fontFamily: 'var(--font-display)' }}>
+                    {team.teamName}
+                  </h2>
+                  <p style={{ fontSize: 13, color: 'rgba(148,163,184,0.7)', marginTop: 6 }}>
+                    Sector: <span style={{ color: '#94a3b8', fontWeight: 600 }}>{team.sector}</span>
                   </p>
                 </div>
-                
-                {/* rising SVG progress graph track */}
-                <div className="mt-4 w-full h-10 relative">
-                  <svg viewBox="0 0 300 50" className="w-full h-full overflow-visible">
-                    {/* Background track path */}
-                    <path
-                      d="M 10 40 Q 75 10, 150 25 T 290 10"
-                      fill="none; outline: none"
-                      stroke="#1e293b"
-                      strokeWidth="3"
-                      strokeLinecap="round"
-                    />
-                    {/* 14 Milestones Dots */}
-                    {Array.from({ length: 14 }).map((_, idx) => {
-                      const t = idx / 13;
-                      const x = 10 + t * 280;
-                      // Cubic bezier approximation coordinate values
-                      let y = 40;
-                      if (t < 0.5) {
-                        const nt = t / 0.5;
-                        y = 40 * (1 - nt) * (1 - nt) + 2 * 10 * nt * (1 - nt) + 25 * nt * nt;
-                      } else {
-                        const nt = (t - 0.5) / 0.5;
-                        y = 25 * (1 - nt) * (1 - nt) + 2 * 30 * nt * (1 - nt) + 10 * nt * nt;
-                      }
-                      
-                      const isCompleted = team ? team.currentStage > idx : false;
-                      const isCurrent = team ? team.currentStage === idx + 1 : false;
-                      
-                      return (
-                        <g key={idx}>
-                          <circle
-                            cx={x}
-                            cy={y}
-                            r={isCurrent ? "5" : "3.5"}
-                            className={`${
-                              isCompleted 
-                                ? 'fill-emerald-500 stroke-slate-950' 
-                                : isCurrent 
-                                ? 'fill-blue-500 stroke-white' 
-                                : 'fill-slate-800 stroke-slate-900'
-                            } transition-all duration-500`}
-                            strokeWidth={isCurrent ? "1.5" : "1"}
-                          />
-                          {isCurrent && (
-                            <circle
-                              cx={x}
-                              cy={y}
-                              r="9"
-                              className="fill-none stroke-blue-400/40 animate-ping"
-                              strokeWidth="1"
-                            />
-                          )}
-                        </g>
-                      );
-                    })}
-                  </svg>
-                </div>
-              </div>
-
-              {/* Team Members card */}
-              <div className="glass-card rounded-2xl p-6 border border-slate-800/60 relative overflow-hidden">
-                <div className="absolute top-4 right-4 text-3xl opacity-20">👥</div>
-                <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-widest">Team Compliance</h3>
-                <p className="text-amber-400 mt-3 text-3xl font-extrabold">
-                  {team ? `${team.memberCount} / 10` : '0 / 10'}
-                </p>
-                <div className="mt-2 flex flex-wrap gap-1.5">
-                  <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${team?.hasEngineering ? 'bg-blue-900/40 text-blue-300 border border-blue-800/40' : 'bg-slate-950 text-gray-600'}`}>ENG</span>
-                  <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${team?.hasLaw ? 'bg-red-900/40 text-red-300 border border-red-800/40' : 'bg-slate-950 text-gray-600'}`}>LAW</span>
-                  <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${team?.hasBusiness ? 'bg-amber-900/40 text-amber-300 border border-amber-800/40' : 'bg-slate-950 text-gray-600'}`}>MBA</span>
-                  <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${team?.hasFacultyAdvisor ? 'bg-purple-900/40 text-purple-300 border border-purple-800/40' : 'bg-slate-950 text-gray-600'}`}>ADV</span>
-                </div>
-              </div>
-
-              {/* Funding request status card */}
-              <div className="glass-card rounded-2xl p-6 border border-slate-800/60 relative overflow-hidden">
-                <div className="absolute top-4 right-4 text-3xl opacity-20">💰</div>
-                <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-widest">Procurement Budget</h3>
-                <p className="text-pink-400 mt-3 text-xl font-bold">
-                  {fundingClaims.length > 0 ? `₹${fundingClaims[0].requested_amount.toLocaleString()}` : 'No request'}
-                </p>
-                <p className="text-[11px] text-gray-500 mt-2">
-                  Status: <span className="text-pink-400 font-semibold">{fundingClaims.length > 0 ? fundingClaims[0].status.replace('_', ' ') : 'Inactive'}</span>
-                </p>
-              </div>
-
-            </div>
-
-            {/* Main Team Overview */}
-            {team ? (
-              <div className="w-full animate-fadeIn">
-                {/* Team Details Summary */}
-                <div className="glass-card rounded-3xl p-8 border border-slate-800/60 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
-                  <div>
-                    <span className="text-[10px] text-blue-400 uppercase tracking-widest font-black bg-blue-950/40 border border-blue-900/30 px-2.5 py-1 rounded-lg">📂 Active Project Profile</span>
-                    <h3 className="text-xs text-gray-500 mt-4 uppercase tracking-widest font-bold">Team Name</h3>
-                    <p className="text-2xl font-black text-white mt-1">{team.teamName}</p>
-                    
-                    <h3 className="text-xs text-gray-500 mt-4 uppercase tracking-widest font-bold">Sector Focus</h3>
-                    <p className="text-base font-bold text-gray-200 mt-1">{team.sector}</p>
+                <div className="flex items-center gap-3 flex-shrink-0">
+                  <div className="text-center">
+                    <p style={{ fontSize: 28, fontWeight: 800, color: '#6366f1', fontFamily: 'var(--font-display)' }}>{stagePct}%</p>
+                    <p style={{ fontSize: 11, color: 'rgba(148,163,184,0.5)', marginTop: 2 }}>Complete</p>
                   </div>
-
-                  <div className="pt-6 sm:pt-0 sm:pl-6 border-t sm:border-t-0 sm:border-l border-slate-850 flex flex-row sm:flex-col justify-between items-center sm:items-start gap-6 shrink-0 w-full sm:w-auto">
-                    <div>
-                      <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold">Roadmap Progress</p>
-                      <p className="text-3xl font-black text-blue-400 mt-1">
-                        {Math.min(Math.round((team.currentStage / 14) * 100), 100)}%
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => setActiveTab('journey')}
-                      className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-5 py-3 rounded-xl transition duration-200"
-                    >
-                      🚀 Open Roadmap
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="glass-card rounded-3xl p-10 border border-slate-800/60 text-center max-w-xl mx-auto">
-                <span className="text-5xl">👋</span>
-                <h3 className="text-2xl font-black text-white mt-6">Get Started</h3>
-                <p className="text-gray-400 mt-3 text-sm leading-relaxed">
-                  You are not registered in any innovation team yet. Teams must consist of 10 students across Engineering, Law, and Business fields.
-                </p>
-                <button
-                  onClick={() => setActiveTab('team')}
-                  className="mt-8 bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 py-3.5 rounded-xl transition duration-200 shadow-lg shadow-blue-900/30"
-                >
-                  Create or Search a Team →
-                </button>
-              </div>
-            )}
-
-            {/* Core Team Contacts Section */}
-            <div className="glass-card rounded-3xl p-7 border border-slate-800/60 mt-8">
-              <span className="section-pill">✦ Hub Support Directory</span>
-              <h3 className="text-xl font-bold text-white mb-2">Yantriksha Hub Core Team</h3>
-              <p className="text-gray-400 text-xs mb-6 font-light">Have questions about incubation reviews, prototype labs, or verification? Contact our coordination team.</p>
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {[
-                  { name: "Dr. K. Kiran", role: "Faculty Incubator Director", email: "kkiran@veltech.edu.in", phone: "+91 98405 12345", dept: "Directorate of Innovation" },
-                  { name: "Vamsi Krishna", role: "Chief Student Coordinator", email: "vamsikrishna@veltech.edu.in", phone: "+91 91821 69185", dept: "School of Computing" },
-                  { name: "Vignesh Boddeda", role: "Technical Platform Lead", email: "vigneshboddeda@veltech.edu.in", phone: "+91 90123 45678", dept: "School of Computing" }
-                ].map((member, idx) => (
-                  <div key={idx} className="bg-slate-950/40 border border-slate-850/60 rounded-2xl p-5 hover:border-slate-800 transition duration-300">
-                    <h4 className="font-extrabold text-white text-sm">{member.name}</h4>
-                    <p className="text-[10px] text-blue-400 font-bold uppercase tracking-wider mt-1">{member.role}</p>
-                    <p className="text-[10px] text-gray-500 mt-0.5">{member.dept}</p>
-                    <div className="mt-4 pt-3 border-t border-slate-900/60 space-y-1.5 text-xs text-gray-450">
-                      <p className="flex items-center gap-2">
-                        <span>📧</span> <a href={`mailto:${member.email}`} className="hover:text-blue-400 transition font-medium">{member.email}</a>
-                      </p>
-                      <p className="flex items-center gap-2">
-                        <span>📞</span> <a href={`tel:${member.phone}`} className="hover:text-blue-400 transition font-medium">{member.phone}</a>
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ═══════════════════════════════════════════════
-            TAB: JOURNEY (ROADMAP)
-        ═══════════════════════════════════════════════ */}
-        {activeTab === 'journey' && (
-          <DashboardJourney 
-            user={user} 
-            team={team} 
-            onRefresh={fetchTeamAndMembers} 
-          />
-        )}
-
-        {/* ═══════════════════════════════════════════════
-            TAB: TEAM
-        ═══════════════════════════════════════════════ */}
-        {activeTab === 'team' && (
-          <div className="space-y-8 animate-fadeIn">
-            <div>
-              <span className="section-pill">✦ Compliance & Sourcing</span>
-              <h1 className="text-4xl font-extrabold text-white tracking-tight">My Team</h1>
-              <p className="text-gray-400 mt-2 text-sm">
-                Add members and faculty to establish an approved cross-disciplinary innovation unit.
-              </p>
-            </div>
-
-            {!team ? (
-              <div className="glass-card rounded-3xl p-8 border border-slate-800/60 max-w-lg mx-auto">
-                <h3 className="text-xl font-bold text-white mb-6">Create New Team</h3>
-                <form onSubmit={handleCreateTeam} className="space-y-5">
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-400 uppercase tracking-widest mb-2">Team Name</label>
-                    <input
-                      type="text"
-                      value={newTeamName}
-                      onChange={e => setNewTeamName(e.target.value)}
-                      placeholder="Enter a unique name"
-                      className={inp}
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-400 uppercase tracking-widest mb-2">Product Sector</label>
-                    <select
-                      value={newTeamSector}
-                      onChange={e => setNewTeamSector(e.target.value)}
-                      className={sel}
-                    >
-                      {['Aerospace', 'Software / AI', 'Biotechnology', 'LegalTech', 'FinTech', 'Agriculture', 'Clean Energy', 'Other'].map(s => (
-                        <option key={s} value={s} className="bg-slate-900">{s}</option>
-                      ))}
-                    </select>
-                  </div>
-
                   <button
-                    type="submit"
-                    disabled={loading}
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl transition duration-200"
+                    onClick={() => setActiveTab('journey')}
+                    className="dash-btn dash-btn-primary"
                   >
-                    🚀 Create Team
+                    ðŸš€ View Roadmap
                   </button>
-                </form>
+                </div>
               </div>
-            ) : (
-              <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 items-start">
-                {/* Left Columns (Roster and Invites) */}
-                <div className="xl:col-span-2 space-y-8">
-                  {/* Active members grid */}
-                  <div className="glass-card rounded-3xl p-7 border border-slate-800/60">
-                    <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                      👥 Team Roster ({team.memberCount} / 10 Members)
-                    </h3>
-                    
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-left text-sm text-gray-400">
-                        <thead className="text-xs uppercase bg-slate-950/40 text-gray-500 border-b border-slate-800/60">
-                          <tr>
-                            <th className="py-4 px-4">Name</th>
-                            <th className="py-4 px-4">Email</th>
-                            <th className="py-4 px-4">Role</th>
-                            <th className="py-4 px-4">Discipline</th>
-                            <th className="py-4 px-4">Project Responsibility</th>
-                            <th className="py-4 px-4 text-right">Actions</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-800/40">
-                          {teamMembers.map(m => {
-                            const isLeader = m.id === team.leaderId;
-                            const isMe = m.id === user.id;
-                            return (
-                              <tr key={m.id} className={isMe ? 'bg-blue-950/10' : ''}>
-                                <td className="py-4 px-4 font-bold text-white">
-                                  {m.name} {isMe && '(You)'}
-                                </td>
-                                <td className="py-4 px-4">{m.email}</td>
-                                <td className="py-4 px-4">
-                                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-black uppercase ${
-                                    isLeader ? 'bg-blue-900/60 text-blue-400 border border-blue-800/40' : 'bg-slate-900 text-gray-400'
-                                  }`}>
-                                    {isLeader ? 'LEADER' : m.role}
-                                  </span>
-                                </td>
-                                <td className="py-4 px-4 capitalize">{m.discipline}</td>
-                                <td className="py-4 px-4">
-                                  {isLeader ? (
-                                    <span className="text-xs text-gray-450 italic">Project Leader</span>
-                                  ) : team.leaderId === user.id ? (
-                                    <select
-                                      value={m.project_role || 'Developer'}
-                                      onChange={(e) => handleUpdateMemberRole(m.id, e.target.value)}
-                                      className="bg-slate-950 border border-slate-800 text-xs text-gray-300 rounded px-2 py-1 outline-none"
-                                    >
-                                      {['Developer', 'Frontend Developer', 'Backend Developer', 'Database Administrator', 'Automation Engineer', 'Quality Analyst', 'Business Strategist', 'Legal Advisor', 'Research Analyst'].map(r => (
-                                        <option key={r} value={r} className="bg-slate-900 text-gray-300">{r}</option>
-                                      ))}
-                                    </select>
-                                  ) : (
-                                    <span className="text-xs text-gray-300">{m.project_role || 'Developer'}</span>
-                                  )}
-                                </td>
-                                <td className="py-4 px-4 text-right">
-                                  {!isLeader && team.leaderId === user.id ? (
-                                    <button
-                                      onClick={() => handleRemoveMember(m.id)}
-                                      className="text-red-400 hover:text-red-300 text-xs font-semibold hover:underline"
-                                    >
-                                      Remove
-                                    </button>
-                                  ) : '—'}
-                                </td>
-                              </tr>
-                            );
-                          })}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
 
-                  {/* Search / Invite Panel */}
-                  {user.role === 'student' && team.leaderId === user.id && (
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                      {/* Add unassigned students */}
-                      <div className="glass-card rounded-3xl p-7 border border-slate-800/60">
-                        <h3 className="text-lg font-bold text-white mb-4">🔍 Available Students</h3>
-                        <div className="space-y-3.5 max-h-96 overflow-y-auto pr-2">
-                          {unassignedStudents.length === 0 ? (
-                            <p className="text-xs text-gray-500">No unassigned students found.</p>
-                          ) : (
-                            unassignedStudents.map(s => (
-                              <div key={s.id} className="flex justify-between items-center bg-slate-950/40 p-3.5 rounded-xl border border-slate-800/40">
-                                <div>
-                                  <h5 className="font-bold text-sm text-white">{s.name}</h5>
-                                  <p className="text-[10px] text-gray-500 capitalize">{s.discipline} | {s.branch || 'General'}</p>
-                                </div>
-                                <button
-                                  onClick={() => handleAddMember(s.id)}
-                                  className="bg-blue-600/20 hover:bg-blue-600 border border-blue-500/30 text-blue-400 hover:text-white px-3.5 py-1.5 rounded-lg text-xs font-bold transition duration-200"
-                                >
-                                  + Add
-                                </button>
-                              </div>
-                            ))
-                          )}
-                        </div>
+              {/* Mini roadmap progress strip */}
+              <div className="mt-6">
+                <div className="flex gap-1">
+                  {ROADMAP_STEPS.map((step, idx) => {
+                    const done = team ? team.currentStage > idx : false;
+                    const current = team ? team.currentStage === idx + 1 : false;
+                    return (
+                      <div
+                        key={step.step}
+                        title={step.title}
+                        style={{
+                          flex: 1, height: 6, borderRadius: 3,
+                          background: done ? '#10b981' : current ? '#6366f1' : 'var(--dash-surface-4)',
+                          boxShadow: current ? '0 0 8px rgba(99,102,241,0.6)' : 'none',
+                          transition: 'all 0.3s',
+                        }}
+                      />
+                    );
+                  })}
+                </div>
+                <div className="flex justify-between mt-2" style={{ fontSize: 10, color: 'rgba(148,163,184,0.4)' }}>
+                  <span>Stage 1</span>
+                  <span style={{ color: '#6366f1', fontWeight: 700 }}>
+                    Current: {team.currentStage} â€” {ROADMAP_STEPS[team.currentStage - 1]?.title}
+                  </span>
+                  <span>Stage 14</span>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="dash-card" style={{ padding: 48, textAlign: 'center' }}>
+              <div className="dash-empty-icon" style={{ margin: '0 auto 16px' }}>ðŸš€</div>
+              <h3 className="dash-empty-title">Start Your Innovation Journey</h3>
+              <p className="dash-empty-desc">
+                You are not registered in any innovation team yet. Create or join a cross-disciplinary team of 10 members to begin.
+              </p>
+              <button
+                onClick={() => setActiveTab('team')}
+                className="dash-btn dash-btn-primary"
+                style={{ marginTop: 20 }}
+              >
+                Create or Search a Team â†’
+              </button>
+            </div>
+          )}
+
+          {/* Milestone Reports & Bookings summary */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Recent milestone reports */}
+            <div className="lg:col-span-2 dash-card" style={{ padding: 24 }}>
+              <div className="dash-section-header">
+                <div>
+                  <div className="dash-section-title">ðŸ“‹ Milestone Reports</div>
+                  <div className="dash-section-desc">Your submitted progress reports</div>
+                </div>
+                <button className="dash-btn dash-btn-secondary dash-btn-sm" onClick={() => setActiveTab('project')}>View All</button>
+              </div>
+              {milestoneReports.length === 0 ? (
+                <div className="dash-empty" style={{ padding: '32px 16px' }}>
+                  <div className="dash-empty-icon" style={{ width: 48, height: 48, fontSize: 22 }}>ðŸ“‹</div>
+                  <p className="dash-empty-title" style={{ fontSize: 14 }}>No reports yet</p>
+                </div>
+              ) : (
+                <div className="dash-timeline">
+                  {milestoneReports.slice(0, 4).map((r, i) => (
+                    <div key={r.id} className="dash-timeline-item">
+                      <div className="dash-timeline-dot" style={{
+                        background: r.status === 'approved' ? 'rgba(16,185,129,0.15)' : r.status === 'revision_requested' ? 'rgba(245,158,11,0.15)' : 'rgba(99,102,241,0.15)',
+                        borderColor: r.status === 'approved' ? 'rgba(16,185,129,0.3)' : r.status === 'revision_requested' ? 'rgba(245,158,11,0.3)' : 'rgba(99,102,241,0.3)',
+                        color: r.status === 'approved' ? '#34d399' : r.status === 'revision_requested' ? '#fbbf24' : '#a5b4fc',
+                      }}>
+                        {r.milestone_step}
                       </div>
-
-                      {/* Add Faculty Advisors */}
-                      <div className="glass-card rounded-3xl p-7 border border-slate-800/60">
-                        <h3 className="text-lg font-bold text-white mb-4">🏫 Available Faculty Advisors</h3>
-                        <div className="space-y-3.5 max-h-96 overflow-y-auto pr-2">
-                          {unassignedFaculty.length === 0 ? (
-                            <p className="text-xs text-gray-500">No unassigned faculty advisors found.</p>
-                          ) : (
-                            unassignedFaculty.map(f => (
-                              <div key={f.id} className="flex justify-between items-center bg-slate-950/40 p-3.5 rounded-xl border border-slate-800/40">
-                                <div>
-                                  <h5 className="font-bold text-sm text-white">{f.name}</h5>
-                                  <p className="text-[10px] text-gray-500">Faculty Advisor</p>
-                                </div>
-                                <button
-                                  onClick={() => handleAddMember(f.id)}
-                                  className="bg-blue-600/20 hover:bg-blue-600 border border-blue-500/30 text-blue-400 hover:text-white px-3.5 py-1.5 rounded-lg text-xs font-bold transition duration-200"
-                                >
-                                  + Add
-                                </button>
-                              </div>
-                            ))
-                          )}
+                      <div style={{ paddingTop: 4 }}>
+                        <div className="flex items-center gap-2">
+                          <span style={{ fontSize: 13, fontWeight: 600, color: '#e2e8f0' }}>
+                            {ROADMAP_STEPS[r.milestone_step - 1]?.title || `Milestone ${r.milestone_step}`}
+                          </span>
+                          <span className={`status-chip ${r.status === 'approved' ? 'chip-success' : r.status === 'revision_requested' ? 'chip-warning' : 'chip-info'}`}>
+                            {r.status?.replace('_', ' ')}
+                          </span>
                         </div>
+                        <p style={{ fontSize: 12, color: 'rgba(148,163,184,0.5)', marginTop: 4 }}>
+                          {isMounted ? new Date(r.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : ''}
+                        </p>
+                        {r.mentor_feedback && (
+                          <p style={{ fontSize: 12, color: '#94a3b8', marginTop: 6, background: 'var(--dash-surface-3)', padding: '8px 12px', borderRadius: 8, borderLeft: '3px solid #6366f1' }}>
+                            ðŸ’¬ {r.mentor_feedback}
+                          </p>
+                        )}
                       </div>
                     </div>
-                  )}
+                  ))}
                 </div>
-
-                {/* Right Column (Checklist) */}
-                <div className="glass-card rounded-3xl p-8 border border-slate-800/60 relative">
-                  <h3 className="text-lg font-bold mb-6 text-glow-blue flex items-center gap-2">
-                    🛡️ Team Verification Checklist
-                  </h3>
-
-                  <div className="space-y-3.5">
-                    <div className="flex justify-between items-center bg-slate-950/40 p-3 rounded-xl border border-slate-800/40">
-                      <span className="text-sm text-gray-300">Engineering student included</span>
-                      <span>{getComplianceIcon(team.hasEngineering)}</span>
-                    </div>
-                    <div className="flex justify-between items-center bg-slate-950/40 p-3 rounded-xl border border-slate-800/40">
-                      <span className="text-sm text-gray-300">Law student included</span>
-                      <span>{getComplianceIcon(team.hasLaw)}</span>
-                    </div>
-                    <div className="flex justify-between items-center bg-slate-950/40 p-3 rounded-xl border border-slate-800/40">
-                      <span className="text-sm text-gray-300">Business (MBA) student included</span>
-                      <span>{getComplianceIcon(team.hasBusiness)}</span>
-                    </div>
-                    <div className="flex justify-between items-center bg-slate-950/40 p-3 rounded-xl border border-slate-800/40">
-                      <span className="text-sm text-gray-300">Faculty Advisor assigned</span>
-                      <span>{getComplianceIcon(team.hasFacultyAdvisor)}</span>
-                    </div>
-                    <div className="flex justify-between items-center bg-slate-950/40 p-3 rounded-xl border border-slate-800/40">
-                      <span className="text-sm text-gray-300">Contains exactly 10 members (Current: {team.memberCount})</span>
-                      <span>{getComplianceIcon(team.memberCount === 10)}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* ═══════════════════════════════════════════════
-            TAB: PROJECT (MY PROJECT)
-        ═══════════════════════════════════════════════ */}
-        {activeTab === 'project' && (
-          <div className="space-y-8 animate-fadeIn">
-            <div>
-              <span className="section-pill">✦ Core Details</span>
-              <h1 className="text-4xl font-extrabold text-white tracking-tight">My Project</h1>
-              <p className="text-gray-400 mt-2 text-sm">
-                Maintain and update your team&apos;s product name, sector focus, and active development logs.
-              </p>
+              )}
             </div>
 
-            {team ? (
-              <div className="glass-card rounded-3xl p-8 border border-slate-800/60 max-w-xl">
-                <h3 className="text-xl font-bold text-white mb-6">Edit Team / Project Profile</h3>
-                <form onSubmit={handleUpdateTeam} className="space-y-5">
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-400 uppercase tracking-widest mb-2">Team Name</label>
-                    <input
-                      type="text"
-                      value={team.teamName}
-                      onChange={e => setTeam({ ...team, teamName: e.target.value })}
-                      className={inp}
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-400 uppercase tracking-widest mb-2">Technology Sector</label>
-                    <select
-                      value={team.sector}
-                      onChange={e => setTeam({ ...team, sector: e.target.value })}
-                      className={sel}
-                    >
-                      {['Aerospace', 'Software / AI', 'Biotechnology', 'LegalTech', 'FinTech', 'Agriculture', 'Clean Energy', 'Other'].map(s => (
-                        <option key={s} value={s} className="bg-slate-900">{s}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition duration-200"
-                  >
-                    Save Changes
+            {/* Upcoming bookings */}
+            <div className="dash-card" style={{ padding: 24 }}>
+              <div className="dash-section-header">
+                <div className="dash-section-title">ðŸ“… Mentor Sessions</div>
+              </div>
+              {bookingsList.filter(b => b.status === 'scheduled').length === 0 ? (
+                <div className="dash-empty" style={{ padding: '24px 8px' }}>
+                  <div className="dash-empty-icon" style={{ width: 48, height: 48, fontSize: 22 }}>ðŸŽ“</div>
+                  <p className="dash-empty-title" style={{ fontSize: 14 }}>No sessions booked</p>
+                  <button className="dash-btn dash-btn-primary dash-btn-sm" onClick={() => setActiveTab('mentors')} style={{ marginTop: 12 }}>
+                    Book Session
                   </button>
-                </form>
-              </div>
-            ) : (
-              <div className="glass-card rounded-3xl p-10 border border-slate-800/60 text-center max-w-xl mx-auto">
-                <span className="text-4xl">📂</span>
-                <h3 className="text-xl font-bold text-white mt-5">No Active Project</h3>
-                <p className="text-gray-400 mt-2 text-sm">You must belong to a team to access project profiles.</p>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* ═══════════════════════════════════════════════
-            TAB: FUNDING
-        ═══════════════════════════════════════════════ */}
-        {activeTab === 'funding' && (
-          <div className="space-y-8 animate-fadeIn">
-            <div>
-              <span className="section-pill">✦ Procurement Support</span>
-              <h1 className="text-4xl font-extrabold text-white tracking-tight">Seed Funding</h1>
-              <p className="text-gray-400 mt-2 text-sm">
-                Request prototype fabrication reimbursement claims up to ₹50,000 per team.
-              </p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {bookingsList.filter(b => b.status === 'scheduled').slice(0, 3).map(b => (
+                    <div key={b.id} className="dash-card" style={{ padding: '14px 16px', border: '1px solid var(--dash-border)' }}>
+                      <p style={{ fontSize: 13, fontWeight: 600, color: '#e2e8f0' }}>
+                        {b.mentor_name}
+                      </p>
+                      <p style={{ fontSize: 11, color: 'rgba(148,163,184,0.6)', marginTop: 4 }}>
+                        {isMounted ? new Date(b.scheduled_time).toLocaleString('en-IN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : ''}
+                      </p>
+                      <div className="flex items-center gap-2 mt-2">
+                        <span className="status-chip chip-info">{b.mode}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
-
-            {team ? (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* Submit funding claim */}
-                <div className="glass-card rounded-3xl p-8 border border-slate-800/60">
-                  <h3 className="text-xl font-bold text-white mb-6">Submit Budget Claim</h3>
-                  <form onSubmit={handleSubmitFunding} className="space-y-5">
-                    <div>
-                      <label className="block text-xs font-semibold text-gray-400 uppercase tracking-widest mb-2">Claim Amount (₹)</label>
-                      <input
-                        type="number"
-                        max={50000}
-                        value={fundingAmount}
-                        onChange={e => setFundingAmount(e.target.value)}
-                        placeholder="e.g. 15000"
-                        className={inp}
-                        required
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-semibold text-gray-400 uppercase tracking-widest mb-2">Itemized Budget Details</label>
-                      <textarea
-                        value={fundingBudget}
-                        onChange={e => setFundingBudget(e.target.value)}
-                        placeholder="List components, costs, and vendors..."
-                        rows={5}
-                        className="w-full p-3.5 bg-slate-950 border border-slate-800/80 rounded-xl text-white text-sm outline-none focus:border-blue-500/80"
-                        required
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-semibold text-gray-400 uppercase tracking-widest mb-2">Receipts File (PDF/Image)</label>
-                      <input
-                        type="file"
-                        onChange={e => { if (e.target.files?.[0]) setFundingFile(e.target.files[0]); }}
-                        className="text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-600/10 file:text-blue-400 hover:file:bg-blue-600/20 file:cursor-pointer"
-                      />
-                    </div>
-
-                    <button
-                      type="submit"
-                      disabled={loading}
-                      className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition duration-200"
-                    >
-                      🚀 Submit Claim
-                    </button>
-                  </form>
-                </div>
-
-                {/* Past claims logs */}
-                <div className="glass-card rounded-3xl p-8 border border-slate-800/60">
-                  <h3 className="text-xl font-bold text-white mb-6">Budget Request Logs</h3>
-                  {fundingClaims.length === 0 ? (
-                    <p className="text-sm text-gray-500">No funding claims submitted yet.</p>
-                  ) : (
-                    <div className="space-y-4">
-                      {fundingClaims.map(c => (
-                        <div key={c.id} className="bg-slate-950/40 p-5 rounded-2xl border border-slate-800/40">
-                          <div className="flex justify-between items-start">
-                            <div>
-                              <p className="text-lg font-bold text-white">₹{isMounted ? c.requested_amount.toLocaleString() : c.requested_amount}</p>
-                              <p className="text-[10px] text-gray-500 mt-1">{isMounted ? new Date(c.created_at).toLocaleDateString() : ''}</p>
-                            </div>
-                            <span className={`text-xs px-2.5 py-1 rounded-full font-bold uppercase ${
-                              c.status === 'approved' || c.status === 'disbursed'
-                                ? 'bg-emerald-950 text-emerald-400 border border-emerald-900/30'
-                                : c.status === 'rejected'
-                                ? 'bg-red-950 text-red-400 border border-red-900/30'
-                                : 'bg-slate-900 text-gray-400 border border-slate-800'
-                            }`}>
-                              {c.status.replace('_', ' ')}
-                            </span>
-                          </div>
-                          <p className="text-xs text-gray-400 mt-3 whitespace-pre-line leading-relaxed">{c.itemized_budget}</p>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-            ) : (
-              <div className="glass-card rounded-3xl p-10 border border-slate-800/60 text-center max-w-xl mx-auto">
-                <span className="text-4xl">💰</span>
-                <h3 className="text-xl font-bold text-white mt-5">Funding Locked</h3>
-                <p className="text-gray-400 mt-2 text-sm">Establish your team first to request seed funding.</p>
-              </div>
-            )}
           </div>
-        )}
 
-        {/* ═══════════════════════════════════════════════
-            TAB: MENTORS
-        ═══════════════════════════════════════════════ */}
-        {activeTab === 'mentors' && (
-          <div className="space-y-8 animate-fadeIn">
-            <div>
-              <span className="section-pill">✦ Advisors & Coaches</span>
-              <h1 className="text-4xl font-extrabold text-white tracking-tight">Mentors Connect</h1>
-              <p className="text-gray-400 mt-2 text-sm">
-                Schedule dynamic virtual or offline guidance reviews with experts to iterate on product development.
-              </p>
-            </div>
-
-            {team ? (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* Book Session Form */}
-                <div className="glass-card rounded-3xl p-8 border border-slate-800/60">
-                  <h3 className="text-xl font-bold text-white mb-6">Schedule Session</h3>
-                  <form onSubmit={handleBookMentor} className="space-y-5">
-                    <div>
-                      <label className="block text-xs font-semibold text-gray-400 uppercase tracking-widest mb-2">Select Mentor</label>
-                      <select
-                        value={bookingMentorId}
-                        onChange={e => setBookingMentorId(e.target.value)}
-                        className={sel}
-                        required
-                      >
-                        <option value="">Choose a mentor...</option>
-                        {mentorsList.map(m => (
-                          <option key={m.id} value={m.id} className="bg-slate-900">{m.name} ({m.discipline} expert)</option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-semibold text-gray-400 uppercase tracking-widest mb-2">Meeting Date & Time</label>
-                      <input
-                        type="datetime-local"
-                        value={bookingTime}
-                        onChange={e => setBookingTime(e.target.value)}
-                        className={inp}
-                        required
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-semibold text-gray-400 uppercase tracking-widest mb-2">Meeting Mode</label>
-                      <select
-                        value={bookingMode}
-                        onChange={e => setBookingMode(e.target.value as any)}
-                        className={sel}
-                      >
-                        <option value="virtual" className="bg-slate-900">Virtual (Video Call)</option>
-                        <option value="offline" className="bg-slate-900">Offline (On-campus Venue)</option>
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-semibold text-gray-400 uppercase tracking-widest mb-2">Venue or Meeting Link</label>
-                      <input
-                        type="text"
-                        value={bookingLinkOrVenue}
-                        onChange={e => setBookingLinkOrVenue(e.target.value)}
-                        placeholder="Google Meet link or Room Number"
-                        className={inp}
-                      />
-                    </div>
-
-                    <button
-                      type="submit"
-                      disabled={loading}
-                      className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition duration-200"
-                    >
-                      📅 Confirm Session
-                    </button>
-                  </form>
-                </div>
-
-                {/* Booked Sessions list */}
-                <div className="glass-card rounded-3xl p-8 border border-slate-800/60">
-                  <h3 className="text-xl font-bold text-white mb-6">Upcoming Scheduled Bookings</h3>
-                  {bookingsList.length === 0 ? (
-                    <p className="text-sm text-gray-500">No review sessions booked yet.</p>
-                  ) : (
-                    <div className="space-y-4">
-                      {bookingsList.map(b => (
-                        <div key={b.id} className="bg-slate-950/40 p-5 rounded-2xl border border-slate-800/40">
-                          <div className="flex justify-between items-start">
-                            <div>
-                              <h5 className="font-bold text-sm text-white">Mentor: {b.mentor_name}</h5>
-                              <p className="text-xs text-gray-500 mt-1">
-                                📅 {isMounted ? new Date(b.scheduled_time).toLocaleString() : ''}
-                              </p>
-                              <p className="text-xs text-blue-400 mt-2 font-medium">
-                                Mode: <span className="uppercase">{b.mode}</span> {b.meeting_link_or_venue && `| ${b.meeting_link_or_venue}`}
-                              </p>
-                            </div>
-                            <div className="flex flex-col items-end gap-2">
-                              <span className={`text-[10px] px-2 py-0.5 rounded font-bold uppercase ${
-                                b.status === 'scheduled' ? 'bg-blue-950 text-blue-400' : 'bg-red-950/40 text-red-400'
-                              }`}>
-                                {b.status}
-                              </span>
-                              {b.status === 'scheduled' && (
-                                <button
-                                  onClick={() => handleCancelBooking(b.id)}
-                                  className="text-[10px] text-red-400 hover:underline"
-                                >
-                                  Cancel Booking
-                                </button>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
+          {/* Hub Support Directory */}
+          <div className="dash-card" style={{ padding: 24 }}>
+            <div className="dash-section-header">
+              <div>
+                <div className="dash-section-title">ðŸ›Ÿ Hub Support Directory</div>
+                <div className="dash-section-desc">Contact the core coordination team for help</div>
               </div>
-            ) : (
-              <div className="glass-card rounded-3xl p-10 border border-slate-800/60 text-center max-w-xl mx-auto">
-                <span className="text-4xl">👨‍🏫</span>
-                <h3 className="text-xl font-bold text-white mt-5">Mentors Portal Locked</h3>
-                <p className="text-gray-400 mt-2 text-sm">Register a team to schedule mentorship and feedback reviews.</p>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* ═══════════════════════════════════════════════
-            TAB: EVENTS
-        ═══════════════════════════════════════════════ */}
-        {activeTab === 'events' && (
-          <div className="space-y-8 animate-fadeIn">
-            <div>
-              <span className="section-pill">✦ Academic Schedulers</span>
-              <h1 className="text-4xl font-extrabold text-white tracking-tight">Upcoming Events</h1>
-              <p className="text-gray-400 mt-2 text-sm">
-                Participate in bootcamps, ideathons, and SIH training sessions organized by Yantriksha_X_Hub.
-              </p>
             </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {[
-                { title: 'Smart India Hackathon Bootcamp', date: 'August 12, 2026', desc: 'Prepare your compliance logs, blueprints, and feasibility statements for internal SIH pre-screening.', icon: '🏆' },
-                { title: 'Cross-Disciplinary Legal Review Clinic', date: 'August 24, 2026', desc: 'Connect with Law students to draft provisional patent agreements and regulatory checklists.', icon: '⚖️' },
-                { title: 'Business Model Canvas Ideathon', date: 'September 05, 2026', desc: 'Formulate itemized budgets, market fit research, and corporate pitch materials for seed fund evaluation.', icon: '📊' },
-              ].map(e => (
-                <div key={e.title} className="glass-card rounded-3xl p-6 border border-slate-800/60 relative overflow-hidden">
-                  <div className="text-3xl mb-4">{e.icon}</div>
-                  <h4 className="font-bold text-white text-base mb-1.5">{e.title}</h4>
-                  <p className="text-xs text-blue-400 font-semibold mb-3">Date: {e.date}</p>
-                  <p className="text-xs text-gray-500 leading-relaxed">{e.desc}</p>
+                { name: 'Dr. K. Kiran', role: 'Faculty Incubator Director', email: 'kkiran@veltech.edu.in', dept: 'Directorate of Innovation' },
+                { name: 'Vamsi Krishna', role: 'Chief Student Coordinator', email: 'vamsikrishna@veltech.edu.in', dept: 'School of Computing' },
+                { name: 'Vignesh Boddeda', role: 'Technical Platform Lead', email: 'vigneshboddeda@veltech.edu.in', dept: 'School of Computing' }
+              ].map((member) => (
+                <div key={member.name} className="dash-card dash-card-interactive" style={{ padding: 18 }}>
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="dash-avatar" style={{ background: 'linear-gradient(135deg, #6366f1, #a855f7)' }}>
+                      {member.name.split(' ').map(p => p[0]).slice(0, 2).join('')}
+                    </div>
+                    <div>
+                      <p style={{ fontSize: 13, fontWeight: 700, color: '#f1f5f9' }}>{member.name}</p>
+                      <p style={{ fontSize: 10, color: '#6366f1', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{member.role}</p>
+                    </div>
+                  </div>
+                  <p style={{ fontSize: 11, color: 'rgba(148,163,184,0.5)', marginBottom: 10 }}>{member.dept}</p>
+                  <a href={`mailto:${member.email}`} style={{ fontSize: 12, color: '#94a3b8', display: 'flex', alignItems: 'center', gap: 6 }}>
+                    ðŸ“§ {member.email}
+                  </a>
                 </div>
               ))}
             </div>
           </div>
-        )}
+        </div>
+      )}
 
-        {/* ═══════════════════════════════════════════════
-            TAB: SETTINGS (PROFILE)
-        ═══════════════════════════════════════════════ */}
-        {activeTab === 'settings' && (
-          <div className="space-y-8 animate-fadeIn">
-            <div>
-              <span className="section-pill">✦ Profile Management</span>
-              <h1 className="text-4xl font-extrabold text-white tracking-tight">Settings</h1>
-              <p className="text-gray-400 mt-2 text-sm">
-                View and update your student credentials, phone numbers, and discipline settings.
-              </p>
-            </div>
+      {/* â•â•â• TAB: JOURNEY â•â•â• */}
+      {activeTab === 'journey' && (
+        <DashboardJourney
+          user={user}
+          team={team}
+          onRefresh={fetchTeamAndMembers}
+        />
+      )}
 
-            <div className="glass-card rounded-3xl p-8 border border-slate-800/60 max-w-xl">
-              <h3 className="text-xl font-bold text-white mb-6">User Profile Details</h3>
-              <form onSubmit={handleUpdateProfile} className="space-y-5">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-400 uppercase tracking-widest mb-2">Full Name</label>
-                    <input
-                      type="text"
-                      value={user.name}
-                      onChange={e => setUser({ ...user, name: e.target.value })}
-                      className={inp}
-                      required
-                    />
-                  </div>
+      {/* â•â•â• TAB: TEAM â•â•â• */}
+      {activeTab === 'team' && (
+        <div className="space-y-6 animate-fade-up">
+          <div>
+            <h2 className="dash-page-title">My Team</h2>
+            <p className="dash-page-subtitle">Manage your innovation team roster and compliance requirements</p>
+          </div>
 
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-400 uppercase tracking-widest mb-2">Student ID / Roll Number</label>
-                    <input
-                      type="text"
-                      value={user.veltech_id}
-                      className={`${inp} bg-slate-950 border-slate-900 opacity-60 cursor-not-allowed`}
-                      disabled
-                    />
-                  </div>
+          {!team ? (
+            <div className="dash-card" style={{ padding: 40, maxWidth: 520 }}>
+              <h3 style={{ fontSize: 18, fontWeight: 700, color: '#f1f5f9', marginBottom: 24 }}>Create New Team</h3>
+              <form onSubmit={handleCreateTeam} className="space-y-4">
+                <div>
+                  <label className="dash-label">Team Name</label>
+                  <input type="text" value={newTeamName} onChange={e => setNewTeamName(e.target.value)}
+                    placeholder="Enter a unique team name" className={dashInp} required />
                 </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-400 uppercase tracking-widest mb-2">Email Address</label>
-                    <input
-                      type="email"
-                      value={user.email}
-                      className={`${inp} bg-slate-950 border-slate-900 opacity-60 cursor-not-allowed`}
-                      disabled
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-400 uppercase tracking-widest mb-2">Phone Number</label>
-                    <input
-                      type="tel"
-                      value={user.phone_number || ''}
-                      onChange={e => setUser({ ...user, phone_number: e.target.value })}
-                      placeholder="10-digit phone number"
-                      className={inp}
-                    />
-                  </div>
+                <div>
+                  <label className="dash-label">Product Sector</label>
+                  <select value={newTeamSector} onChange={e => setNewTeamSector(e.target.value)} className={dashSel}>
+                    {['Aerospace', 'Software / AI', 'Biotechnology', 'LegalTech', 'FinTech', 'Agriculture', 'Clean Energy', 'Other'].map(s => (
+                      <option key={s} value={s} style={{ background: 'var(--dash-surface-2)' }}>{s}</option>
+                    ))}
+                  </select>
                 </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-400 uppercase tracking-widest mb-2">School / Schooling</label>
-                    <div className="relative">
-                      <select
-                        value={user.school || ''}
-                        onChange={e => setUser({ ...user, school: e.target.value })}
-                        className={sel}
-                      >
-                        <option value="" disabled className="bg-slate-900 text-gray-500">Select School</option>
-                        {SCHOOLS.map(s => (
-                          <option key={s.value} value={s.value} className="bg-slate-900">{s.label}</option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-400 uppercase tracking-widest mb-2">Branch / Department</label>
-                    <div className="relative">
-                      <select
-                        value={user.branch || ''}
-                        onChange={e => setUser({ ...user, branch: e.target.value })}
-                        className={sel}
-                      >
-                        <option value="" disabled className="bg-slate-900 text-gray-500">Select Department</option>
-                        {DEPARTMENTS.map(d => (
-                          <option key={d.value} value={d.value} className="bg-slate-900">{d.label}</option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-400 uppercase tracking-widest mb-2">Year of Study</label>
-                    <div className="relative">
-                      <select
-                        value={user.year_of_studying || 1}
-                        onChange={e => setUser({ ...user, year_of_studying: parseInt(e.target.value, 10) })}
-                        className={sel}
-                      >
-                        {[1, 2, 3, 4].map(y => (
-                          <option key={y} value={y} className="bg-slate-900">{y}nd Year</option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Email Notification Preferences */}
-                <div className="pt-5 border-t border-slate-800/80 space-y-4">
-                  <div>
-                    <h4 className="text-sm font-bold text-white tracking-wide">
-                      Email Notification Preferences
-                    </h4>
-                    <p className="text-[11px] text-gray-500 mt-1">
-                      Choose which categories of operational notifications you want to receive via email.
-                    </p>
-                  </div>
-                  
-                  <div className="space-y-4">
-                    {[
-                      { key: 'club_updates', label: 'Club Updates & Announcements', desc: 'Receive recruitment news, workshops, and meeting details from your registered clubs.' },
-                      { key: 'event_notifications', label: 'Event Announcements & Cancellations', desc: 'Get invitations to bootcamps, hackathons, and registration confirmations.' },
-                      { key: 'general_announcements', label: 'General Campus Announcements', desc: 'Receive holiday alerts, technical fest dates, and critical placement updates.' },
-                      { key: 'newsletter', label: 'Newsletters & Monthly Spotlights', desc: 'Monthly highlights of innovation hub accomplishments and start-up features.' },
-                      { key: 'recruitment_notifications', label: 'Recruitment & Member Campaigns', desc: 'Be notified of team forming requests and new club admission drives.' }
-                    ].map(({ key, label, desc }) => {
-                      const prefs = user.notificationPreferences || {
-                        club_updates: true,
-                        event_notifications: true,
-                        general_announcements: true,
-                        newsletter: true,
-                        recruitment_notifications: true,
-                      };
-                      const checked = (prefs as any)[key] ?? true;
-                      
-                      return (
-                        <label key={key} className="flex items-start gap-3.5 cursor-pointer select-none group">
-                          <input
-                            type="checkbox"
-                            checked={checked}
-                            onChange={e => {
-                              setUser({
-                                ...user,
-                                notificationPreferences: {
-                                  ...prefs,
-                                  [key]: e.target.checked
-                                }
-                              });
-                            }}
-                            className="mt-0.5 h-4.5 w-4.5 rounded border-slate-700 bg-slate-900/60 text-blue-600 focus:ring-0 focus:ring-offset-0 cursor-pointer accent-blue-600"
-                          />
-                          <div>
-                            <span className="text-xs font-bold text-gray-200 group-hover:text-white transition-colors duration-150">
-                              {label}
-                            </span>
-                            <p className="text-[10px] text-gray-500 leading-normal mt-0.5">
-                              {desc}
-                            </p>
-                          </div>
-                        </label>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition duration-200 mt-4"
-                >
-                  Update Profile Details
+                <button type="submit" disabled={loading} className="dash-btn dash-btn-primary w-full" style={{ marginTop: 8 }}>
+                  {loading ? <span className="dash-spinner" /> : 'ðŸš€ Create Team'}
                 </button>
               </form>
             </div>
+          ) : (
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+              <div className="xl:col-span-2 space-y-6">
+                {/* Members Table */}
+                <div className="dash-table-wrap">
+                  <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--dash-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div>
+                      <p className="dash-section-title">ðŸ‘¥ Team Roster</p>
+                      <p className="dash-section-desc">{team.memberCount} / 10 members</p>
+                    </div>
+                  </div>
+                  <div style={{ overflowX: 'auto' }}>
+                    <table className="dash-table">
+                      <thead>
+                        <tr>
+                          <th>Member</th>
+                          <th>Email</th>
+                          <th>Role</th>
+                          <th>Discipline</th>
+                          <th>Project Role</th>
+                          <th style={{ textAlign: 'right' }}>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {teamMembers.map(m => {
+                          const isLeader = m.id === team.leaderId;
+                          const isMe = m.id === user.id;
+                          return (
+                            <tr key={m.id} style={isMe ? { background: 'rgba(99,102,241,0.05)' } : {}}>
+                              <td>
+                                <div className="flex items-center gap-2">
+                                  <div className="dash-avatar dash-avatar-sm" style={{ background: isLeader ? 'linear-gradient(135deg,#6366f1,#a855f7)' : 'linear-gradient(135deg,#1e293b,#334155)' }}>
+                                    {m.name.split(' ').map((p: string) => p[0]).slice(0, 2).join('')}
+                                  </div>
+                                  <div>
+                                    <span style={{ fontWeight: 600, color: '#f1f5f9' }}>{m.name}</span>
+                                    {isMe && <span style={{ fontSize: 10, color: '#6366f1', marginLeft: 5 }}>(You)</span>}
+                                  </div>
+                                </div>
+                              </td>
+                              <td style={{ fontSize: 12 }}>{m.email}</td>
+                              <td>
+                                <span className={`status-chip ${isLeader ? 'chip-purple' : 'chip-neutral'}`}>
+                                  {isLeader ? 'LEADER' : m.role}
+                                </span>
+                              </td>
+                              <td style={{ textTransform: 'capitalize', fontSize: 13 }}>{m.discipline}</td>
+                              <td>
+                                {isLeader ? (
+                                  <span style={{ fontSize: 12, color: 'rgba(148,163,184,0.5)', fontStyle: 'italic' }}>Project Leader</span>
+                                ) : team.leaderId === user.id ? (
+                                  <select
+                                    value={m.project_role || 'Developer'}
+                                    onChange={(e) => handleUpdateMemberRole(m.id, e.target.value)}
+                                    className="dash-input dash-btn-sm"
+                                    style={{ padding: '4px 8px', fontSize: 12 }}
+                                  >
+                                    {['Developer', 'Frontend Developer', 'Backend Developer', 'Database Administrator', 'Automation Engineer', 'Quality Analyst', 'Business Strategist', 'Legal Advisor', 'Research Analyst'].map(r => (
+                                      <option key={r} value={r} style={{ background: 'var(--dash-surface-2)' }}>{r}</option>
+                                    ))}
+                                  </select>
+                                ) : (
+                                  <span style={{ fontSize: 13 }}>{m.project_role || 'Developer'}</span>
+                                )}
+                              </td>
+                              <td style={{ textAlign: 'right' }}>
+                                {!isLeader && team.leaderId === user.id ? (
+                                  <button onClick={() => handleRemoveMember(m.id)} className="dash-btn dash-btn-danger dash-btn-sm">
+                                    Remove
+                                  </button>
+                                ) : 'â€”'}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                {/* Add Members */}
+                {user.role === 'student' && team.leaderId === user.id && (
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                    <div className="dash-card" style={{ padding: 20 }}>
+                      <p className="dash-section-title" style={{ marginBottom: 14 }}>ðŸ” Available Students</p>
+                      <div style={{ maxHeight: 320, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 8 }}>
+                        {unassignedStudents.length === 0 ? (
+                          <p style={{ fontSize: 12, color: 'rgba(148,163,184,0.5)' }}>No unassigned students found.</p>
+                        ) : unassignedStudents.map(s => (
+                          <div key={s.id} className="flex justify-between items-center" style={{ padding: '10px 14px', background: 'var(--dash-surface-3)', borderRadius: 10, border: '1px solid var(--dash-border)' }}>
+                            <div>
+                              <p style={{ fontSize: 13, fontWeight: 600, color: '#e2e8f0' }}>{s.name}</p>
+                              <p style={{ fontSize: 11, color: 'rgba(148,163,184,0.5)', textTransform: 'capitalize' }}>{s.discipline} | {s.branch || 'General'}</p>
+                            </div>
+                            <button onClick={() => handleAddMember(s.id)} className="dash-btn dash-btn-primary dash-btn-sm">+ Add</button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="dash-card" style={{ padding: 20 }}>
+                      <p className="dash-section-title" style={{ marginBottom: 14 }}>ðŸ« Available Faculty</p>
+                      <div style={{ maxHeight: 320, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 8 }}>
+                        {unassignedFaculty.length === 0 ? (
+                          <p style={{ fontSize: 12, color: 'rgba(148,163,184,0.5)' }}>No unassigned faculty found.</p>
+                        ) : unassignedFaculty.map(f => (
+                          <div key={f.id} className="flex justify-between items-center" style={{ padding: '10px 14px', background: 'var(--dash-surface-3)', borderRadius: 10, border: '1px solid var(--dash-border)' }}>
+                            <div>
+                              <p style={{ fontSize: 13, fontWeight: 600, color: '#e2e8f0' }}>{f.name}</p>
+                              <p style={{ fontSize: 11, color: 'rgba(148,163,184,0.5)' }}>Faculty Advisor</p>
+                            </div>
+                            <button onClick={() => handleAddMember(f.id)} className="dash-btn dash-btn-primary dash-btn-sm">+ Add</button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Compliance Checklist */}
+              <div className="dash-card" style={{ padding: 24 }}>
+                <p className="dash-section-title" style={{ marginBottom: 16 }}>ðŸ›¡ï¸ Compliance Checklist</p>
+                <div className="space-y-3">
+                  {[
+                    { label: 'Engineering student included', ok: team.hasEngineering },
+                    { label: 'Law student included', ok: team.hasLaw },
+                    { label: 'Business (MBA) student included', ok: team.hasBusiness },
+                    { label: 'Faculty Advisor assigned', ok: team.hasFacultyAdvisor },
+                    { label: `Exactly 10 members (Current: ${team.memberCount})`, ok: team.memberCount === 10 },
+                  ].map(item => (
+                    <div key={item.label} className="flex items-center justify-between" style={{ padding: '12px 14px', background: 'var(--dash-surface-3)', borderRadius: 10, border: `1px solid ${item.ok ? 'rgba(16,185,129,0.2)' : 'var(--dash-border)'}` }}>
+                      <span style={{ fontSize: 13, color: '#94a3b8' }}>{item.label}</span>
+                      <span style={{ fontSize: 16 }}>{item.ok ? 'âœ…' : 'âŒ'}</span>
+                    </div>
+                  ))}
+                </div>
+                <div style={{ marginTop: 16 }}>
+                  <div className="flex justify-between" style={{ fontSize: 12, color: 'rgba(148,163,184,0.5)', marginBottom: 6 }}>
+                    <span>Compliance Score</span>
+                    <span style={{ fontWeight: 700, color: '#6366f1' }}>{team.compliancePercentage}%</span>
+                  </div>
+                  <div className="dash-progress-track" style={{ height: 8 }}>
+                    <div className={`dash-progress-fill ${team.compliancePercentage === 100 ? 'green' : ''}`} style={{ width: `${team.compliancePercentage}%` }} />
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* â•â•â• TAB: PROJECT â•â•â• */}
+      {activeTab === 'project' && (
+        <div className="space-y-6 animate-fade-up">
+          <div>
+            <h2 className="dash-page-title">My Project</h2>
+            <p className="dash-page-subtitle">Manage team profile and submit milestone progress reports</p>
           </div>
-        )}
 
-      </section>
+          {team ? (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Edit team/project */}
+              <div className="dash-card" style={{ padding: 28 }}>
+                <p className="dash-section-title" style={{ marginBottom: 20 }}>Edit Project Profile</p>
+                <form onSubmit={handleUpdateTeam} className="space-y-4">
+                  <div>
+                    <label className="dash-label">Team Name</label>
+                    <input type="text" value={team.teamName} onChange={e => setTeam({ ...team, teamName: e.target.value })} className={dashInp} required />
+                  </div>
+                  <div>
+                    <label className="dash-label">Technology Sector</label>
+                    <select value={team.sector} onChange={e => setTeam({ ...team, sector: e.target.value })} className={dashSel}>
+                      {['Aerospace', 'Software / AI', 'Biotechnology', 'LegalTech', 'FinTech', 'Agriculture', 'Clean Energy', 'Other'].map(s => (
+                        <option key={s} value={s} style={{ background: 'var(--dash-surface-2)' }}>{s}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <button type="submit" disabled={loading} className="dash-btn dash-btn-primary" style={{ width: '100%' }}>
+                    {loading ? <span className="dash-spinner" /> : 'Save Changes'}
+                  </button>
+                </form>
+              </div>
 
-    </main>
+              {/* Submit milestone report */}
+              <div className="dash-card" style={{ padding: 28 }}>
+                <p className="dash-section-title" style={{ marginBottom: 20 }}>Submit Milestone Report</p>
+                <form onSubmit={handleSubmitReport} className="space-y-4">
+                  <div>
+                    <label className="dash-label">Milestone Step</label>
+                    <select value={reportMilestoneStep} onChange={e => setReportMilestoneStep(parseInt(e.target.value))} className={dashSel}>
+                      {ROADMAP_STEPS.map(s => (
+                        <option key={s.step} value={s.step} style={{ background: 'var(--dash-surface-2)' }}>{s.step}. {s.title}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="dash-label">Report Content</label>
+                    <textarea
+                      value={reportContent}
+                      onChange={e => setReportContent(e.target.value)}
+                      className={dashInp}
+                      rows={5}
+                      placeholder="Describe your progress, achievements, and deliverables..."
+                      required
+                      style={{ resize: 'vertical' }}
+                    />
+                  </div>
+                  <div>
+                    <label className="dash-label">Attachment (PDF/Image)</label>
+                    <div style={{ border: '2px dashed var(--dash-border)', borderRadius: 10, padding: '16px', textAlign: 'center' }}>
+                      <input
+                        type="file"
+                        onChange={e => { if (e.target.files?.[0]) setReportFile(e.target.files[0]); }}
+                        style={{ fontSize: 12, color: '#94a3b8' }}
+                      />
+                    </div>
+                  </div>
+                  <button type="submit" disabled={loading} className="dash-btn dash-btn-primary" style={{ width: '100%' }}>
+                    {loading ? <span className="dash-spinner" /> : 'ðŸ“¤ Submit Report'}
+                  </button>
+                </form>
+              </div>
+
+              {/* Past reports */}
+              <div className="lg:col-span-2 dash-card" style={{ padding: 24 }}>
+                <p className="dash-section-title" style={{ marginBottom: 16 }}>ðŸ“‹ Previous Submissions</p>
+                {milestoneReports.length === 0 ? (
+                  <div className="dash-empty" style={{ padding: '24px' }}>
+                    <div className="dash-empty-icon">ðŸ“‹</div>
+                    <p className="dash-empty-title">No milestone reports submitted</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {milestoneReports.map(r => (
+                      <div key={r.id} className="dash-card" style={{ padding: 16 }}>
+                        <div className="flex justify-between items-start mb-2">
+                          <div>
+                            <p style={{ fontSize: 14, fontWeight: 600, color: '#e2e8f0' }}>
+                              {ROADMAP_STEPS[r.milestone_step - 1]?.title || `Milestone ${r.milestone_step}`}
+                            </p>
+                            <p style={{ fontSize: 11, color: 'rgba(148,163,184,0.5)', marginTop: 2 }}>
+                              {isMounted ? new Date(r.created_at).toLocaleDateString('en-IN') : ''}
+                            </p>
+                          </div>
+                          <span className={`status-chip ${r.status === 'approved' ? 'chip-success' : r.status === 'revision_requested' ? 'chip-warning' : 'chip-info'}`}>
+                            {r.status?.replace('_', ' ')}
+                          </span>
+                        </div>
+                        <p style={{ fontSize: 12, color: '#94a3b8', lineHeight: 1.6 }}>{r.report_content.slice(0, 120)}{r.report_content.length > 120 ? 'â€¦' : ''}</p>
+                        {r.mentor_feedback && (
+                          <p style={{ fontSize: 12, color: '#a5b4fc', marginTop: 8, padding: '8px 10px', background: 'rgba(99,102,241,0.08)', borderRadius: 8, borderLeft: '2px solid #6366f1' }}>
+                            ðŸ’¬ {r.mentor_feedback}
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="dash-card" style={{ padding: 48, textAlign: 'center', maxWidth: 500 }}>
+              <div className="dash-empty-icon" style={{ margin: '0 auto 16px' }}>ðŸ“</div>
+              <h3 className="dash-empty-title">No Active Project</h3>
+              <p className="dash-empty-desc">You must belong to a team to access project profiles.</p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* â•â•â• TAB: FUNDING â•â•â• */}
+      {activeTab === 'funding' && (
+        <div className="space-y-6 animate-fade-up">
+          <div>
+            <h2 className="dash-page-title">Seed Funding</h2>
+            <p className="dash-page-subtitle">Request prototype fabrication reimbursement up to â‚¹50,000 per team</p>
+          </div>
+
+          {team ? (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="dash-card" style={{ padding: 28 }}>
+                <p className="dash-section-title" style={{ marginBottom: 20 }}>ðŸ’Ž Submit Budget Claim</p>
+                <form onSubmit={handleSubmitFunding} className="space-y-4">
+                  <div>
+                    <label className="dash-label">Claim Amount (â‚¹)</label>
+                    <input type="number" max={50000} value={fundingAmount} onChange={e => setFundingAmount(e.target.value)}
+                      placeholder="e.g. 15000" className={dashInp} required />
+                  </div>
+                  <div>
+                    <label className="dash-label">Itemized Budget Details</label>
+                    <textarea value={fundingBudget} onChange={e => setFundingBudget(e.target.value)}
+                      placeholder="List components, costs, and vendors..." rows={5} className={dashInp} required style={{ resize: 'vertical' }} />
+                  </div>
+                  <div>
+                    <label className="dash-label">Receipts File (PDF/Image)</label>
+                    <div style={{ border: '2px dashed var(--dash-border)', borderRadius: 10, padding: '14px', textAlign: 'center' }}>
+                      <input type="file" onChange={e => { if (e.target.files?.[0]) setFundingFile(e.target.files[0]); }}
+                        style={{ fontSize: 12, color: '#94a3b8' }} />
+                    </div>
+                  </div>
+                  <button type="submit" disabled={loading} className="dash-btn dash-btn-primary" style={{ width: '100%' }}>
+                    {loading ? <span className="dash-spinner" /> : 'ðŸš€ Submit Claim'}
+                  </button>
+                </form>
+              </div>
+
+              <div className="dash-card" style={{ padding: 24 }}>
+                <p className="dash-section-title" style={{ marginBottom: 16 }}>ðŸ“œ Request History</p>
+                {fundingClaims.length === 0 ? (
+                  <div className="dash-empty" style={{ padding: '32px' }}>
+                    <div className="dash-empty-icon">ðŸ’°</div>
+                    <p className="dash-empty-title">No claims submitted yet</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {fundingClaims.map(c => (
+                      <div key={c.id} className="dash-card" style={{ padding: 18 }}>
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <p style={{ fontSize: 20, fontWeight: 800, color: '#f1f5f9', fontFamily: 'var(--font-display)' }}>
+                              â‚¹{isMounted ? c.requested_amount.toLocaleString() : c.requested_amount}
+                            </p>
+                            <p style={{ fontSize: 11, color: 'rgba(148,163,184,0.5)', marginTop: 4 }}>
+                              {isMounted ? new Date(c.created_at).toLocaleDateString('en-IN') : ''}
+                            </p>
+                          </div>
+                          <span className={`status-chip ${c.status === 'approved' || c.status === 'disbursed' ? 'chip-success' : c.status === 'rejected' ? 'chip-error' : 'chip-warning'}`}>
+                            {c.status.replace('_', ' ')}
+                          </span>
+                        </div>
+                        <p style={{ fontSize: 12, color: '#94a3b8', marginTop: 10, whiteSpace: 'pre-line', lineHeight: 1.6 }}>{c.itemized_budget}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="dash-card" style={{ padding: 48, textAlign: 'center', maxWidth: 500 }}>
+              <div className="dash-empty-icon" style={{ margin: '0 auto 16px' }}>ðŸ’Ž</div>
+              <h3 className="dash-empty-title">Funding Locked</h3>
+              <p className="dash-empty-desc">Establish your team first to request seed funding.</p>
+              <button className="dash-btn dash-btn-primary" onClick={() => setActiveTab('team')} style={{ marginTop: 20 }}>Create Team â†’</button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* â•â•â• TAB: MENTORS â•â•â• */}
+      {activeTab === 'mentors' && (
+        <div className="space-y-6 animate-fade-up">
+          <div>
+            <h2 className="dash-page-title">Mentors Connect</h2>
+            <p className="dash-page-subtitle">Schedule virtual or offline guidance sessions with expert mentors</p>
+          </div>
+
+          {team ? (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="dash-card" style={{ padding: 28 }}>
+                <p className="dash-section-title" style={{ marginBottom: 20 }}>ðŸ“… Schedule Session</p>
+                <form onSubmit={handleBookMentor} className="space-y-4">
+                  <div>
+                    <label className="dash-label">Select Mentor</label>
+                    <select value={bookingMentorId} onChange={e => setBookingMentorId(e.target.value)} className={dashSel} required>
+                      <option value="">Choose a mentor...</option>
+                      {mentorsList.map(m => (
+                        <option key={m.id} value={m.id} style={{ background: 'var(--dash-surface-2)' }}>{m.name} ({m.discipline} expert)</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="dash-label">Meeting Date & Time</label>
+                    <input type="datetime-local" value={bookingTime} onChange={e => setBookingTime(e.target.value)} className={dashInp} required />
+                  </div>
+                  <div>
+                    <label className="dash-label">Meeting Mode</label>
+                    <select value={bookingMode} onChange={e => setBookingMode(e.target.value as any)} className={dashSel}>
+                      <option value="virtual" style={{ background: 'var(--dash-surface-2)' }}>Virtual (Video Call)</option>
+                      <option value="offline" style={{ background: 'var(--dash-surface-2)' }}>Offline (On-campus)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="dash-label">Venue or Meeting Link</label>
+                    <input type="text" value={bookingLinkOrVenue} onChange={e => setBookingLinkOrVenue(e.target.value)}
+                      placeholder="Google Meet link or Room Number" className={dashInp} />
+                  </div>
+                  <button type="submit" disabled={loading} className="dash-btn dash-btn-primary" style={{ width: '100%' }}>
+                    {loading ? <span className="dash-spinner" /> : 'âœ“ Confirm Session'}
+                  </button>
+                </form>
+              </div>
+
+              <div className="dash-card" style={{ padding: 24 }}>
+                <p className="dash-section-title" style={{ marginBottom: 16 }}>ðŸ—“ï¸ Scheduled Sessions</p>
+                {bookingsList.length === 0 ? (
+                  <div className="dash-empty" style={{ padding: '32px' }}>
+                    <div className="dash-empty-icon">ðŸŽ“</div>
+                    <p className="dash-empty-title">No sessions booked</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {bookingsList.map(b => (
+                      <div key={b.id} className="dash-card" style={{ padding: 16, border: b.status === 'scheduled' ? '1px solid rgba(99,102,241,0.2)' : '1px solid var(--dash-border)' }}>
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <p style={{ fontSize: 14, fontWeight: 600, color: '#f1f5f9' }}>Mentor: {b.mentor_name}</p>
+                            <p style={{ fontSize: 12, color: 'rgba(148,163,184,0.6)', marginTop: 3 }}>
+                              ðŸ“… {isMounted ? new Date(b.scheduled_time).toLocaleString('en-IN') : ''}
+                            </p>
+                            <p style={{ fontSize: 12, color: '#6366f1', marginTop: 3 }}>
+                              Mode: <span style={{ textTransform: 'uppercase' }}>{b.mode}</span>
+                              {b.meeting_link_or_venue && ` | ${b.meeting_link_or_venue}`}
+                            </p>
+                          </div>
+                          <div className="flex flex-col items-end gap-2">
+                            <span className={`status-chip ${b.status === 'scheduled' ? 'chip-info' : b.status === 'completed' ? 'chip-success' : 'chip-error'}`}>
+                              {b.status}
+                            </span>
+                            {b.status === 'scheduled' && (
+                              <button onClick={() => handleCancelBooking(b.id)} className="dash-btn dash-btn-danger dash-btn-sm">
+                                Cancel
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="dash-card" style={{ padding: 48, textAlign: 'center', maxWidth: 500 }}>
+              <div className="dash-empty-icon" style={{ margin: '0 auto 16px' }}>ðŸŽ“</div>
+              <h3 className="dash-empty-title">Mentors Portal Locked</h3>
+              <p className="dash-empty-desc">Register a team to schedule mentorship sessions.</p>
+              <button className="dash-btn dash-btn-primary" onClick={() => setActiveTab('team')} style={{ marginTop: 20 }}>Create Team â†’</button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* â•â•â• TAB: EVENTS â•â•â• */}
+      {activeTab === 'events' && (
+        <div className="space-y-6 animate-fade-up">
+          <div>
+            <h2 className="dash-page-title">Upcoming Events</h2>
+            <p className="dash-page-subtitle">Bootcamps, ideathons, and SIH training organized by Yantriksha X Hub</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {[
+              { title: 'Smart India Hackathon Bootcamp', date: 'August 12, 2026', desc: 'Prepare your compliance logs, blueprints, and feasibility statements for SIH pre-screening.', icon: 'ðŸ†', color: '#f59e0b' },
+              { title: 'Cross-Disciplinary Legal Review Clinic', date: 'August 24, 2026', desc: 'Connect with Law students to draft provisional patent agreements and regulatory checklists.', icon: 'âš–ï¸', color: '#6366f1' },
+              { title: 'Business Model Canvas Ideathon', date: 'September 05, 2026', desc: 'Formulate itemized budgets, market fit research, and corporate pitch materials.', icon: 'ðŸ“Š', color: '#10b981' },
+            ].map(e => (
+              <div key={e.title} className="dash-card dash-card-interactive" style={{ padding: 24 }}>
+                <div style={{ width: 44, height: 44, background: `${e.color}18`, border: `1px solid ${e.color}30`, borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, marginBottom: 14 }}>
+                  {e.icon}
+                </div>
+                <h4 style={{ fontSize: 14, fontWeight: 700, color: '#f1f5f9', marginBottom: 6 }}>{e.title}</h4>
+                <p style={{ fontSize: 11, color: e.color, fontWeight: 600, marginBottom: 10 }}>ðŸ“… {e.date}</p>
+                <p style={{ fontSize: 12, color: 'rgba(148,163,184,0.7)', lineHeight: 1.6 }}>{e.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* â•â•â• TAB: SETTINGS â•â•â• */}
+      {activeTab === 'settings' && (
+        <div className="space-y-6 animate-fade-up">
+          <div>
+            <h2 className="dash-page-title">Settings</h2>
+            <p className="dash-page-subtitle">View and update your profile, credentials, and notification preferences</p>
+          </div>
+
+          <div className="dash-card" style={{ padding: 32, maxWidth: 640 }}>
+            {/* Profile header */}
+            <div className="flex items-center gap-4 mb-8 pb-6" style={{ borderBottom: '1px solid var(--dash-border)' }}>
+              <div className="dash-avatar" style={{ width: 56, height: 56, fontSize: 20, borderRadius: 14, background: 'linear-gradient(135deg,#6366f1,#a855f7)' }}>
+                {user.name.split(' ').map(p => p[0]).slice(0, 2).join('')}
+              </div>
+              <div>
+                <p style={{ fontSize: 18, fontWeight: 700, color: '#f1f5f9', fontFamily: 'var(--font-display)' }}>{user.name}</p>
+                <p style={{ fontSize: 12, color: 'rgba(148,163,184,0.6)', textTransform: 'capitalize' }}>{user.role} Â· {user.discipline}</p>
+              </div>
+            </div>
+
+            <form onSubmit={handleUpdateProfile} className="space-y-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div>
+                  <label className="dash-label">Full Name</label>
+                  <input type="text" value={user.name} onChange={e => setUser({ ...user, name: e.target.value })} className={dashInp} required />
+                </div>
+                <div>
+                  <label className="dash-label">Student ID / Roll Number</label>
+                  <input type="text" value={user.veltech_id} className={dashInp} disabled style={{ opacity: 0.5, cursor: 'not-allowed' }} />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div>
+                  <label className="dash-label">Email Address</label>
+                  <input type="email" value={user.email} className={dashInp} disabled style={{ opacity: 0.5, cursor: 'not-allowed' }} />
+                </div>
+                <div>
+                  <label className="dash-label">Phone Number</label>
+                  <input type="tel" value={user.phone_number || ''} onChange={e => setUser({ ...user, phone_number: e.target.value })}
+                    placeholder="10-digit phone number" className={dashInp} />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                <div>
+                  <label className="dash-label">School</label>
+                  <select value={user.school || ''} onChange={e => setUser({ ...user, school: e.target.value })} className={dashSel}>
+                    <option value="" disabled style={{ background: 'var(--dash-surface-2)' }}>Select School</option>
+                    {SCHOOLS.map(s => <option key={s.value} value={s.value} style={{ background: 'var(--dash-surface-2)' }}>{s.label}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="dash-label">Branch</label>
+                  <select value={user.branch || ''} onChange={e => setUser({ ...user, branch: e.target.value })} className={dashSel}>
+                    <option value="" disabled style={{ background: 'var(--dash-surface-2)' }}>Select Dept</option>
+                    {DEPARTMENTS.map(d => <option key={d.value} value={d.value} style={{ background: 'var(--dash-surface-2)' }}>{d.label}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="dash-label">Year of Study</label>
+                  <select value={user.year_of_studying || 1} onChange={e => setUser({ ...user, year_of_studying: parseInt(e.target.value, 10) })} className={dashSel}>
+                    {[1, 2, 3, 4].map(y => <option key={y} value={y} style={{ background: 'var(--dash-surface-2)' }}>Year {y}</option>)}
+                  </select>
+                </div>
+              </div>
+
+              {/* Notification preferences */}
+              <div style={{ paddingTop: 20, borderTop: '1px solid var(--dash-border)' }}>
+                <p style={{ fontSize: 14, fontWeight: 700, color: '#e2e8f0', marginBottom: 6, fontFamily: 'var(--font-display)' }}>
+                  Email Notification Preferences
+                </p>
+                <p style={{ fontSize: 12, color: 'rgba(148,163,184,0.5)', marginBottom: 16 }}>
+                  Choose which notification categories you want to receive via email.
+                </p>
+                <div className="space-y-3">
+                  {[
+                    { key: 'club_updates', label: 'Club Updates & Announcements', desc: 'Recruitment news, workshops, and meeting details.' },
+                    { key: 'event_notifications', label: 'Event Announcements', desc: 'Bootcamps, hackathons, and registration confirmations.' },
+                    { key: 'general_announcements', label: 'General Campus Announcements', desc: 'Holiday alerts, technical fest dates, and placement updates.' },
+                    { key: 'newsletter', label: 'Newsletters & Monthly Spotlights', desc: 'Monthly highlights of innovation hub accomplishments.' },
+                    { key: 'recruitment_notifications', label: 'Recruitment Campaigns', desc: 'Team forming requests and new club admission drives.' },
+                  ].map(({ key, label, desc }) => {
+                    const prefs = user.notificationPreferences || { club_updates: true, event_notifications: true, general_announcements: true, newsletter: true, recruitment_notifications: true };
+                    const checked = (prefs as any)[key] ?? true;
+                    return (
+                      <label key={key} className="flex items-start gap-3 cursor-pointer" style={{ padding: '10px 14px', background: 'var(--dash-surface-3)', borderRadius: 10, border: '1px solid var(--dash-border)' }}>
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          onChange={e => setUser({ ...user, notificationPreferences: { ...prefs, [key]: e.target.checked } })}
+                          style={{ marginTop: 2, accentColor: '#6366f1', cursor: 'pointer' }}
+                        />
+                        <div>
+                          <span style={{ fontSize: 13, fontWeight: 600, color: '#e2e8f0' }}>{label}</span>
+                          <p style={{ fontSize: 11, color: 'rgba(148,163,184,0.5)', marginTop: 2 }}>{desc}</p>
+                        </div>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <button type="submit" disabled={loading} className="dash-btn dash-btn-primary" style={{ width: '100%', marginTop: 8 }}>
+                {loading ? <span className="dash-spinner" /> : 'Save Profile Changes'}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+    </DashboardShell>
   );
 }
+
