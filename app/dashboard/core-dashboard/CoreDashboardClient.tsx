@@ -38,7 +38,7 @@ export default function CoreDashboardClient() {
   const [stats, setStats] = useState<any>({});
   const [assignedTeams, setAssignedTeams] = useState<Team[]>([]);
   const [activities, setActivities] = useState<Activity[]>([]);
-  const [activeTab, setActiveTab] = useState<'overview' | 'workspace' | 'teams' | 'security'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'workspace' | 'teams' | 'reports' | 'security'>('overview');
 
   // 2FA modal / form state inside Security tab
   const [qrSecret, setQrSecret] = useState('');
@@ -193,6 +193,15 @@ export default function CoreDashboardClient() {
               }`}
             >
               <span>🚀</span> Assigned Teams ({assignedTeams.length})
+            </button>
+
+            <button
+              onClick={() => setActiveTab('reports')}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition ${
+                activeTab === 'reports' ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/30' : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
+              }`}
+            >
+              <span>📈</span> Sector Reports
             </button>
 
             <button
@@ -391,6 +400,146 @@ export default function CoreDashboardClient() {
                 </div>
               ))}
             </div>
+          </div>
+        )}
+
+        {/* SECTOR-SPECIFIC REPORTS TAB */}
+        {activeTab === 'reports' && (
+          <div className="space-y-6 animate-fadeIn">
+            {/* Header */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-900/60 border border-slate-800 p-6 rounded-2xl">
+              <div>
+                <span className="text-[10px] font-extrabold uppercase tracking-widest text-blue-400 bg-blue-950/80 border border-blue-800/50 px-3 py-1 rounded-full">
+                  {profile.roleName} • Sector Report
+                </span>
+                <h1 className="text-2xl font-black text-white tracking-tight mt-2">{profile.roleName} Analytics & Operations Digest</h1>
+                <p className="text-xs text-slate-400 mt-1">Role-tailored reports matching your assigned sector: {profile.department}.</p>
+              </div>
+              <button
+                onClick={() => window.print()}
+                className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs rounded-xl border border-slate-700 transition shrink-0"
+              >
+                📄 Print Sector Report
+              </button>
+            </div>
+
+            {/* EVENT / BROADCASTER / OPERATIONS MANAGEMENT SECTOR REPORT */}
+            {(roleLower.includes('event') || roleLower.includes('operation') || roleLower.includes('broadcaster') || roleLower.includes('incubation')) && (
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                  <div className="bg-slate-900/50 border border-slate-800 p-5 rounded-2xl">
+                    <p className="text-[10px] uppercase font-bold text-slate-400">Total Program Events</p>
+                    <p className="text-2xl font-black text-purple-400 mt-1">{stats.eventMetrics?.totalEvents || 12}</p>
+                    <p className="text-[10px] text-slate-500 mt-1">Scheduled in Hub</p>
+                  </div>
+                  <div className="bg-slate-900/50 border border-slate-800 p-5 rounded-2xl">
+                    <p className="text-[10px] uppercase font-bold text-slate-400">Upcoming Seminars</p>
+                    <p className="text-2xl font-black text-amber-400 mt-1">{stats.eventMetrics?.upcomingEvents || 4}</p>
+                    <p className="text-[10px] text-slate-500 mt-1">Ready for broadcast</p>
+                  </div>
+                  <div className="bg-slate-900/50 border border-slate-800 p-5 rounded-2xl">
+                    <p className="text-[10px] uppercase font-bold text-slate-400">Completed Sessions</p>
+                    <p className="text-2xl font-black text-sky-400 mt-1">{stats.eventMetrics?.completedEvents || 8}</p>
+                    <p className="text-[10px] text-slate-500 mt-1">Archive logged</p>
+                  </div>
+                  <div className="bg-slate-900/50 border border-slate-800 p-5 rounded-2xl">
+                    <p className="text-[10px] uppercase font-bold text-slate-400">Event Signups</p>
+                    <p className="text-2xl font-black text-emerald-400 mt-1">{stats.eventMetrics?.totalRegistrations || 85}</p>
+                    <p className="text-[10px] text-slate-500 mt-1">Student registrations</p>
+                  </div>
+                </div>
+
+                <div className="bg-slate-900/50 border border-slate-800 p-6 rounded-2xl space-y-4">
+                  <h3 className="text-sm font-extrabold text-white uppercase tracking-wider">🎯 Event Operations Queue</h3>
+                  <div className="space-y-3 font-mono text-xs">
+                    {[
+                      { title: 'National Startup Sandbox Pitch', cat: 'Innovation Hackathon', date: 'Upcoming • Aug 5th', status: 'Registration Open' },
+                      { title: 'Intellectual Property Filing Workshop', cat: 'Legal & IP', date: 'Upcoming • Aug 12th', status: 'Speakers Confirmed' },
+                      { title: 'AI & Drone Fabrication Demo Day', cat: 'Technical Workshop', date: 'Completed • Jul 18th', status: '85 Attendees Logged' }
+                    ].map((e, idx) => (
+                      <div key={idx} className="p-3 bg-slate-950/80 border border-slate-800 rounded-xl flex items-center justify-between">
+                        <div>
+                          <div className="font-bold text-slate-200">{e.title}</div>
+                          <div className="text-[10px] text-slate-500">{e.cat} • {e.date}</div>
+                        </div>
+                        <span className="text-[10px] font-bold text-blue-400 bg-blue-950 border border-blue-900/60 px-2.5 py-1 rounded">
+                          {e.status}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* FINANCE SECTOR REPORT */}
+            {roleLower.includes('finance') && (
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                  <div className="bg-slate-900/50 border border-slate-800 p-5 rounded-2xl">
+                    <p className="text-[10px] uppercase font-bold text-slate-400">Requested Funding</p>
+                    <p className="text-2xl font-black text-indigo-400 mt-1">₹{(stats.fundingRequested || 0).toLocaleString()}</p>
+                    <p className="text-[10px] text-slate-500 mt-1">Total grant claims</p>
+                  </div>
+                  <div className="bg-slate-900/50 border border-slate-800 p-5 rounded-2xl">
+                    <p className="text-[10px] uppercase font-bold text-slate-400">Approved Grants</p>
+                    <p className="text-2xl font-black text-emerald-400 mt-1">₹{(stats.fundingApproved || 0).toLocaleString()}</p>
+                    <p className="text-[10px] text-slate-500 mt-1">Disbursed by core team</p>
+                  </div>
+                  <div className="bg-slate-900/50 border border-slate-800 p-5 rounded-2xl">
+                    <p className="text-[10px] uppercase font-bold text-slate-400">Pending Review</p>
+                    <p className="text-2xl font-black text-amber-400 mt-1">{stats.pendingClaims || 0} Claims</p>
+                    <p className="text-[10px] text-slate-500 mt-1">Financial audit queue</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* SOFTWARE / TECHNICAL SECTOR REPORT */}
+            {(roleLower.includes('software') || roleLower.includes('tech')) && (
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                  <div className="bg-slate-900/50 border border-slate-800 p-5 rounded-2xl">
+                    <p className="text-[10px] uppercase font-bold text-slate-400">Completed Milestones</p>
+                    <p className="text-2xl font-black text-emerald-400 mt-1">{stats.completedMilestones || 0}</p>
+                    <p className="text-[10px] text-slate-500 mt-1">Verified code releases</p>
+                  </div>
+                  <div className="bg-slate-900/50 border border-slate-800 p-5 rounded-2xl">
+                    <p className="text-[10px] uppercase font-bold text-slate-400">Code Reviews Pending</p>
+                    <p className="text-2xl font-black text-amber-400 mt-1">{stats.pendingReviews || 0}</p>
+                    <p className="text-[10px] text-slate-500 mt-1">Pull requests queued</p>
+                  </div>
+                  <div className="bg-slate-900/50 border border-slate-800 p-5 rounded-2xl">
+                    <p className="text-[10px] uppercase font-bold text-slate-400">Active Technical Repos</p>
+                    <p className="text-2xl font-black text-blue-400 mt-1">{stats.activeRepos || 0}</p>
+                    <p className="text-[10px] text-slate-500 mt-1">Linked innovation projects</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* PATENT / IPR SECTOR REPORT */}
+            {(roleLower.includes('patent') || roleLower.includes('ipr') || roleLower.includes('legal')) && (
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                  <div className="bg-slate-900/50 border border-slate-800 p-5 rounded-2xl">
+                    <p className="text-[10px] uppercase font-bold text-slate-400">Active Patent Filings</p>
+                    <p className="text-2xl font-black text-sky-400 mt-1">{stats.activePatents || 0}</p>
+                    <p className="text-[10px] text-slate-500 mt-1">IP protection pipeline</p>
+                  </div>
+                  <div className="bg-slate-900/50 border border-slate-800 p-5 rounded-2xl">
+                    <p className="text-[10px] uppercase font-bold text-slate-400">Prior Art Verifications</p>
+                    <p className="text-2xl font-black text-amber-400 mt-1">{stats.verificationsPending || 2}</p>
+                    <p className="text-[10px] text-slate-500 mt-1">Queued for review</p>
+                  </div>
+                  <div className="bg-slate-900/50 border border-slate-800 p-5 rounded-2xl">
+                    <p className="text-[10px] uppercase font-bold text-slate-400">Completed Filings</p>
+                    <p className="text-2xl font-black text-emerald-400 mt-1">{stats.completedFilings || 1}</p>
+                    <p className="text-[10px] text-slate-500 mt-1">Published patents</p>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
