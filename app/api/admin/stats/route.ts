@@ -96,36 +96,44 @@ export async function GET(req: Request) {
     }
 
     // 12. Mentors & Session Bookings Count
-    const mentorsRes = await query("SELECT COUNT(*) as count FROM users WHERE role = 'mentor'");
-    const totalMentors = mentorsRes[0]?.count || 0;
+    let totalMentors = 0;
+    try {
+      const mentorsRes = await query("SELECT COUNT(*) as count FROM users WHERE role = 'mentor'");
+      totalMentors = mentorsRes[0]?.count || 0;
+    } catch (_) {}
 
-    const bookingsRes = await query("SELECT status, COUNT(*) as count FROM mentor_bookings GROUP BY status");
     let totalBookings = 0;
     let completedBookings = 0;
     let pendingBookings = 0;
-    if (Array.isArray(bookingsRes)) {
-      bookingsRes.forEach((b: any) => {
-        totalBookings += b.count;
-        if (b.status === 'completed') completedBookings += b.count;
-        if (b.status === 'pending' || b.status === 'scheduled') pendingBookings += b.count;
-      });
-    }
+    try {
+      const bookingsRes = await query("SELECT status, COUNT(*) as count FROM mentor_bookings GROUP BY status");
+      if (Array.isArray(bookingsRes)) {
+        bookingsRes.forEach((b: any) => {
+          totalBookings += b.count;
+          if (b.status === 'completed') completedBookings += b.count;
+          if (b.status === 'pending' || b.status === 'scheduled') pendingBookings += b.count;
+        });
+      }
+    } catch (_) {}
 
     // 13. Funding Summary Breakdown (Requested, Approved, Disbursed)
-    const fundingSummaryRes = await query(`
-      SELECT 
-        SUM(CASE WHEN status = 'approved' THEN requested_amount ELSE 0 END) as approved_amount,
-        SUM(CASE WHEN status LIKE 'pending%' THEN requested_amount ELSE 0 END) as pending_amount,
-        SUM(CASE WHEN status = 'disbursed' THEN requested_amount ELSE 0 END) as disbursed_amount,
-        COUNT(*) as total_claims
-      FROM funding_requests
-    `);
-    const fundingSummary = {
-      approved: parseFloat(fundingSummaryRes[0]?.approved_amount || 0),
-      pending: parseFloat(fundingSummaryRes[0]?.pending_amount || 0),
-      disbursed: parseFloat(fundingSummaryRes[0]?.disbursed_amount || 0),
-      totalClaims: fundingSummaryRes[0]?.total_claims || 0
-    };
+    let fundingSummary = { approved: 0, pending: 0, disbursed: 0, totalClaims: 0 };
+    try {
+      const fundingSummaryRes = await query(`
+        SELECT 
+          SUM(CASE WHEN status = 'approved' THEN requested_amount ELSE 0 END) as approved_amount,
+          SUM(CASE WHEN status LIKE 'pending%' THEN requested_amount ELSE 0 END) as pending_amount,
+          SUM(CASE WHEN status = 'disbursed' THEN requested_amount ELSE 0 END) as disbursed_amount,
+          COUNT(*) as total_claims
+        FROM funding_requests
+      `);
+      fundingSummary = {
+        approved: parseFloat(fundingSummaryRes[0]?.approved_amount || 0),
+        pending: parseFloat(fundingSummaryRes[0]?.pending_amount || 0),
+        disbursed: parseFloat(fundingSummaryRes[0]?.disbursed_amount || 0),
+        totalClaims: fundingSummaryRes[0]?.total_claims || 0
+      };
+    } catch (_) {}
 
     return NextResponse.json({
       success: true,

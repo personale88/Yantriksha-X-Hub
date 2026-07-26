@@ -149,60 +149,88 @@ export default function SuperAdminClient({ currentAdmin }: { currentAdmin: SaUse
 
   const loadAllData = async () => {
     setLoading(true);
+    setErrorMsg('');
+
+    // 1. Fetch dashboard stats
     try {
-      // 1. Fetch dashboard stats
       const statsRes = await fetch('/api/admin/stats');
       const statsData = await statsRes.json();
       if (statsData.success) setStats(statsData.stats);
+    } catch (e) {
+      console.error('Stats fetch error:', e);
+    }
 
-      // 2. Fetch students
+    // 2. Fetch students
+    try {
       const studRes = await fetch('/api/admin/users');
       const studData = await studRes.json();
       if (studData.success) setStudents(studData.users);
+    } catch (e) {
+      console.error('Students fetch error:', e);
+    }
 
-      // 3. Fetch clubs
+    // 3. Fetch clubs
+    try {
       const clubRes = await fetch('/api/admin/clubs');
       const clubData = await clubRes.json();
       if (clubData.success) setClubs(clubData.clubs);
+    } catch (e) {
+      console.error('Clubs fetch error:', e);
+    }
 
-      // 4. Fetch events
+    // 4. Fetch events
+    try {
       const evRes = await fetch('/api/admin/events');
       const evData = await evRes.json();
       if (evData.success) setEvents(evData.events);
+    } catch (e) {
+      console.error('Events fetch error:', e);
+    }
 
-      // 5. Fetch logs
+    // 5. Fetch logs
+    try {
       const logRes = await fetch('/api/admin/logs');
       const logData = await logRes.json();
       if (logData.success) {
-        setActivityLogs(logData.activityLogs);
-        setAuditLogs(logData.auditLogs);
+        setActivityLogs(logData.activityLogs || []);
+        setAuditLogs(logData.auditLogs || []);
         setReportsSentLogs(logData.reportsSentLogs || []);
       }
+    } catch (e) {
+      console.error('Logs fetch error:', e);
+    }
 
-      // 6. Fetch announcements
+    // 6. Fetch announcements
+    try {
       const annRes = await fetch('/api/admin/announcements');
       const annData = await annRes.json();
-      if (annData.success) setAnnouncements(annData.announcements);
+      if (annData.success) setAnnouncements(annData.announcements || []);
+    } catch (e) {
+      console.error('Announcements fetch error:', e);
+    }
 
-      // 7. Fetch RBAC Roles
+    // 7. Fetch RBAC Roles
+    try {
       const rolesRes = await fetch('/api/admin/roles');
       const rolesData = await rolesRes.json();
-      if (rolesData.success) setRoles(rolesData.roles);
+      if (rolesData.success) setRoles(rolesData.roles || []);
+    } catch (e) {
+      console.error('Roles fetch error:', e);
+    }
 
-      // 8. Fetch Core Members
+    // 8. Fetch Core Members
+    try {
       const membersRes = await fetch('/api/admin/core-members');
       const membersData = await membersRes.json();
       if (membersData.success) {
-        setCoreMembers(membersData.members);
+        setCoreMembers(membersData.members || []);
         if (membersData.allTeams) setAllTeams(membersData.allTeams);
       }
-
-    } catch (err) {
-      console.error(err);
-      setErrorMsg('Failed to aggregate portal database contents.');
-    } finally {
-      setLoading(false);
+    } catch (e) {
+      console.error('Core members fetch error:', e);
     }
+
+    setLoading(false);
   };
 
   // Report Dispatch Action
