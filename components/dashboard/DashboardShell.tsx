@@ -348,17 +348,19 @@ export default function DashboardShell({
             )}
           </div>
 
-          {/* Greeting strip */}
-          <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-              <h1 className="dash-page-title">
-                {getGreeting()}, {user.name.split(' ')[0]} 👋
-              </h1>
-              <p className="dash-page-subtitle">
-                {activeItem ? activeItem.label : 'Dashboard'} — {new Date().toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-              </p>
+          {/* Greeting strip (only on overview/dashboard tab) */}
+          {activeMenu === 'dashboard' && (
+            <div className="mb-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div>
+                <h1 className="dash-page-title">
+                  {getGreeting()}, {user.name.split(' ')[0]} 👋
+                </h1>
+                <p className="dash-page-subtitle">
+                  {activeItem ? activeItem.label : 'Dashboard'} — {new Date().toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                </p>
+              </div>
             </div>
-          </div>
+          )}
 
           {children}
         </main>
