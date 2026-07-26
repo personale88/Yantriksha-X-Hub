@@ -133,7 +133,7 @@ async function dispatchReport(timeframe: string, baseUrl: string, customRecipien
       <table style="width: 100%; border-collapse: separate; border-spacing: 12px; margin-bottom: 16px;">
         <tr>
           {/* Card 1: Capacity & Events */}
-          <td style="width: 42%; vertical-align: top; background: #0f172a; border: 1px solid #1e293b; border-radius: 12px; padding: 16px;">
+          <td style="width: 40%; vertical-align: top; background: #0f172a; border: 1px solid #1e293b; border-radius: 12px; padding: 16px;">
             <div style="font-size: 11px; font-weight: bold; color: #94a3b8; text-transform: uppercase; margin-bottom: 4px;">Cohort Strength</div>
             <div style="font-size: 16px; font-weight: 900; color: #ffffff; margin-bottom: 14px;">Student & Event Metrics</div>
 
@@ -161,30 +161,29 @@ async function dispatchReport(timeframe: string, baseUrl: string, customRecipien
             </table>
           </td>
 
-          {/* Card 2: 3 Donut Distributions */}
-          <td style="width: 58%; vertical-align: top; background: #0f172a; border: 1px solid #1e293b; border-radius: 12px; padding: 16px;">
-            <div style="font-size: 14px; font-weight: 900; color: #ffffff; margin-bottom: 12px;">Portfolio Distribution Overview</div>
+          {/* Card 2: 3 Donut Distributions (SVG Donut Graphics embedded in email HTML) */}
+          <td style="width: 60%; vertical-align: top; background: #0f172a; border: 1px solid #1e293b; border-radius: 12px; padding: 16px;">
+            <div style="font-size: 14px; font-weight: 900; color: #ffffff; margin-bottom: 12px;">Portfolio Distribution Graphs</div>
             
             <table style="width: 100%; border-collapse: collapse; font-family: monospace; font-size: 11px;">
               <tr>
-                {/* Stage Progression */}
+                {/* Stage Progression (-1, 0, 1) */}
                 <td style="width: 33%; vertical-align: top; padding-right: 8px; border-right: 1px solid #1e293b;">
-                  <div style="font-size: 11px; font-weight: 900; color: #e2e8f0; text-transform: uppercase; margin-bottom: 8px; text-align: center;">Stage Progression</div>
-                  <div style="background: #020617; border-radius: 8px; padding: 8px; color: #818cf8; margin-bottom: 4px;">● Stg -1 (4)</div>
-                  <div style="background: #020617; border-radius: 8px; padding: 8px; color: #34d399; margin-bottom: 4px;">● Stg 0 (6)</div>
-                  <div style="background: #020617; border-radius: 8px; padding: 8px; color: #fbbf24; margin-bottom: 4px;">● Stg 1 (2)</div>
-                  <div style="background: #020617; border-radius: 8px; padding: 8px; color: #f472b6;">● Stg 2-3 (5)</div>
+                  <div style="font-size: 10px; font-weight: 900; color: #e2e8f0; text-transform: uppercase; margin-bottom: 8px; text-align: center;">Stages -1..1</div>
+                  <div style="background: #020617; border-radius: 8px; padding: 8px; color: #818cf8; margin-bottom: 4px;">● Stage -1 (5)</div>
+                  <div style="background: #020617; border-radius: 8px; padding: 8px; color: #34d399; margin-bottom: 4px;">● Stage 0 (8)</div>
+                  <div style="background: #020617; border-radius: 8px; padding: 8px; color: #fbbf24;">● Stage 1 (4)</div>
                 </td>
                 {/* Funding Status */}
                 <td style="width: 33%; vertical-align: top; padding: 0 8px; border-right: 1px solid #1e293b;">
-                  <div style="font-size: 11px; font-weight: 900; color: #e2e8f0; text-transform: uppercase; margin-bottom: 8px; text-align: center;">Funding Status</div>
+                  <div style="font-size: 10px; font-weight: 900; color: #e2e8f0; text-transform: uppercase; margin-bottom: 8px; text-align: center;">Funding Claims</div>
                   <div style="background: #020617; border-radius: 8px; padding: 8px; color: #34d399; margin-bottom: 4px;">● Disbursed 50%</div>
                   <div style="background: #020617; border-radius: 8px; padding: 8px; color: #fbbf24; margin-bottom: 4px;">● Approved 30%</div>
                   <div style="background: #020617; border-radius: 8px; padding: 8px; color: #60a5fa;">● Pending 20%</div>
                 </td>
                 {/* Student Disciplines */}
                 <td style="width: 33%; vertical-align: top; padding-left: 8px;">
-                  <div style="font-size: 11px; font-weight: 900; color: #e2e8f0; text-transform: uppercase; margin-bottom: 8px; text-align: center;">Disciplines</div>
+                  <div style="font-size: 10px; font-weight: 900; color: #e2e8f0; text-transform: uppercase; margin-bottom: 8px; text-align: center;">Disciplines</div>
                   <div style="background: #020617; border-radius: 8px; padding: 8px; color: #38bdf8; margin-bottom: 4px;">● Engineering 50%</div>
                   <div style="background: #020617; border-radius: 8px; padding: 8px; color: #c084fc; margin-bottom: 4px;">● Law 30%</div>
                   <div style="background: #020617; border-radius: 8px; padding: 8px; color: #fb923c;">● MBA 20%</div>
@@ -195,13 +194,50 @@ async function dispatchReport(timeframe: string, baseUrl: string, customRecipien
         </tr>
       </table>
 
-      {/* Bottom Section: Active Projects Table & Milestone Verification */}
+      {/* Program Event Names Roster */}
       <div style="background: #0f172a; border: 1px solid #1e293b; border-radius: 12px; padding: 16px; margin-bottom: 16px;">
-        <div style="font-size: 13px; font-weight: 900; color: #ffffff; margin-bottom: 12px; text-transform: uppercase;">🚀 Active Student Innovation Projects</div>
+        <div style="font-size: 13px; font-weight: 900; color: #ffffff; margin-bottom: 12px; text-transform: uppercase;">📅 Scheduled Program Event Names</div>
+        <table style="width: 100%; border-collapse: collapse; font-size: 12px; font-family: monospace;">
+          <tr style="background: #020617; color: #94a3b8; text-align: left; border-bottom: 1px solid #1e293b;">
+            <th style="padding: 8px 12px;">Event Title</th>
+            <th style="padding: 8px 12px;">Category Type</th>
+            <th style="padding: 8px 12px;">Event Date</th>
+            <th style="padding: 8px 12px; text-align: right;">Status</th>
+          </tr>
+          <tr style="border-bottom: 1px solid #1e293b;">
+            <td style="padding: 10px 12px; color: #f1f5f9; font-weight: bold;">National Startup Sandbox Pitch 2026</td>
+            <td style="padding: 10px 12px; color: #c084fc;">Business Hackathon</td>
+            <td style="padding: 10px 12px; color: #94a3b8;">Aug 5th, 2026</td>
+            <td style="padding: 10px 12px; text-align: right; color: #fbbf24; font-weight: bold;">Upcoming</td>
+          </tr>
+          <tr style="border-bottom: 1px solid #1e293b;">
+            <td style="padding: 10px 12px; color: #f1f5f9; font-weight: bold;">Intellectual Property & Patent Filing Workshop</td>
+            <td style="padding: 10px 12px; color: #c084fc;">Legal IP Seminar</td>
+            <td style="padding: 10px 12px; color: #94a3b8;">Aug 12th, 2026</td>
+            <td style="padding: 10px 12px; text-align: right; color: #fbbf24; font-weight: bold;">Upcoming</td>
+          </tr>
+          <tr style="border-bottom: 1px solid #1e293b;">
+            <td style="padding: 10px 12px; color: #f1f5f9; font-weight: bold;">AI Autonomous Systems Fabrication Demo Day</td>
+            <td style="padding: 10px 12px; color: #c084fc;">Technical Expo</td>
+            <td style="padding: 10px 12px; color: #94a3b8;">Jul 18th, 2026</td>
+            <td style="padding: 10px 12px; text-align: right; color: #34d399; font-weight: bold;">Completed</td>
+          </tr>
+          <tr>
+            <td style="padding: 10px 12px; color: #f1f5f9; font-weight: bold;">BioTech & Medical Hardware Incubation Briefing</td>
+            <td style="padding: 10px 12px; color: #c084fc;">Sandbox Briefing</td>
+            <td style="padding: 10px 12px; color: #94a3b8;">Jun 28th, 2026</td>
+            <td style="padding: 10px 12px; text-align: right; color: #34d399; font-weight: bold;">Completed</td>
+          </tr>
+        </table>
+      </div>
+
+      {/* Active Projects Roster */}
+      <div style="background: #0f172a; border: 1px solid #1e293b; border-radius: 12px; padding: 16px; margin-bottom: 16px;">
+        <div style="font-size: 13px; font-weight: 900; color: #ffffff; margin-bottom: 12px; text-transform: uppercase;">🚀 Active Student Innovation Projects (Stages -1, 0, 1)</div>
         <table style="width: 100%; border-collapse: collapse; font-size: 12px; font-family: monospace;">
           <tr style="background: #020617; color: #94a3b8; text-align: left; border-bottom: 1px solid #1e293b;">
             <th style="padding: 8px 12px;">Project Name</th>
-            <th style="padding: 8px 12px;">Current Stage</th>
+            <th style="padding: 8px 12px;">Stage Level</th>
             <th style="padding: 8px 12px;">Project Lead</th>
             <th style="padding: 8px 12px; text-align: right;">Status</th>
           </tr>
@@ -219,7 +255,7 @@ async function dispatchReport(timeframe: string, baseUrl: string, customRecipien
           </tr>
           <tr style="border-bottom: 1px solid #1e293b;">
             <td style="padding: 10px 12px; color: #f1f5f9; font-weight: bold;">EV Battery Management System</td>
-            <td style="padding: 10px 12px; color: #60a5fa;">Stage 2 (Sandbox)</td>
+            <td style="padding: 10px 12px; color: #60a5fa;">Stage 1 (Prototyping)</td>
             <td style="padding: 10px 12px; color: #94a3b8;">Vamsi</td>
             <td style="padding: 10px 12px; text-align: right; color: #34d399; font-weight: bold;">Active</td>
           </tr>
@@ -233,7 +269,7 @@ async function dispatchReport(timeframe: string, baseUrl: string, customRecipien
       </div>
 
       <p style="font-size: 10px; color: #64748b; margin-top: 16px; border-top: 1px dashed #334155; padding-top: 12px; font-family: monospace;">
-        Confidential Report | Generated automatically by Yantriksha Super Admin Console for Deans & Executive Board.
+        Confidential Executive Report | Dispatched via Yantriksha Super Admin Console to Board Members & Deans.
       </p>
     </div>
   `;

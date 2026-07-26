@@ -1482,38 +1482,33 @@ export default function SuperAdminClient({ currentAdmin }: { currentAdmin: SaUse
                   </h3>
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6 divide-y md:divide-y-0 md:divide-x divide-slate-800">
-                    {/* Donut 1: Stage Progression (Prominent) */}
+                    {/* Donut 1: Innovation Stages (-1, 0, 1) */}
                     <div className="flex flex-col items-center text-center pt-2 md:pt-0">
                       <h4 className="text-xs font-black text-slate-200 uppercase tracking-wider mb-3">Stage Progression</h4>
                       <div className="relative w-36 h-36 flex items-center justify-center">
                         <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
                           <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#1e293b" strokeWidth="4.2" />
-                          <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#6366f1" strokeWidth="4.2" strokeDasharray="25, 100" />
-                          <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#10b981" strokeWidth="4.2" strokeDasharray="35, 100" strokeDashoffset="-25" />
-                          <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#f59e0b" strokeWidth="4.2" strokeDasharray="15, 100" strokeDashoffset="-60" />
-                          <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#ec4899" strokeWidth="4.2" strokeDasharray="25, 100" strokeDashoffset="-75" />
+                          <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#6366f1" strokeWidth="4.2" strokeDasharray="35, 100" />
+                          <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#10b981" strokeWidth="4.2" strokeDasharray="45, 100" strokeDashoffset="-35" />
+                          <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#f59e0b" strokeWidth="4.2" strokeDasharray="20, 100" strokeDashoffset="-80" />
                         </svg>
                         <div className="absolute text-center">
-                          <span className="block text-xs font-black text-white">Stages -1..3</span>
+                          <span className="block text-xs font-black text-white">Stages -1..1</span>
                           <span className="text-[10px] text-gray-400 font-mono">17 Teams</span>
                         </div>
                       </div>
                       <div className="mt-4 space-y-1 text-left w-full pl-2 font-mono text-[11px]">
                         <div className="flex justify-between items-center text-indigo-400 font-bold">
-                          <span>● Stg -1 (Registration)</span>
-                          <span>4</span>
+                          <span>● Stage -1 (Registration)</span>
+                          <span>{stats.stageCounts?.['-1'] || 5}</span>
                         </div>
                         <div className="flex justify-between items-center text-emerald-400 font-bold">
-                          <span>● Stg 0 (Ideation)</span>
-                          <span>6</span>
+                          <span>● Stage 0 (Ideation)</span>
+                          <span>{stats.stageCounts?.['0'] || 8}</span>
                         </div>
                         <div className="flex justify-between items-center text-amber-400 font-bold">
-                          <span>● Stg 1 (Prototyping)</span>
-                          <span>2</span>
-                        </div>
-                        <div className="flex justify-between items-center text-pink-400 font-bold">
-                          <span>● Stg 2-3 (Sandbox/Market)</span>
-                          <span>5</span>
+                          <span>● Stage 1 (Prototyping)</span>
+                          <span>{stats.stageCounts?.['1'] || 4}</span>
                         </div>
                       </div>
                     </div>
@@ -1584,7 +1579,7 @@ export default function SuperAdminClient({ currentAdmin }: { currentAdmin: SaUse
               </div>
             </div>
 
-            {/* ROW 2: Active Projects & Milestone Trends (Full Width Space Utilization) */}
+            {/* ROW 2: Active Projects & Program Event Names Roster */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
               {/* Column 1: Active Student Projects */}
               <div className="lg:col-span-6 dash-card p-6 bg-slate-900/90 border border-slate-800 rounded-2xl flex flex-col justify-between">
@@ -1595,14 +1590,14 @@ export default function SuperAdminClient({ currentAdmin }: { currentAdmin: SaUse
                       <h4 className="text-xs font-extrabold text-white uppercase tracking-wider">Active Student Innovation Projects</h4>
                     </div>
                     <span className="text-xs font-mono font-bold text-emerald-400 bg-emerald-950/60 border border-emerald-800/60 px-2.5 py-0.5 rounded-full">
-                      Stage 0 to Stage 2
+                      Stages -1, 0, 1
                     </span>
                   </div>
                   <div className="space-y-3 font-mono text-xs">
                     {[
                       { name: 'AI Autonomous Drone System', stage: 'Stage 1 (Prototyping)', lead: 'Sannareddy Abhilash', status: 'Active' },
                       { name: 'LegalTech Document Auditor', stage: 'Stage 0 (Ideation)', lead: 'Kiran Sai', status: 'Active' },
-                      { name: 'EV Battery Management System', stage: 'Stage 2 (Sandbox)', lead: 'Vamsi', status: 'Active' },
+                      { name: 'EV Battery Management System', stage: 'Stage 1 (Prototyping)', lead: 'Vamsi', status: 'Active' },
                       { name: 'Biomedical Patient Monitor', stage: 'Stage -1 (Registration)', lead: 'Harisai', status: 'Review' }
                     ].map(p => (
                       <div key={p.name} className="p-3 rounded-xl bg-slate-950/80 border border-slate-800 flex items-center justify-between">
@@ -1622,36 +1617,37 @@ export default function SuperAdminClient({ currentAdmin }: { currentAdmin: SaUse
                 </div>
               </div>
 
-              {/* Column 2: Milestone Completion Trends (Bar Chart) */}
+              {/* Column 2: Scheduled Hub Program Event Names List */}
               <div className="lg:col-span-6 dash-card p-6 bg-slate-900/90 border border-slate-800 rounded-2xl flex flex-col justify-between">
                 <div>
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-2">
-                      <span className="w-7 h-7 rounded-full bg-blue-950 border border-blue-800 flex items-center justify-center text-xs">📊</span>
-                      <h4 className="text-xs font-extrabold text-white uppercase tracking-wider">Milestone Verification Trends</h4>
+                      <span className="w-7 h-7 rounded-full bg-purple-950 border border-purple-800 flex items-center justify-center text-xs">📅</span>
+                      <h4 className="text-xs font-extrabold text-white uppercase tracking-wider">Scheduled Hub Program Events</h4>
                     </div>
-                    <div className="flex gap-3 text-[11px] font-mono">
-                      <span className="text-sky-400 font-bold">■ Verified Milestones</span>
-                      <span className="text-amber-400 font-bold">■ Pending Reviews</span>
-                    </div>
+                    <span className="text-xs font-mono font-bold text-purple-400 bg-purple-950/60 border border-purple-800/60 px-2.5 py-0.5 rounded-full">
+                      Live Event Names
+                    </span>
                   </div>
 
-                  {/* Stacked Bar Chart Simulation */}
-                  <div className="h-52 w-full flex items-end justify-between gap-6 pt-6 pb-2 border-b border-slate-800 font-mono text-xs">
+                  <div className="space-y-3 font-mono text-xs">
                     {[
-                      { year: '2022', h1: 25, h2: 15, total: '40' },
-                      { year: '2023', h1: 45, h2: 25, total: '70' },
-                      { year: '2024', h1: 35, h2: 20, total: '55' },
-                      { year: '2025', h1: 65, h2: 30, total: '95' },
-                      { year: '2026', h1: 85, h2: 35, total: '120' }
-                    ].map(b => (
-                      <div key={b.year} className="flex flex-col items-center flex-1 h-full justify-end group cursor-pointer">
-                        <span className="text-[10px] text-blue-400 font-bold opacity-0 group-hover:opacity-100 transition-opacity mb-1">{b.total}</span>
-                        <div className="w-full max-w-[44px] flex flex-col rounded-t overflow-hidden transition-transform group-hover:scale-105">
-                          <div style={{ height: `${b.h2}px` }} className="bg-amber-500 w-full" />
-                          <div style={{ height: `${b.h1}px` }} className="bg-sky-500 w-full" />
+                      { title: 'National Startup Sandbox Pitch 2026', type: 'Business Hackathon', date: 'Aug 5th, 2026', status: 'Upcoming' },
+                      { title: 'Intellectual Property & Patent Filing Workshop', type: 'Legal IP Seminar', date: 'Aug 12th, 2026', status: 'Upcoming' },
+                      { title: 'AI Autonomous Systems Fabrication Demo Day', type: 'Technical Expo', date: 'Jul 18th, 2026', status: 'Completed' },
+                      { title: 'BioTech & Medical Hardware Incubation Briefing', type: 'Sandbox Briefing', date: 'Jun 28th, 2026', status: 'Completed' }
+                    ].map((ev, idx) => (
+                      <div key={idx} className="p-3 rounded-xl bg-slate-950/80 border border-slate-800 flex items-center justify-between">
+                        <div>
+                          <div className="font-bold text-slate-100 text-sm mb-1">{ev.title}</div>
+                          <div className="flex gap-4 text-[11px] text-gray-400">
+                            <span className="text-purple-400 font-semibold">{ev.type}</span>
+                            <span>{ev.date}</span>
+                          </div>
                         </div>
-                        <span className="text-gray-400 mt-2 font-bold">{b.year}</span>
+                        <span className={`text-[10px] px-2.5 py-1 rounded-md font-bold shrink-0 ${ev.status === 'Upcoming' ? 'bg-amber-950 text-amber-400 border border-amber-900/60' : 'bg-emerald-950 text-emerald-400 border border-emerald-900/60'}`}>
+                          {ev.status}
+                        </span>
                       </div>
                     ))}
                   </div>
