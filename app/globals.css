@@ -1346,3 +1346,45 @@ input:-webkit-autofill:active {
 .delay-3 { animation-delay: 0.15s; }
 .delay-4 { animation-delay: 0.2s;  }
 
+/* ═══════════════════════════════════════════════════════════════
+   EXECUTIVE PORTFOLIO REPORT - PRINT / PDF ENGINE
+═══════════════════════════════════════════════════════════════ */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  
+  /* Hide sidebars, topnavs, headers, and buttons during PDF print */
+  aside, nav, header, button, .dash-sidebar, .dash-topnav {
+    display: none !important;
+  }
+
+  main, section, #executive-portfolio-report {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+  }
+
+  .dash-card {
+    background: #f8fafc !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #0f172a !important;
+    box-shadow: none !important;
+  }
+
+  .text-white { color: #0f172a !important; }
+  .text-gray-400, .text-gray-300, .text-gray-500 { color: #475569 !important; }
+  .bg-slate-900\/90, .bg-slate-950\/60, .bg-slate-950\/70 { background: #f1f5f9 !important; }
+  .border-slate-800, .border-slate-800\/80 { border-color: #cbd5e1 !important; }
+
+  @page {
+    size: landscape;
+    margin: 1cm;
+  }
+}
+
