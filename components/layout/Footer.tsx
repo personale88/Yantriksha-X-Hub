@@ -85,7 +85,7 @@ export default function Footer() {
             <ul className="space-y-3 border-t border-slate-900/60 pt-4">
               {socials.map(({ label, href }) => (
                 <li key={label}>
-                  <a href={href} className="text-sm text-gray-500 hover:text-blue-400 transition-colors duration-200 flex items-center gap-1.5">
+                  <a href={href} target="_blank" rel="noopener noreferrer" className="text-sm text-gray-500 hover:text-blue-400 transition-colors duration-200 flex items-center gap-1.5">
                     <span className="w-1 h-1 rounded-full bg-blue-500/50" />
                     {label}
                   </a>
