@@ -179,9 +179,9 @@ export default function RegisterPage() {
       <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-amber-500/5 rounded-full blur-[140px] pointer-events-none" />
 
       {/* ═══════════════════════════════════════════════
-          LEFT BRAND PANEL (hidden on mobile)
+          LEFT BRAND PANEL (hidden on mobile, sticky fixed on desktop)
       ═══════════════════════════════════════════════ */}
-      <div className="hidden lg:flex flex-col justify-between w-[42%] bg-gradient-to-br from-slate-900 via-slate-950 to-blue-950/30 px-12 py-14 border-r border-slate-800/40 relative overflow-hidden">
+      <div className="hidden lg:flex flex-col justify-between w-[42%] h-screen sticky top-0 bg-gradient-to-br from-slate-900 via-slate-950 to-blue-950/30 px-12 py-14 border-r border-slate-800/40 relative overflow-hidden shrink-0">
 
         {/* Decorative circles */}
         <div className="absolute -top-20 -left-20 w-72 h-72 bg-blue-600/10 rounded-full blur-[80px]" />
@@ -239,9 +239,9 @@ export default function RegisterPage() {
       </div>
 
       {/* ═══════════════════════════════════════════════
-          RIGHT FORM PANEL
+          RIGHT FORM PANEL (Independently Scrollable)
       ═══════════════════════════════════════════════ */}
-      <div className="flex-1 flex items-start justify-center px-6 py-10 overflow-y-auto">
+      <div className="flex-1 flex items-start justify-center px-6 py-10 h-screen overflow-y-auto">
         <div className="w-full max-w-xl">
 
           {/* Mobile logo */}

@@ -10,8 +10,8 @@ const links = [
 ];
 
 const socials = [
-  { label: "LinkedIn", href: "https://linkedin.com/company/yantriksha-x-hub" },
-  { label: "Instagram", href: "https://instagram.com/yantriksha_x_hub" },
+  { label: "LinkedIn", href: "https://www.linkedin.com/company/yantrikshaxhub/" },
+  { label: "Instagram", href: "https://www.instagram.com/yantrikshaxhub?igsh=ZTJjZmU5ZXBpZDkw" },
   { label: "Twitter / X", href: "https://x.com/yantriksha_x" },
 ];
 

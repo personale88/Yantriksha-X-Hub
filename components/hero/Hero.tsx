@@ -13,11 +13,11 @@ export default function Hero() {
       <div className="absolute bottom-1/4 right-0 w-[400px] h-[400px] bg-amber-500/8 rounded-full blur-[160px] pointer-events-none" />
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-indigo-900/10 rounded-full blur-[200px] pointer-events-none" />
 
-      <div className="max-w-7xl mx-auto px-6 py-14 z-10 w-full flex flex-col justify-center min-h-[calc(100vh-80px)]">
-        <div className="grid lg:grid-cols-2 gap-20 items-center">
+      <div className="w-full max-w-[96vw] mx-auto px-12 py-10 z-10">
+        <div className="grid lg:grid-cols-2 gap-8 items-center justify-between">
 
           {/* Left Content */}
-          <div>
+          <div className="max-w-2xl">
             <span className="section-pill">
               ✦ Innovation & Cross-Disciplinary Collaboration Hub
             </span>
@@ -30,11 +30,11 @@ export default function Hero() {
               <br />Stop You!
             </h1>
 
-            <h2 className="text-xl sm:text-2xl font-semibold mt-5 text-gray-400 tracking-wide">
+            <h2 className="text-xl sm:text-2xl font-semibold mt-4 text-gray-400 tracking-wide">
               Turn Your Ideas Into Reality
             </h2>
 
-            <p className="mt-7 fluid-p text-gray-300 max-w-xl font-light">
+            <p className="mt-5 fluid-p text-gray-300 font-light">
               Yantriksha_X_Hub is a Student-Driven Innovation and
               Cross-Disciplinary Collaboration Hub designed to help students
               turn ideas into real-world products and startups. We bring

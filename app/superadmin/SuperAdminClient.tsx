@@ -672,7 +672,7 @@ export default function SuperAdminClient({ currentAdmin }: { currentAdmin: SaUse
       {activeMenu === 'dashboard' && stats && (
         <div className="space-y-6 animate-fade-up">
           {/* Unified High-Density SaaS Command Metrics Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 2xl:grid-cols-4 gap-4">
             <div className="dash-stat-card bg-slate-900/90 border border-slate-800 rounded-xl p-4 flex flex-col justify-between">
               <div className="flex items-center justify-between">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Student Roster Strength</span>

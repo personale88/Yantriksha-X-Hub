@@ -22,8 +22,6 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  minimumScale: 0.3,
-  maximumScale: 5,
 };
 
 export default function RootLayout({
@@ -37,9 +35,6 @@ export default function RootLayout({
       className={`${spaceGrotesk.variable} ${plusJakarta.variable} h-full antialiased`}
       suppressHydrationWarning
     >
-      <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=0.3, maximum-scale=5" />
-      </head>
       <body className="min-h-full flex flex-col font-sans" suppressHydrationWarning>
         <SplashPreloader />
         <div className="w-full flex-1 flex flex-col overflow-x-hidden relative">
